@@ -18,6 +18,8 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 }, ServiceLifetime.Transient);
 
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

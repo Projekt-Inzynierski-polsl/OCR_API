@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "pKB/S49mA65d+yW2phnZj7LXZeXpUbyPb0FnIsLCasQ=",
+  "Source": "OCR_API",
+  "BasePath": "_content/OCR_API",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "OCR_API\\wwwroot",
+      "Source": "OCR_API",
+      "ContentRoot": "C:\\Users\\Jakub\\Desktop\\docker\\Projekt_Inżynierski_OCR\\OCR_API\\OCR_API\\wwwroot\\",
+      "BasePath": "_content/OCR_API",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}

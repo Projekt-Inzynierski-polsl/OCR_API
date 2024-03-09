@@ -57,6 +57,10 @@
               "target": "Package",
               "version": "[8.0.2, )"
             },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
             "NLog.Web.AspNetCore": {
               "target": "Package",
               "version": "[5.3.8, )"

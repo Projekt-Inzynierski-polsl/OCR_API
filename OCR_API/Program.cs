@@ -8,6 +8,7 @@ using OCR_API.Entities;
 using OCR_API.Middleware;
 using OCR_API.Repositories;
 using OCR_API.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +19,15 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<SystemDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    options.UseSqlServer(connectionString);
 }, ServiceLifetime.Transient);
+
+builder.Services.AddDbContext<SystemDbContext>(options =>
+{
+
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();

@@ -3,7 +3,7 @@ using OCR_API.Services;
 
 namespace OCR_API.Controllers
 {
-    [Route("api/algorithm")]
+    [Route("api/user")]
     [ApiController]
 
     public class UserController : ControllerBase

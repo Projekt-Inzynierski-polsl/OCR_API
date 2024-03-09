@@ -18,13 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Entities\" />
     <Folder Include="Exceptions\" />
     <Folder Include="MappingProfiles\" />
     <Folder Include="ModelsDto\Validators\" />
     <Folder Include="wwwroot\" />
-    <Folder Include="Services\" />
     <Folder Include="Seeders\" />
   </ItemGroup>
 

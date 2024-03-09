@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 using OCR_API;
 using OCR_API.DbContexts;
+using OCR_API.Entities;
 using OCR_API.Middleware;
+using OCR_API.Repositories;
+using OCR_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,9 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
 }, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 

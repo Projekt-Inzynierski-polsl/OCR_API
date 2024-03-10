@@ -18,7 +18,7 @@ namespace OCR_API.Controllers
         [HttpGet]
         public ActionResult GetAll()
         {
-            return Ok(null);
+            return Ok();
         }
     }
 }

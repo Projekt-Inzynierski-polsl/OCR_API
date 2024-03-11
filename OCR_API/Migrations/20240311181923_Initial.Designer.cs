@@ -11,7 +11,7 @@ using OCR_API.DbContexts;
 namespace OCR_API.Migrations
 {
     [DbContext(typeof(SystemDbContext))]
-    [Migration("20240310174135_Initial")]
+    [Migration("20240311181923_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -26,16 +26,16 @@ namespace OCR_API.Migrations
 
             modelBuilder.Entity("OCR_API.Entities.Role", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
@@ -45,34 +45,31 @@ namespace OCR_API.Migrations
 
             modelBuilder.Entity("OCR_API.Entities.User", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
 
                     b.Property<string>("Nick")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("nick");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("password_hash");
 
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint")
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int")
                         .HasColumnName("role_id");
-
-                    b.Property<int>("Test")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

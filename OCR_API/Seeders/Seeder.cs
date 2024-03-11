@@ -35,7 +35,7 @@ namespace OCR_API.Seeders
 
         private IEnumerable<Role> GetRoles()
         {
-            List<Role> roles = [new Role() { Id = 1, Name = "Admin" }, new Role() { Id = 2, Name = "User" }];
+            List<Role> roles = [new Role() { Name = "Admin" }, new Role() { Name = "User" }];
             return roles;
         }
     }

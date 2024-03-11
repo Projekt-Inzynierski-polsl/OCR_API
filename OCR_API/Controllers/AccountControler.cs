@@ -21,5 +21,12 @@ namespace OCR_API.Controllers
             accountService.RegisterUser(registerUserDto);
             return Ok();
         }
+
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] LoginUserDto loginUserDto)
+        {
+            string token = accountService.GenerateJwt(loginUserDto);
+            return Ok(token);
+        }
     }
 }

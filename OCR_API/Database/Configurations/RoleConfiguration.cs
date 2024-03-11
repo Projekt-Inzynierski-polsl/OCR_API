@@ -11,7 +11,7 @@ namespace OCR_API.Database.Configurations
             builder.ToTable("roles");
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
-            builder.Property(e => e.Name).HasColumnType("text").HasColumnName("name").IsRequired();
+            builder.Property(e => e.Name).HasColumnName("name").IsRequired();
             builder.HasMany(r => r.Users)
                 .WithOne(u => u.Role) 
                 .HasForeignKey(user => user.RoleId)

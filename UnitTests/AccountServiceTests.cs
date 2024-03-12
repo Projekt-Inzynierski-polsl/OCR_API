@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Newtonsoft.Json.Bson;
 using OCR_API;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
@@ -88,6 +89,46 @@ namespace UnitTests
             RegisterUserDto dto = new RegisterUserDto() { Email = "test", Nick = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             var validationResult = validator.Validate(dto);
             Assert.AreEqual(false, validationResult.IsValid);
+        }
+
+        [TestMethod]
+        public void TestVerifyingUserLogPassesWithCorrectLogPasses()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterUser(registerDto);
+            string email = "testUser@dto.pl";
+            string password = "TestPasswrod";
+            bool result = service.VerifyUserLogPasses(email, password);
+            Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public void TestVerifyingUserLogPassesWithWrongEmail()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterUser(registerDto);
+            string email = "test@dto.pl";
+            string password = "TestPassword";
+            bool result = service.VerifyUserLogPasses(email, password);
+            Assert.AreEqual(true, result);
+        }
+        [TestMethod]
+        public void TestVerifyingUserLogPassesWithWrongPassword()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterUser(registerDto);
+            string email = "testUser@dto.pl";
+            string password = "Test";
+            bool result = service.VerifyUserLogPasses(email, password);
+            Assert.AreEqual(false, result);
+        }
+
+        [TestMethod]
+        public void TryLoginIntoRegisterUser()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterUser(registerDto);
+            LoginUserDto loginDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPasswrod" };
         }
     }
 }

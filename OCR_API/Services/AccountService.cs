@@ -45,18 +45,32 @@ namespace OCR_API.Services
 
         public string GenerateJwt(LoginUserDto loginUserDto)
         {
-            var user = userRepository.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
-
-            if(user is null)
+            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password))
             {
-                throw new BadRequestException("Invalid username or password.");
+                var user = userRepository.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
+                var token = CreateJwtToken(user);
+                return token;
             }
-            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginUserDto.Password);
-            if(result == PasswordVerificationResult.Failed)
+            else
             {
-                throw new BadRequestException("Invalid username or password.");
+                throw new BadRequestException("Invalid email or password.");
             }
+        }
 
+        public bool VerifyUserLogPasses(string email, string password)
+        {
+            var user = userRepository.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == email);
+
+            if (user is null)
+            {
+                return false;
+            }
+            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+            return result == PasswordVerificationResult.Success;
+        }
+
+        public string CreateJwtToken(User user)
+        {
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

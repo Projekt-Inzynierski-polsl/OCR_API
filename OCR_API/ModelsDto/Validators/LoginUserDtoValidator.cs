@@ -16,6 +16,5 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty();
 
         }
-    {
     }
 }

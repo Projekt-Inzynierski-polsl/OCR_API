@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fK6/97ovGarsO9KQNbm9uT6bQ1rYyaKGk+4LCDsEYFAEkTWGDAMupszD2eKzJ77w/o2gJx5tHBVLcEZQDlI6Tg==",
+  "dgSpecHash": "1H1H7EynBpN7Jl+8FmPR2iLcbQJ/5j12jwJb50TYBvt/C6FP0C3stxn4SZiTtteQlceyAAdA1xChxkLtCtEUMg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jakub\\OneDrive\\Desktop\\C#\\Projekt_inzynierski\\OCR_API\\UnitTests\\UnitTests.csproj",
+  "projectFilePath": "C:\\Users\\Jakub\\Desktop\\docker\\Projekt_Inżynierski_OCR\\OCR_API\\UnitTests\\UnitTests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Jakub\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\Jakub\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",

@@ -174,3 +174,4 @@ C:\Users\Jakub\Desktop\docker\Projekt_Inżynierski_OCR\OCR_API\UnitTests\obj\Deb
 C:\Users\Jakub\Desktop\docker\Projekt_Inżynierski_OCR\OCR_API\UnitTests\obj\Debug\net8.0\ref\UnitTests.dll
 C:\Users\Jakub\Desktop\docker\Projekt_Inżynierski_OCR\OCR_API\UnitTests\bin\Debug\net8.0\Castle.Core.dll
 C:\Users\Jakub\Desktop\docker\Projekt_Inżynierski_OCR\OCR_API\UnitTests\bin\Debug\net8.0\Moq.dll
+C:\Users\Jakub\Desktop\docker\Projekt_Inżynierski_OCR\OCR_API\UnitTests\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

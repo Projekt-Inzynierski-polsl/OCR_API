@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using OCR_API;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.MappingProfiles;
@@ -37,8 +38,13 @@ namespace UnitTests
 
             repository = new Repository<User>(dbContext);
             passwordHasher = new PasswordHasher<User>();
-
-            service = new AccountService(repository, passwordHasher, mapper);
+            var authenticationSettings = new AuthenticationSettings
+            {
+                JwtKey = "TESTKEY_TESTKEY_TESTKEY_TESTKEY_TESTKEY",
+                JwtIssuer = "ocr-system-api.azurewebsites.net",
+                JwtExpireDays = 2
+            };
+            service = new AccountService(repository, passwordHasher, mapper, authenticationSettings);
             validator = new RegisterUserDtoValidator(repository);
         }
 

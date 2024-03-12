@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -17,43 +18,24 @@ namespace UnitTests
     [TestClass]
     public class AccountServiceTests
     {
-        private readonly DbContextOptions<SystemDbContext> _options;
-        private readonly IMapper mapper;
-        private readonly SystemDbContext dbContext;
-        private readonly Repository<User> repository;
-        private readonly PasswordHasher<User> passwordHasher;
-        private readonly AccountService service;
-        private readonly RegisterUserDtoValidator validator;
-      public AccountServiceTests()
+
+        private readonly IRepository<User> repository;
+        private readonly IPasswordHasher<User> passwordHasher;
+        private readonly IAccountService service;
+        private readonly IValidator<RegisterUserDto> registerValidator;
+        public AccountServiceTests()
         {
-            _options = new DbContextOptionsBuilder<SystemDbContext>()
-                .UseInMemoryDatabase(databaseName: "userServiceTestDatabase")
-                .Options;
-
-            dbContext = new SystemDbContext(_options);
-            var configurationProvider = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<UserMappingProfile>();
-            });
-            mapper = new Mapper(configurationProvider);
-
-            repository = new Repository<User>(dbContext);
-            passwordHasher = new PasswordHasher<User>();
-            var authenticationSettings = new AuthenticationSettings
-            {
-                JwtKey = "TESTKEY_TESTKEY_TESTKEY_TESTKEY_TESTKEY",
-                JwtIssuer = "ocr-system-api.azurewebsites.net",
-                JwtExpireDays = 2
-            };
-            service = new AccountService(repository, passwordHasher, mapper, authenticationSettings);
-            validator = new RegisterUserDtoValidator(repository);
+            service = Helper.GetRequiredService<IAccountService>();
+            repository = Helper.GetRequiredService<IRepository<User>>();
+            passwordHasher = Helper.GetRequiredService<IPasswordHasher<User>>();
+            registerValidator = Helper.GetRequiredService<IValidator<RegisterUserDto>>();
         }
 
         [TestMethod]
         public void TryRegisterUserWithValidatedData()
         {
                 RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-                var validationResult = validator.Validate(dto);
+                var validationResult = registerValidator.Validate(dto);
                 Assert.AreEqual(true, validationResult.IsValid);
 
                 service.RegisterUser(dto);
@@ -69,7 +51,7 @@ namespace UnitTests
         public void TryRegisterUserWithWrongPassword()
         {
             RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
-            var validationResult = validator.Validate(dto);
+            var validationResult = registerValidator.Validate(dto);
             Assert.AreEqual(false, validationResult.IsValid);
         }
 
@@ -79,7 +61,7 @@ namespace UnitTests
             RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             service.RegisterUser(dto);
             RegisterUserDto takenEmailDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
-            var validationResult = validator.Validate(takenEmailDto);
+            var validationResult = registerValidator.Validate(takenEmailDto);
             Assert.AreEqual(false, validationResult.IsValid);
         }
 
@@ -87,7 +69,7 @@ namespace UnitTests
         public void TryRegisterUserWithInvalidEmail()
         {
             RegisterUserDto dto = new RegisterUserDto() { Email = "test", Nick = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
-            var validationResult = validator.Validate(dto);
+            var validationResult = registerValidator.Validate(dto);
             Assert.AreEqual(false, validationResult.IsValid);
         }
 
@@ -97,7 +79,7 @@ namespace UnitTests
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             service.RegisterUser(registerDto);
             string email = "testUser@dto.pl";
-            string password = "TestPasswrod";
+            string password = "TestPassword";
             bool result = service.VerifyUserLogPasses(email, password);
             Assert.AreEqual(true, result);
         }
@@ -110,7 +92,7 @@ namespace UnitTests
             string email = "test@dto.pl";
             string password = "TestPassword";
             bool result = service.VerifyUserLogPasses(email, password);
-            Assert.AreEqual(true, result);
+            Assert.AreEqual(false, result);
         }
         [TestMethod]
         public void TestVerifyingUserLogPassesWithWrongPassword()
@@ -123,12 +105,13 @@ namespace UnitTests
             Assert.AreEqual(false, result);
         }
 
-        [TestMethod]
-        public void TryLoginIntoRegisterUser()
-        {
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            service.RegisterUser(registerDto);
-            LoginUserDto loginDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPasswrod" };
-        }
+        //[TestMethod]
+        //public void TryLoginIntoRegisterUser()
+        //{
+        //    RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+        //    service.RegisterUser(registerDto);
+        //    LoginUserDto loginDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPasswrod" };
+            
+        //}
     }
 }

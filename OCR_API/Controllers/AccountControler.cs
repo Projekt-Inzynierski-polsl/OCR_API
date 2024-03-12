@@ -25,7 +25,7 @@ namespace OCR_API.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginUserDto loginUserDto)
         {
-            string token = accountService.GenerateJwt(loginUserDto);
+            string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             return Ok(token);
         }
     }

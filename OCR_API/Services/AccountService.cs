@@ -16,7 +16,9 @@ namespace OCR_API.Services
     public interface IAccountService
     {
         void RegisterUser(RegisterUserDto registerUserDto);
-        string GenerateJwt(LoginUserDto loginUserDto);
+        string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
+        bool VerifyUserLogPasses(string email, string password);
+        string CreateJwtToken(User user);
     }
     public class AccountService : IAccountService
     {
@@ -43,7 +45,7 @@ namespace OCR_API.Services
 
         }
 
-        public string GenerateJwt(LoginUserDto loginUserDto)
+        public string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto)
         {
             if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password))
             {
@@ -59,7 +61,7 @@ namespace OCR_API.Services
 
         public bool VerifyUserLogPasses(string email, string password)
         {
-            var user = userRepository.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == email);
+            var user = userRepository.Entity.FirstOrDefault(u => u.Email == email);
 
             if (user is null)
             {

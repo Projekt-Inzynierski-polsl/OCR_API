@@ -15,6 +15,7 @@ namespace OCR_API.Services
 {
     public interface IAccountService
     {
+        IUnitOfWork UnitOfWork { get; }
         void RegisterUser(RegisterUserDto registerUserDto);
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
         bool VerifyUserLogPasses(string email, string password);
@@ -22,14 +23,14 @@ namespace OCR_API.Services
     }
     public class AccountService : IAccountService
     {
-        private readonly IRepository<User> userRepository;
+        public IUnitOfWork UnitOfWork { get; }
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IMapper mapper;
         private readonly AuthenticationSettings authenticationSettings;
 
-        public AccountService(IRepository<User> userRepository, IPasswordHasher<User> passwordHasher, IMapper mapper, AuthenticationSettings authenticationSettings)
+        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, AuthenticationSettings authenticationSettings)
         {
-            this.userRepository = userRepository;
+            UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.authenticationSettings = authenticationSettings;
@@ -40,8 +41,9 @@ namespace OCR_API.Services
             var newUser = mapper.Map<User>(registerUserDto);
             var hashedPassword = passwordHasher.HashPassword(newUser, registerUserDto.Password);
             newUser.PasswordHash = hashedPassword;
-            AddUserTransaction addUserTransaction = new(userRepository, newUser);
+            AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
             addUserTransaction.Execute();
+            UnitOfWork.Commit();
 
         }
 
@@ -49,7 +51,7 @@ namespace OCR_API.Services
         {
             if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password))
             {
-                var user = userRepository.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
+                var user = UnitOfWork.Users.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
                 var token = CreateJwtToken(user);
                 return token;
             }
@@ -61,7 +63,7 @@ namespace OCR_API.Services
 
         public bool VerifyUserLogPasses(string email, string password)
         {
-            var user = userRepository.Entity.FirstOrDefault(u => u.Email == email);
+            var user = UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == email);
 
             if (user is null)
             {

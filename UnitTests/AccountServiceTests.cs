@@ -18,17 +18,15 @@ namespace UnitTests
     [TestClass]
     public class AccountServiceTests
     {
-
-        private readonly IRepository<User> repository;
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IAccountService service;
         private readonly IValidator<RegisterUserDto> registerValidator;
         public AccountServiceTests()
         {
             service = Helper.GetRequiredService<IAccountService>();
-            repository = Helper.GetRequiredService<IRepository<User>>();
             passwordHasher = Helper.GetRequiredService<IPasswordHasher<User>>();
             registerValidator = Helper.GetRequiredService<IValidator<RegisterUserDto>>();
+            
         }
 
         [TestMethod]
@@ -37,9 +35,8 @@ namespace UnitTests
                 RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
                 var validationResult = registerValidator.Validate(dto);
                 Assert.AreEqual(true, validationResult.IsValid);
-
                 service.RegisterUser(dto);
-                var userInDatabase = repository.GetById(1);
+                var userInDatabase = service.UnitOfWork.Users.GetById(1);
                 Assert.IsTrue(userInDatabase is not null);
                 Assert.AreEqual("testUser@dto.pl", userInDatabase.Email);
                 Assert.AreEqual("TestUser", userInDatabase.Nick);

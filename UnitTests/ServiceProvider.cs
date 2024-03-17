@@ -36,7 +36,9 @@ namespace UnitTests
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IRepository<User>, Repository<User>>();
+            services.AddScoped<IRepository<Role>, Repository<Role>>();
             var authenticationSettings = Configuration.GetSection("Authentication").Get<AuthenticationSettings>();
             services.AddSingleton(authenticationSettings);
 

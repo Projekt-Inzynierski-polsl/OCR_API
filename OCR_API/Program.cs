@@ -50,17 +50,13 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
     }, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<Seeder>();
-builder.Services.AddDbContext<SystemDbContext>(options =>
-    {
-
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        options.UseSqlServer(connectionString);
-    });
 
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

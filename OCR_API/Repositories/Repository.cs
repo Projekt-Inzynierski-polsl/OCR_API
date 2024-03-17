@@ -17,7 +17,6 @@ namespace OCR_API.Repositories
         public void Add(TEntity entity)
         {
             Entity.Add(entity);
-            dbContext.SaveChanges();
         }
 
         public void Remove(int id)
@@ -26,7 +25,6 @@ namespace OCR_API.Repositories
             if (entity != null)
             {
                 dbContext.Remove(entity);
-                dbContext.SaveChanges();
             }
 
         }

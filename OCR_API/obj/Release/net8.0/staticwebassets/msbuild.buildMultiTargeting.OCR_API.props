@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\OCR_API.props" />
-</Project>

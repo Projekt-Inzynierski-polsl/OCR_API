@@ -50,11 +50,13 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
     }, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<Seeder>();
-
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
+builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserDtoValidator>();
+
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
 
@@ -86,18 +88,18 @@ userSeeder.Seed();
 
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseAuthentication();
+app.UseHttpsRedirection();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication();
 
-app.UseHttpsRedirection();
-
+app.UseRouting();
 app.UseAuthorization();
-
-app.MapControllers();
+app.UseEndpoints(endpoints => endpoints.MapControllers());
 
 app.Run();

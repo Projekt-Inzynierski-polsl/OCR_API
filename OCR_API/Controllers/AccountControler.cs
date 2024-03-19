@@ -28,5 +28,12 @@ namespace OCR_API.Controllers
             string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             return Ok(token);
         }
+
+        [HttpPost("{userId}")]
+        public ActionResult UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto) 
+        {
+            accountService.UpdateUser(userId, updateUserDto);
+            return Ok();
+        }
     }
 }

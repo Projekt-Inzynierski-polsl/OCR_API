@@ -4,11 +4,10 @@ using OCR_API.Repositories;
 
 namespace OCR_API.ModelsDto.Validators
 {
-    public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
+    public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {
         private readonly IUnitOfWork unitOfWork;
-
-        public RegisterUserDtoValidator(IUnitOfWork unitOfWork)
+        public UpdateUserDtoValidator(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
 
@@ -18,7 +17,7 @@ namespace OCR_API.ModelsDto.Validators
                 .Custom((value, context) =>
                 {
                     bool emailInUse = unitOfWork.Users.Entity.Any(u => u.Email.ToString() == value);
-                    if(emailInUse)
+                    if (emailInUse)
                     {
                         context.AddFailure("Email", "That email is taken.");
                     }
@@ -38,8 +37,15 @@ namespace OCR_API.ModelsDto.Validators
             RuleFor(x => x.Password)
                 .MinimumLength(6);
 
-            RuleFor(x => x.ConfirmedPassword)
-                .Equal(e =>  e.Password);
+            RuleFor(x => x.RoleId)
+                .Custom((value, context) =>
+                {
+                    bool isCorrectRole = value > 0 && value <= unitOfWork.Roles.Entity.Count();
+                    if (!isCorrectRole)
+                    {
+                        context.AddFailure("RoleId", "That role doesn't exist.");
+                    }
+                });
         }
     }
 }

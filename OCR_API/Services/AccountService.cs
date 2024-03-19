@@ -20,6 +20,7 @@ namespace OCR_API.Services
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
         bool VerifyUserLogPasses(string email, string password);
         string CreateJwtToken(User user);
+        void UpdateUser(int userId, UpdateUserDto updateUserDto);
     }
     public class AccountService : IAccountService
     {
@@ -78,7 +79,7 @@ namespace OCR_API.Services
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nick),
+                new Claim(ClaimTypes.Name, user.Nickname),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
@@ -92,5 +93,14 @@ namespace OCR_API.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public void UpdateUser(int userId, UpdateUserDto updateUserDto)
+        {
+            var updatedUser = mapper.Map<User>(updateUserDto);
+            var hashedPassword = passwordHasher.HashPassword(updatedUser, updateUserDto.Password);
+            updatedUser.PasswordHash = hashedPassword;
+            UpdateUserTransaction updateUserTransaction = new(UnitOfWork.Users, userId, updatedUser);
+            updateUserTransaction.Execute();
+            UnitOfWork.Commit();
+        }
     }
 }

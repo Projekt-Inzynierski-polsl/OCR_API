@@ -14,7 +14,7 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.Email).HasColumnName("email").IsRequired();
-            builder.Property(e => e.Nick).HasColumnName("nick").IsRequired();
+            builder.Property(e => e.Nickname).HasColumnName("nick").IsRequired();
             builder.Property(e => e.PasswordHash).HasColumnName("password_hash").IsRequired();
             builder.Property(e => e.RoleId).HasColumnName("role_id");
 

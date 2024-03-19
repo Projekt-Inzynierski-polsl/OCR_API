@@ -35,10 +35,11 @@ namespace UnitTests
 
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-            services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IRepository<User>, Repository<User>>();
-            services.AddScoped<IRepository<Role>, Repository<Role>>();
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddSingleton<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
+            services.AddSingleton<IRepository<User>, Repository<User>>();
+            services.AddSingleton<IRepository<Role>, Repository<Role>>();
             var authenticationSettings = Configuration.GetSection("Authentication").Get<AuthenticationSettings>();
             services.AddSingleton(authenticationSettings);
 

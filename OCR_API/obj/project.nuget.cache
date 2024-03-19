@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "+LnvEaYox4cmdgvoW3QqcrVwneVe9yhttVCs8pY+NBL8tHhaVrcZFeuvBaFreYNif/HSld2OekODFROJ73IV7Q==",
+  "dgSpecHash": "ljoxckEBQoNOl+MTqen/b37IHgosGAjmyfcqQqqrIagb0n8PgtV7+7lwVfiO8X0ILj7BkWLqPnNR44oXi9zS7g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jakub\\Desktop\\docker\\Projekt_Inżynierski_OCR\\OCR_API\\OCR_API\\OCR_API.csproj",
+  "projectFilePath": "C:\\Users\\Jakub\\OneDrive\\Desktop\\C#\\Projekt_inzynierski\\OCR_API\\OCR_API\\OCR_API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Jakub\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\Jakub\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",

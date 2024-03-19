@@ -10,6 +10,7 @@ namespace OCR_API.MappingProfiles
         public UserMappingProfile() 
         {
             CreateMap<RegisterUserDto, User>();
+            CreateMap<UpdateUserDto, User>();
         }
     }
 }

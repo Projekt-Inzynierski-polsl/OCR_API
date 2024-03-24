@@ -42,12 +42,12 @@ builder.Services.AddAuthentication(option =>
 
 builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddFluentValidationAutoValidation(); 
-builder.Services.AddFluentValidationClientsideAdapters(); 
+builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<SystemDbContext>(options =>
-    {
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        options.UseSqlServer(connectionString);
-    }, ServiceLifetime.Transient);
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+}, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<Seeder>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();

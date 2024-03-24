@@ -11,7 +11,7 @@ using OCR_API.DbContexts;
 namespace OCR_API.Migrations
 {
     [DbContext(typeof(SystemDbContext))]
-    [Migration("20240311181923_Initial")]
+    [Migration("20240324222733_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,9 +20,9 @@ namespace OCR_API.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.2")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("OCR_API.Entities.Role", b =>
                 {
@@ -31,11 +31,11 @@ namespace OCR_API.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("longtext")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
@@ -50,21 +50,21 @@ namespace OCR_API.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("longtext")
                         .HasColumnName("email");
 
-                    b.Property<string>("Nick")
+                    b.Property<string>("Nickname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("longtext")
                         .HasColumnName("nick");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("longtext")
                         .HasColumnName("password_hash");
 
                     b.Property<int>("RoleId")

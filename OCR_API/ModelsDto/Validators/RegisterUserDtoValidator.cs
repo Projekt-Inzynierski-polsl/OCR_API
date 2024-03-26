@@ -17,7 +17,7 @@ namespace OCR_API.ModelsDto.Validators
                 .EmailAddress()
                 .Custom((value, context) =>
                 {
-                    bool emailInUse = unitOfWork.Users.Entity.Any(u => u.Email.ToString() == value);
+                    bool emailInUse = unitOfWork.Users.Entity.Any(u => u.Email == value);
                     if(emailInUse)
                     {
                         context.AddFailure("Email", "That email is taken.");
@@ -28,7 +28,7 @@ namespace OCR_API.ModelsDto.Validators
                 .MinimumLength(3)
                 .Custom((value, context) =>
                 {
-                    bool nicknameInUse = unitOfWork.Users.Entity.Any(u => u.Nickname.ToString() == value);
+                    bool nicknameInUse = unitOfWork.Users.Entity.Any(u => u.Nickname == value);
                     if (nicknameInUse)
                     {
                         context.AddFailure("Nickname", "That nickname is taken.");

@@ -9,6 +9,8 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.HasKey(e => e.Id).HasName("PRIMARY");
+
             builder.ToTable("users");
             builder.HasIndex(e => e.RoleId, "user_ibfk_1");
 
@@ -19,9 +21,35 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.RoleId).HasColumnName("role_id");
 
             builder.HasOne(d => d.Role)
-            .WithMany(r => r.Users)
-            .HasForeignKey(d => d.RoleId)
-            .HasConstraintName("user_ibfk_1");
+                .WithMany(r => r.Users)
+                .HasForeignKey(d => d.RoleId)
+                .HasConstraintName("user_ibfk_1");
+
+            builder.HasMany(d => d.Folders)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("folder_ibfk_1");
+
+            builder.HasMany(d => d.Notes)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("notes_ibfk_1");
+
+            builder.HasMany(d => d.UploadedModels)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("uploaded_models_ibfk_1");
+
+
+            builder.HasMany(d => d.Logs)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_logs_ibfk_1");
+
+            builder.HasMany(d => d.NoteCategories)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("note_category_list_ibfk_1");
         }
     }
 }

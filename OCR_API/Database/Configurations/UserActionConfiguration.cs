@@ -4,20 +4,21 @@ using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
 {
-    public class RoleConfiguration : IEntityTypeConfiguration<Role>
+    public class UserActionConfiguration : IEntityTypeConfiguration<UserAction>
     {
-        public void Configure(EntityTypeBuilder<Role> builder)
+        public void Configure(EntityTypeBuilder<UserAction> builder)
         {
             builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-            builder.ToTable("roles");
+            builder.ToTable("user_actions");
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.Name).HasColumnName("name").IsRequired();
-            builder.HasMany(r => r.Users)
-                .WithOne(u => u.Role) 
-                .HasForeignKey(user => user.RoleId)
-                .HasConstraintName("user_ibfk_1");
+
+            builder.HasMany(r => r.Logs)
+                .WithOne(u => u.Action)
+                .HasForeignKey(user => user.ActionId)
+                .HasConstraintName("user_actions_ibfk_1");
 
         }
     }

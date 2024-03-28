@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Newtonsoft.Json.Bson;
 using OCR_API;
@@ -11,6 +12,7 @@ using OCR_API.MappingProfiles;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.Validators;
 using OCR_API.Repositories;
+using OCR_API.Seeders;
 using OCR_API.Services;
 
 namespace UnitTests
@@ -22,13 +24,22 @@ namespace UnitTests
         private readonly IAccountService service;
         private readonly IValidator<RegisterUserDto> registerValidator;
         private readonly IValidator<UpdateUserDto> updateValidator;
+        private readonly IMapper mapper;
+        private IUnitOfWork unitOfWork;
+        private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
 
         public AccountServiceTests()
         {
-            service = Helper.GetRequiredService<IAccountService>();
-            passwordHasher = Helper.GetRequiredService<IPasswordHasher<User>>();
-            registerValidator = Helper.GetRequiredService<IValidator<RegisterUserDto>>();
-            updateValidator = Helper.GetRequiredService<IValidator<UpdateUserDto>>();
+            unitOfWork = Helper.CreateUnitOfWork();
+            passwordHasher = new PasswordHasher<User>();
+            registerValidator = new RegisterUserDtoValidator(unitOfWork);
+            mapper = Helper.GetRequiredService<IMapper>();
+            var authenticationSettings = new AuthenticationSettings();
+            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+            service = new AccountService(unitOfWork, passwordHasher, mapper, authenticationSettings);
             
         }
 

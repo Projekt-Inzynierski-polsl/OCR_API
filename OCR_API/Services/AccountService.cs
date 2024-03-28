@@ -16,11 +16,10 @@ namespace OCR_API.Services
     public interface IAccountService
     {
         IUnitOfWork UnitOfWork { get; }
-        string RegisterUser(RegisterUserDto registerUserDto);
+        string RegisterAccount(RegisterUserDto registerUserDto);
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
         bool VerifyUserLogPasses(string email, string password);
         string CreateJwtToken(User user);
-        void UpdateUser(int userId, UpdateUserDto updateUserDto);
         string GetJwtTokenIfValid(int userId, string jwtToken);
         bool IsTokenValid(string jwtToken);
         JwtSecurityToken ReadJwtToken(string jwtToken);
@@ -42,9 +41,11 @@ namespace OCR_API.Services
             this.authenticationSettings = authenticationSettings;
         }
 
-        public string RegisterUser(RegisterUserDto registerUserDto)
+        public string RegisterAccount(RegisterUserDto registerUserDto)
         {
             var newUser = mapper.Map<User>(registerUserDto);
+            var role = UnitOfWork.Roles.GetById(newUser.RoleId);
+            newUser.Role = role; 
             var hashedPassword = passwordHasher.HashPassword(newUser, registerUserDto.Password);
             newUser.PasswordHash = hashedPassword;
             AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
@@ -98,16 +99,6 @@ namespace OCR_API.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
-        }
-
-        public void UpdateUser(int userId, UpdateUserDto updateUserDto)
-        {
-            var updatedUser = mapper.Map<User>(updateUserDto);
-            var hashedPassword = passwordHasher.HashPassword(updatedUser, updateUserDto.Password);
-            updatedUser.PasswordHash = hashedPassword;
-            UpdateUserTransaction updateUserTransaction = new(UnitOfWork.Users, userId, updatedUser);
-            updateUserTransaction.Execute();
-            UnitOfWork.Commit();
         }
 
         public string GetJwtTokenIfValid(int userId, string jwtToken)

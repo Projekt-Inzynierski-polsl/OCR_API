@@ -22,9 +22,9 @@ namespace OCR_API.Controllers
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public ActionResult RegisterUser([FromBody] RegisterUserDto registerUserDto)
+        public ActionResult RegisterAccount([FromBody] RegisterUserDto registerUserDto)
         {
-            string token = accountService.RegisterUser(registerUserDto);
+            string token = accountService.RegisterAccount(registerUserDto);
             return Ok(token);
         }
 
@@ -34,14 +34,6 @@ namespace OCR_API.Controllers
         {
             string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             return Ok(token);
-        }
-
-        [HttpPut("{userId}")]
-        [Authorize(Roles = "Admin")]
-        public ActionResult UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto) 
-        {
-            accountService.UpdateUser(userId, updateUserDto);
-            return Ok();
         }
 
         [HttpGet("{userId}/token")]

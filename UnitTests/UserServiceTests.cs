@@ -34,6 +34,7 @@ namespace UnitTests
             passwordHasher = new PasswordHasher<User>();
             registerValidator = new RegisterUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
+
             service = new UserService(unitOfWork, passwordHasher, mapper);
 
         }

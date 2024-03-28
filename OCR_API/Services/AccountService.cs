@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.ModelsDto;
@@ -19,11 +20,8 @@ namespace OCR_API.Services
         string RegisterAccount(RegisterUserDto registerUserDto);
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
         bool VerifyUserLogPasses(string email, string password);
-        string CreateJwtToken(User user);
-        string GetJwtTokenIfValid(int userId, string jwtToken);
-        bool IsTokenValid(string jwtToken);
-        JwtSecurityToken ReadJwtToken(string jwtToken);
-        void Logout(int userId, string jwtToken);
+        string GetJwtTokenIfValid(string jwtToken);
+        void Logout(string jwtToken);
         void DeleteAccount(int userId);
     }
     public class AccountService : IAccountService
@@ -31,14 +29,14 @@ namespace OCR_API.Services
         public IUnitOfWork UnitOfWork { get; }
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IMapper mapper;
-        private readonly AuthenticationSettings authenticationSettings;
+        private readonly JwtTokenHelper jwtTokenHelper;
 
-        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, AuthenticationSettings authenticationSettings)
+        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
-            this.authenticationSettings = authenticationSettings;
+            this.jwtTokenHelper = jwtTokenHelper;
         }
 
         public string RegisterAccount(RegisterUserDto registerUserDto)
@@ -51,7 +49,7 @@ namespace OCR_API.Services
             AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
             addUserTransaction.Execute();
             UnitOfWork.Commit();
-            var token = CreateJwtToken(newUser);
+            var token = jwtTokenHelper.CreateJwtToken(newUser);
             return token;
 
         }
@@ -61,7 +59,7 @@ namespace OCR_API.Services
             if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password))
             {
                 var user = UnitOfWork.Users.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
-                var token = CreateJwtToken(user);
+                var token = jwtTokenHelper.CreateJwtToken(user);
                 return token;
             }
             else
@@ -82,52 +80,23 @@ namespace OCR_API.Services
             return result == PasswordVerificationResult.Success;
         }
 
-        public string CreateJwtToken(User user)
+
+        public string GetJwtTokenIfValid(string jwtToken)
         {
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nickname),
-                new Claim(ClaimTypes.Role, user.Role.Name)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(authenticationSettings.JwtExpireDays);
-
-            var token = new JwtSecurityToken(authenticationSettings.JwtIssuer, authenticationSettings.JwtIssuer, claims, expires: expires, signingCredentials: credentials);
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.WriteToken(token);
-        }
-
-        public string GetJwtTokenIfValid(int userId, string jwtToken)
-        {
-            var isTokenValid = IsTokenValid(jwtToken);
+            var isTokenValid = jwtTokenHelper.IsTokenValid(jwtToken);
             if (!isTokenValid)
             {
                 throw new BadRequestException("Token has already expired.");
             }
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             var user = UnitOfWork.Users.GetById(userId);
-            string token = CreateJwtToken(user);
+            string token = jwtTokenHelper.CreateJwtToken(user);
             return token;
         }
 
-        public bool IsTokenValid(string jwtToken)
+        public void Logout(string jwtToken)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.ReadJwtToken(jwtToken);
-            return token.ValidTo > DateTime.UtcNow;
-        }
-
-        public JwtSecurityToken ReadJwtToken(string jwtToken)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.ReadJwtToken(jwtToken);
-        }
-
-        public void Logout(int userId, string jwtToken)
-        {
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             UnitOfWork.BlackListedTokens.Add(new BlackListToken() { Token = jwtToken, UserId = userId });
         }
 

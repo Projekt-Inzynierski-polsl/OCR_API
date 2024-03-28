@@ -50,6 +50,7 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
 }, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<Seeder>();
+builder.Services.AddScoped<JwtTokenHelper>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

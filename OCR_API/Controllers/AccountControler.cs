@@ -36,19 +36,19 @@ namespace OCR_API.Controllers
             return Ok(token);
         }
 
-        [HttpGet("{userId}/token")]
-        public async Task<ActionResult> IsTokenValidAsync(int userId) 
+        [HttpGet("token")]
+        public async Task<ActionResult> IsTokenValidAsync() 
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            string token = accountService.GetJwtTokenIfValid(userId, accessToken);
+            string token = accountService.GetJwtTokenIfValid(accessToken);
             return Ok(token);
         }
 
-        [HttpPost("{userId}/logout")]
-        public async Task<ActionResult> LogoutAsync(int userId)
+        [HttpPost("logout")]
+        public async Task<ActionResult> LogoutAsync()
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            accountService.Logout(userId, accessToken);
+            accountService.Logout(accessToken);
             return Ok();
         }
 

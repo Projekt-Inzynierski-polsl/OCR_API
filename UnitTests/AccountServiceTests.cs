@@ -23,23 +23,17 @@ namespace UnitTests
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IAccountService service;
         private readonly IValidator<RegisterUserDto> registerValidator;
-        private readonly IValidator<UpdateUserDto> updateValidator;
         private readonly IMapper mapper;
+        private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
-        private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .Build();
-
         public AccountServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
             passwordHasher = new PasswordHasher<User>();
             registerValidator = new RegisterUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
-            var authenticationSettings = new AuthenticationSettings();
-            Configuration.GetSection("Authentication").Bind(authenticationSettings);
-            service = new AccountService(unitOfWork, passwordHasher, mapper, authenticationSettings);
+            jwtTokenHelper = new JwtTokenHelper();
+            service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper);
             
         }
 

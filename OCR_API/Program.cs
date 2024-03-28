@@ -57,8 +57,18 @@ builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserDtoValidator>();
 
+builder.Services.AddScoped<IRepository<BlackListToken>, Repository<BlackListToken>>();
+builder.Services.AddScoped<IRepository<BoundingBox>, Repository<BoundingBox>>();
+builder.Services.AddScoped<IRepository<Folder>, Repository<Folder>>();
+builder.Services.AddScoped<IRepository<NoteCategory>, Repository<NoteCategory>>();
+builder.Services.AddScoped<IRepository<NoteFile>, Repository<NoteFile>>();
+builder.Services.AddScoped<IRepository<NoteLine>, Repository<NoteLine>>();
+builder.Services.AddScoped<IRepository<NoteWorldError>, Repository<NoteWorldError>>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
+builder.Services.AddScoped<IRepository<UploadedModel>, Repository<UploadedModel>>();
+builder.Services.AddScoped<IRepository<UserAction>, Repository<UserAction>>();
+builder.Services.AddScoped<IRepository<UserLog>, Repository<UserLog>>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

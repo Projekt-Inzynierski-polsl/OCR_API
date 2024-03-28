@@ -50,6 +50,11 @@ namespace OCR_API.Database.Configurations
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("note_category_list_ibfk_1");
+
+            builder.HasMany(d => d.BlackListedTokens)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("black_listed_tokens_ibfk_1");
         }
     }
 }

@@ -17,5 +17,6 @@ namespace OCR_API.Entities
         public virtual ICollection<UploadedModel> UploadedModels { get; set; } = new List<UploadedModel>();
         public virtual ICollection<UserLog> Logs { get; set; } = new List<UserLog>();
         public virtual ICollection<NoteCategory> NoteCategories { get; set; } = new List<NoteCategory>();
+        public virtual ICollection<BlackListToken> BlackListedTokens { get; set; } = new List<BlackListToken>();
     }
 }

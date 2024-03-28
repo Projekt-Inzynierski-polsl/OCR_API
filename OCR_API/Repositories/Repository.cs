@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OCR_API.DbContexts;
+using OCR_API.Entities;
+using OCR_API.Exceptions;
 
 namespace OCR_API.Repositories
 {
@@ -26,12 +28,21 @@ namespace OCR_API.Repositories
             {
                 dbContext.Remove(entity);
             }
+            else
+            {
+                throw new NotFoundException("That entity doesn't exist.");
+            }
 
         }
 
         public TEntity GetById(int id)
         {
-            return Entity.Find(id);
+            TEntity entity = Entity.Find(id);
+            if (entity is null)
+            {
+                throw new NotFoundException("That entity doesn't exist.");
+            }
+            return entity;
         }
 
         public List<TEntity> GetAll()

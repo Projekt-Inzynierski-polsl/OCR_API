@@ -16,7 +16,7 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
             builder.Property(e => e.Name).HasColumnName("name").IsRequired();
             builder.Property(e => e.IconPath).HasColumnName("icon_path");
-            builder.Property(e => e.HashedPassword).HasColumnName("hashed_password");
+            builder.Property(e => e.PasswordHash).HasColumnName("password_hash");
 
             builder.HasOne(d => d.User)
                 .WithMany(r => r.Folders)

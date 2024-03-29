@@ -5,18 +5,18 @@ namespace OCR_API.Transactions.UserTransactions
 {
     public class DeleteUserTransaction : ITransaction
     {
-        private readonly IRepository<User> userRepository;
+        private readonly IRepository<User> repository;
         private readonly int userId;
 
-        public DeleteUserTransaction(IRepository<User> userRepository, int userId)
+        public DeleteUserTransaction(IRepository<User> repository, int userId)
         {
-            this.userRepository = userRepository;
+            this.repository = repository;
             this.userId = userId;
         }
 
         public void Execute()
         {
-            userRepository.Remove(userId);
+            repository.Remove(userId);
         }
     }
 }

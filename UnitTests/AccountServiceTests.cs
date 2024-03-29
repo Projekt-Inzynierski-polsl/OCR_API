@@ -8,12 +8,15 @@ using Newtonsoft.Json.Bson;
 using OCR_API;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
+using OCR_API.Exceptions;
 using OCR_API.MappingProfiles;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.Validators;
 using OCR_API.Repositories;
 using OCR_API.Seeders;
 using OCR_API.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace UnitTests
 {
@@ -42,7 +45,7 @@ namespace UnitTests
         {
                 RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
                 var validationResult = registerValidator.Validate(dto);
-                Assert.AreEqual(true, validationResult.IsValid);
+                Assert.IsTrue(validationResult.IsValid);
                 service.RegisterAccount(dto);
                 var userInDatabase = service.UnitOfWork.Users.GetById(1);
                 Assert.IsNotNull(userInDatabase);
@@ -57,7 +60,7 @@ namespace UnitTests
         {
             RegisterUserDto dto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             var validationResult = registerValidator.Validate(dto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
@@ -67,7 +70,7 @@ namespace UnitTests
             service.RegisterAccount(dto);
             RegisterUserDto takenEmailDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             var validationResult = registerValidator.Validate(takenEmailDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
@@ -77,7 +80,7 @@ namespace UnitTests
             service.RegisterAccount(dto);
             RegisterUserDto takenEmailDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             var validationResult = registerValidator.Validate(takenEmailDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
@@ -85,7 +88,7 @@ namespace UnitTests
         {
             RegisterUserDto dto = new RegisterUserDto() { Email = "test", Nickname = "TestUser", Password = "Test", ConfirmedPassword = "TestPassword" };
             var validationResult = registerValidator.Validate(dto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
@@ -96,7 +99,7 @@ namespace UnitTests
             string email = "testUser@dto.pl";
             string password = "TestPassword";
             bool result = service.VerifyUserLogPasses(email, password, out User user);
-            Assert.AreEqual(true, result);
+            Assert.IsTrue(result);
         }
 
         [TestMethod]
@@ -107,7 +110,7 @@ namespace UnitTests
             string email = "test@dto.pl";
             string password = "TestPassword";
             bool result = service.VerifyUserLogPasses(email, password, out User user);
-            Assert.AreEqual(false, result);
+            Assert.IsFalse(result);
         }
         [TestMethod]
         public void TestVerifyingUserLogPassesWithWrongPassword()
@@ -117,72 +120,63 @@ namespace UnitTests
             string email = "testUser@dto.pl";
             string password = "Test";
             bool result = service.VerifyUserLogPasses(email, password, out User user);
-            Assert.AreEqual(false, result);
+            Assert.IsFalse(result);
+        }
+        [TestMethod]
+        public void TestLoginUserWithCorrectPassword()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
+            string token = service.TryLoginUserAndGenerateJwt(loginUserDto);
+            Assert.IsNotNull(token);
+            JwtSecurityToken jwtToken = jwtTokenHelper.ReadToken(token);
+            Assert.IsNotNull(jwtToken);
+            Assert.AreEqual(1, int.Parse(jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value));
+            Assert.AreEqual("TestUser", jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value);
+            Assert.AreEqual("User", jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Role)?.Value);
+            Assert.IsTrue(jwtTokenHelper.IsTokenValid(token));
+        }
+        [TestMethod]
+        public void TestLoginUserWithWrongEmail()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "test@dto.pl", Password = "TestPassword" };
+            Assert.ThrowsException<BadRequestException>(() => service.TryLoginUserAndGenerateJwt(loginUserDto));
+
+        }
+        [TestMethod]
+        public void TestLoginUserWithWrongPassword()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "Password" };
+            Assert.ThrowsException<BadRequestException>(() => service.TryLoginUserAndGenerateJwt(loginUserDto));
+        }
+        [TestMethod]
+        public void TestLoginWithCorrectToken()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
+            string token = service.TryLoginUserAndGenerateJwt(loginUserDto);
+            string newToken = service.GetJwtTokenIfValid(token);
+            Assert.IsTrue(jwtTokenHelper.IsTokenValid(newToken));
         }
 
-        //[TestMethod]
-        //public void TestUpdatingUserWithCorrectData()
-        //{
-        //    RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-        //    service.RegisterAccount(registerDto);
-        //    UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
-        //    var validationResult = updateValidator.Validate(updateUserDto);
-        //    Assert.AreEqual(true, validationResult.IsValid);
-
-        //    service.UpdateUser(1, updateUserDto);
-        //    User userInDatabase = service.UnitOfWork.Users.GetById(1);
-        //    Assert.IsNotNull(userInDatabase);
-        //    Assert.AreEqual(updateUserDto.Email, userInDatabase.Email);
-        //    Assert.AreEqual(updateUserDto.Nickname, userInDatabase.Nickname);
-        //    Assert.AreEqual(updateUserDto.RoleId, userInDatabase.RoleId);
-
-        //    var result = passwordHasher.VerifyHashedPassword(userInDatabase, userInDatabase.PasswordHash, updateUserDto.Password);
-        //    Assert.AreEqual(PasswordVerificationResult.Success, result);
-        //}
-
-        //[TestMethod]
-        //public void TestValidatingUpdateUserDtoWithWrongEmail()
-        //{
-        //    UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
-        //    var validationResult = updateValidator.Validate(updateUserDto);
-        //    Assert.AreEqual(false, validationResult.IsValid);
-        //}
-
-        //[TestMethod]
-        //public void TestValidatingUpdateUserDtoWithTakenEmail()
-        //{
-        //    RegisterUserDto registerDto = new RegisterUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-        //    service.RegisterAccount(registerDto);
-        //    UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
-        //    var validationResult = updateValidator.Validate(updateUserDto);
-        //    Assert.AreEqual(false, validationResult.IsValid);
-        //}
-
-        //[TestMethod]
-        //public void TestValidatingUpdateUserDtoWithTakenNickname()
-        //{
-        //    RegisterUserDto registerDto = new RegisterUserDto() { Email = "test@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-        //    service.RegisterAccount(registerDto);
-        //    UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "updatedPassword", RoleId = 1 };
-        //    var validationResult = updateValidator.Validate(updateUserDto);
-        //    Assert.AreEqual(false, validationResult.IsValid);
-        //}
-
-        //[TestMethod]
-        //public void TestValidatingUpdateUserDtoWithWrongRole()
-        //{
-        //    UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "updatedPassword", RoleId = 0 };
-        //    var validationResult = updateValidator.Validate(updateUserDto);
-        //    Assert.AreEqual(false, validationResult.IsValid);
-        //}
-
-        //[TestMethod]
-        //public void TryLoginIntoRegisterUser()
-        //{
-        //    RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nick = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-        //    service.RegisterUser(registerDto);
-        //    LoginUserDto loginDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPasswrod" };
-
-        //}
+        [TestMethod]
+        public void TestLogoutAccount()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            service.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
+            string token = service.TryLoginUserAndGenerateJwt(loginUserDto);
+            service.Logout(token);
+            BlackListToken expiredToken = unitOfWork.BlackListedTokens.GetById(1);
+            Assert.IsNotNull(expiredToken);
+            Assert.AreEqual(token, expiredToken.Token);
+            Assert.AreEqual(1, expiredToken.UserId);
+        }
     }
 }

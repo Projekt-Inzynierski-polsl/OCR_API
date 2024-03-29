@@ -6,19 +6,19 @@ namespace OCR_API.Transactions.UserTransactions
 {
     public class UpdateUserTransaction : ITransaction
     {
-        private readonly IRepository<User> userRepository;
+        private readonly IRepository<User> repository;
         private readonly int userId;
         private readonly User updatedUser;
 
-        public UpdateUserTransaction(IRepository<User> userRepository, int userId, User updatedUser)
+        public UpdateUserTransaction(IRepository<User> repository, int userId, User updatedUser)
         {
-            this.userRepository = userRepository;
+            this.repository = repository;
             this.userId = userId;
             this.updatedUser = updatedUser;
         }
         public void Execute()
         {
-            User userToUpdate = userRepository.GetById(userId);
+            User userToUpdate = repository.GetById(userId);
             userToUpdate.Email = updatedUser.Email;
             userToUpdate.Nickname = updatedUser.Nickname;
             userToUpdate.PasswordHash = updatedUser.PasswordHash;

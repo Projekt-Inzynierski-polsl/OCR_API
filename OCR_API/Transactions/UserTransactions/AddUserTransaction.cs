@@ -6,18 +6,18 @@ namespace OCR_API.Transactions.UserTransactions
 {
     public class AddUserTransaction : ITransaction
     {
-        private readonly IRepository<User> userRepository;
+        private readonly IRepository<User> repository;
         private readonly User userToAdd;
 
-        public AddUserTransaction(IRepository<User> userRepository, User userToAdd)
+        public AddUserTransaction(IRepository<User> repository, User userToAdd)
         {
-            this.userRepository = userRepository;
+            this.repository = repository;
             this.userToAdd = userToAdd;
         }
 
         public void Execute()
         {
-            userRepository.Add(userToAdd);
+            repository.Add(userToAdd);
         }
     }
 }

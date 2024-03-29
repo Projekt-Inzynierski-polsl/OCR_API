@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OCR_API.Specifications;
 
 namespace OCR_API.Repositories
 {
@@ -9,5 +10,6 @@ namespace OCR_API.Repositories
         void Remove(int id);
         TEntity GetById(int id);
         List<TEntity> GetAll();
+        IQueryable<TEntity> GetBySpecification(Specification<TEntity> spec);
     }
 }

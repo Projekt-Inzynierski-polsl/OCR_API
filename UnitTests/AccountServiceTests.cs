@@ -95,7 +95,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "testUser@dto.pl";
             string password = "TestPassword";
-            bool result = service.VerifyUserLogPasses(email, password);
+            bool result = service.VerifyUserLogPasses(email, password, out User user);
             Assert.AreEqual(true, result);
         }
 
@@ -106,7 +106,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "test@dto.pl";
             string password = "TestPassword";
-            bool result = service.VerifyUserLogPasses(email, password);
+            bool result = service.VerifyUserLogPasses(email, password, out User user);
             Assert.AreEqual(false, result);
         }
         [TestMethod]
@@ -116,7 +116,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "testUser@dto.pl";
             string password = "Test";
-            bool result = service.VerifyUserLogPasses(email, password);
+            bool result = service.VerifyUserLogPasses(email, password, out User user);
             Assert.AreEqual(false, result);
         }
 

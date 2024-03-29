@@ -2,7 +2,7 @@
 using OCR_API.Repositories;
 using System.Transactions;
 
-namespace OCR_API.Transactions
+namespace OCR_API.Transactions.UserTransactions
 {
     public class AddUserTransaction : ITransaction
     {

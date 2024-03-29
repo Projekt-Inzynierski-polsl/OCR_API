@@ -40,5 +40,13 @@ namespace OCR_API.Controllers
             userService.UpdateUser(userId, updateUserDto);
             return Ok();
         }
+
+        [HttpDelete("{userId}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteAccount(int userId)
+        {
+            userService.DeleteUser(userId);
+            return NoContent();
+        }
     }
 }

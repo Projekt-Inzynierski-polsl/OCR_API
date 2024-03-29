@@ -7,7 +7,9 @@ using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
+using OCR_API.Specifications;
 using OCR_API.Transactions;
+using OCR_API.Transactions.UserTransactions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,10 +21,9 @@ namespace OCR_API.Services
         IUnitOfWork UnitOfWork { get; }
         string RegisterAccount(RegisterUserDto registerUserDto);
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
-        bool VerifyUserLogPasses(string email, string password);
+        bool VerifyUserLogPasses(string email, string password, out User user);
         string GetJwtTokenIfValid(string jwtToken);
         void Logout(string jwtToken);
-        void DeleteAccount(int userId);
     }
     public class AccountService : IAccountService
     {
@@ -56,9 +57,8 @@ namespace OCR_API.Services
 
         public string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto)
         {
-            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password))
+            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User user))
             {
-                var user = UnitOfWork.Users.Entity.Include(u => u.Role).FirstOrDefault(u => u.Email == loginUserDto.Email);
                 var token = jwtTokenHelper.CreateJwtToken(user);
                 return token;
             }
@@ -68,9 +68,10 @@ namespace OCR_API.Services
             }
         }
 
-        public bool VerifyUserLogPasses(string email, string password)
+        public bool VerifyUserLogPasses(string email, string password, out User user)
         {
-            var user = UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == email);
+            var spec = new UserByEmailWithRoleSpecification(email);
+            user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
 
             if (user is null)
             {
@@ -97,12 +98,9 @@ namespace OCR_API.Services
         public void Logout(string jwtToken)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            UnitOfWork.BlackListedTokens.Add(new BlackListToken() { Token = jwtToken, UserId = userId });
-        }
-
-        public void DeleteAccount(int userId)
-        {
-            UnitOfWork.Users.Remove(userId);
+            AddBlackListedTokenTransaction addBlackListedTokenTransaction = new(UnitOfWork.BlackListedTokens, userId, jwtToken);
+            addBlackListedTokenTransaction.Execute();
+            UnitOfWork.Commit();
         }
     }
 }

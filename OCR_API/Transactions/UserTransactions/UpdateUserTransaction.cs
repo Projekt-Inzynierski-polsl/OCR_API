@@ -2,7 +2,7 @@
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
 
-namespace OCR_API.Transactions
+namespace OCR_API.Transactions.UserTransactions
 {
     public class UpdateUserTransaction : ITransaction
     {

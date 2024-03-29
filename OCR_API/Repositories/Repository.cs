@@ -2,6 +2,7 @@
 using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
+using OCR_API.Specifications;
 
 namespace OCR_API.Repositories
 {
@@ -48,6 +49,15 @@ namespace OCR_API.Repositories
         public List<TEntity> GetAll()
         {
             return Entity.ToList();
+        }
+
+        public IQueryable<TEntity> GetBySpecification(Specification<TEntity> spec)
+        {
+            var query = Entity.AsQueryable();
+
+            query = spec.IncludeEntities(query);
+
+            return query.Where(spec.ToExpression());
         }
     }
 }

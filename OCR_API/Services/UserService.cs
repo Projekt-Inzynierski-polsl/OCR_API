@@ -7,7 +7,7 @@ using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
-using OCR_API.Transactions;
+using OCR_API.Transactions.UserTransactions;
 
 namespace OCR_API.Services
 {
@@ -17,6 +17,7 @@ namespace OCR_API.Services
         IEnumerable<UserDto> GetAll();
         UserDto GetById(int id);
         void UpdateUser(int userId, UpdateUserDto updateUserDto);
+        void DeleteUser(int userId);
     }
     public class UserService : IUserService
     {
@@ -56,7 +57,12 @@ namespace OCR_API.Services
             updateUserTransaction.Execute();
             UnitOfWork.Commit();
         }
-
+        public void DeleteUser(int userId)
+        {
+            DeleteUserTransaction deleteUserTransaction = new(UnitOfWork.Users, userId);
+            deleteUserTransaction.Execute();
+            UnitOfWork.Commit();
+        }
 
     }
 }

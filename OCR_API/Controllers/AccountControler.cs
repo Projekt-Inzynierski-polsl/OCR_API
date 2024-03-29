@@ -51,15 +51,5 @@ namespace OCR_API.Controllers
             accountService.Logout(accessToken);
             return Ok();
         }
-
-        [HttpDelete("{userId}")]
-        [Authorize(Roles = "Admin")]
-        public ActionResult DeleteAccount(int userId)
-        {
-            accountService.DeleteAccount(userId);
-            return NoContent();
-        }
-
-
     }
 }

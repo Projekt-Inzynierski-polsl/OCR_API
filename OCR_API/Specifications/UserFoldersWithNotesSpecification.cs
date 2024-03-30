@@ -4,11 +4,11 @@ using System.Linq.Expressions;
 
 namespace OCR_API.Specifications
 {
-    public class UserFoldersSpecification : Specification<Folder>
+    public class UserFoldersWithNotesSpecification : Specification<Folder>
     {
         private readonly int userId;
 
-        public UserFoldersSpecification(int userId)
+        public UserFoldersWithNotesSpecification(int userId)
         {
             this.userId = userId;
         }
@@ -16,6 +16,11 @@ namespace OCR_API.Specifications
         public override Expression<Func<Folder, bool>> ToExpression()
         {
             return f => f.UserId == userId;
+        }
+
+        public override IQueryable<Folder> IncludeEntities(IQueryable<Folder> queryable)
+        {
+            return queryable.Include(f => f.PasswordHash == null ? f.Notes : null);
         }
     }
 }

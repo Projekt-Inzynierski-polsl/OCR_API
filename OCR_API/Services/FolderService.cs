@@ -40,7 +40,7 @@ namespace OCR_API.Services
         public IEnumerable<FolderDto> GetAll(string jwtToken)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new UserFoldersSpecification(userId);
+            var spec = new UserFoldersWithNotesSpecification(userId);
             var folders = UnitOfWork.Folders.GetBySpecification(spec);
             var foldersDto = folders.Select(f => mapper.Map<FolderDto>(f)).ToList();
 
@@ -112,7 +112,7 @@ namespace OCR_API.Services
             {
                 throw new UnauthorizedAccessException("Cannot lock someone else's folder.");
             }
-            if (folderToLock.PasswordHash != String.Empty)
+            if (folderToLock.PasswordHash is not null)
             {
                 throw new UnauthorizedAccessException("The folder is already locked.");
             }
@@ -136,7 +136,7 @@ namespace OCR_API.Services
             {
                 throw new UnauthorizedAccessException("Cannot unlock someone else's folder.");
             }
-            if (folderToUnlock.PasswordHash == String.Empty)
+            if (folderToUnlock.PasswordHash is null)
             {
                 throw new UnauthorizedAccessException("The folder is already unlocked.");
             }

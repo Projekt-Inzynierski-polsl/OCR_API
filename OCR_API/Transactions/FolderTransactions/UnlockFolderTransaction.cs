@@ -16,7 +16,7 @@ namespace OCR_API.Transactions.FolderTransactions
 
         public void Execute()
         {
-            folderToUnlock.PasswordHash = string.Empty;
+            folderToUnlock.PasswordHash = null;
         }
     }
 }

@@ -100,7 +100,6 @@ namespace UnitTests
         public void TestDeletingUserWithNotExistingId()
         {
             Assert.ThrowsException<NotFoundException>(() =>  service.DeleteUser(1));
-
         }
         [TestMethod]
         public void TestUpdatingUserWithCorrectData()

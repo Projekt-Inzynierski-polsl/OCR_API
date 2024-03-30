@@ -29,7 +29,7 @@ namespace OCR_API.Controllers
 
         [HttpPost("{folderId}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> GetFolderByIdAsync(int folderId, [FromBody] PasswordDto? passwordDto)
+        public async Task<ActionResult> GetFolderByIdAsync(int folderId, [FromBody] PasswordDto? passwordDto = null)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
             var folder = folderService.GetById(accessToken, folderId, passwordDto);
@@ -47,19 +47,19 @@ namespace OCR_API.Controllers
 
         [HttpDelete("{folderId}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> DeleteFolderAsync(int folderId)
+        public async Task<ActionResult> DeleteFolderAsync(int folderId, [FromBody] PasswordDto passwordDto = null)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.DeleteFolder(accessToken, folderId);
+            folderService.DeleteFolder(accessToken, folderId, passwordDto);
             return NoContent();
         }
 
         [HttpPut("{folderId}/update")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto)
+        public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto, [FromBody] PasswordDto passwordDto = null)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.UpdateFolder(accessToken, folderId, updateFolderDto);
+            folderService.UpdateFolder(accessToken, folderId, updateFolderDto, passwordDto);
             return Ok();
         }
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NLog.Filters;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.ModelsDto;
@@ -15,10 +16,10 @@ namespace OCR_API.Services
     {
         IUnitOfWork UnitOfWork { get; }
         IEnumerable<FolderDto> GetAll(string jwtToken);
-        FolderDto GetById(string jwtToken, int id, PasswordDto? passwordDto);
+        FolderDto GetById(string jwtToken, int id, PasswordDto? passwordDto = null);
         int CreateFolder(string jwtToken, AddFolderDto folderToAdd);
-        void DeleteFolder(string jwtToken, int folderId);
-        void UpdateFolder(string jwtToken, int folderId, UpdateFolderDto updateFolderDto);
+        void DeleteFolder(string jwtToken, int folderId, PasswordDto passwordDto = null);
+        void UpdateFolder(string jwtToken, int folderId, UpdateFolderDto updateFolderDto, PasswordDto passwordDto = null);
         void LockFolder(string jwtToken, int folderId, ConfirmedPasswordDto confirmedPasswordDto);
         void UnlockFolder(string jwtToken, int folderId, PasswordDto passwordDto);
     }
@@ -46,16 +47,15 @@ namespace OCR_API.Services
 
             return foldersDto;
         }
-        public FolderDto GetById(string jwtToken, int folderId, PasswordDto? passwordDto)
+        public FolderDto GetById(string jwtToken, int folderId, PasswordDto? passwordDto = null)
         {
-            var spec = new FolderByIdWithNotesSpecification(folderId);
-            var folder = UnitOfWork.Folders.GetBySpecification(spec).FirstOrDefault();
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            Folder folder = GetFolderIfBelongsToUser(userId, folderId);
             if (folder.UserId != userId)
             {
                 throw new UnauthorizedAccessException("Cannot access to someone else's folder.");
             }
-            if (folder.PasswordHash != string.Empty)
+            if (folder.PasswordHash is not null)
             {
                 var result = passwordHasher.VerifyHashedPassword(folder, folder.PasswordHash, passwordDto.Password);
                 if (result != PasswordVerificationResult.Success)
@@ -78,23 +78,27 @@ namespace OCR_API.Services
             return newFolderId;
         }
 
-        public void DeleteFolder(string jwtToken, int folderId)
+        public void DeleteFolder(string jwtToken, int folderId, PasswordDto passwordDto = null)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            Folder folderToRemove = UnitOfWork.Folders.GetById(folderId);
-            if (folderToRemove.UserId != userId)
+            Folder folderToRemove = GetFolderIfBelongsToUser(userId, folderId);
+            if (folderToRemove.PasswordHash is not null)
             {
-                throw new UnauthorizedAccessException("Cannot delete someone else's folder.");
+                var result = passwordHasher.VerifyHashedPassword(folderToRemove, folderToRemove.PasswordHash, passwordDto.Password);
+                if (result != PasswordVerificationResult.Success)
+                {
+                    throw new BadRequestException("Invalid password.");
+                }
             }
             DeleteFolderTransaction deleteFolderTransaction = new(UnitOfWork.Folders, folderId);
             deleteFolderTransaction.Execute();
             UnitOfWork.Commit();
         }
 
-        public void UpdateFolder(string jwtToken, int folderId, UpdateFolderDto updateFolderDto)
+        public void UpdateFolder(string jwtToken, int folderId, UpdateFolderDto updateFolderDto, PasswordDto passwordDto = null)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            Folder folderToUpdate = UnitOfWork.Folders.GetById(folderId);
+            Folder folderToUpdate = GetFolderIfBelongsToUser(userId, folderId);
             if (folderToUpdate.UserId != userId)
             {
                 throw new UnauthorizedAccessException("Cannot delete someone else's folder.");
@@ -107,11 +111,7 @@ namespace OCR_API.Services
         public void LockFolder(string jwtToken, int folderId, ConfirmedPasswordDto confirmedPasswordDto)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            Folder folderToLock = UnitOfWork.Folders.GetById(folderId);
-            if (folderToLock.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("Cannot lock someone else's folder.");
-            }
+            Folder folderToLock = GetFolderIfBelongsToUser(userId, folderId);
             if (folderToLock.PasswordHash is not null)
             {
                 throw new UnauthorizedAccessException("The folder is already locked.");
@@ -143,6 +143,17 @@ namespace OCR_API.Services
             UnlockFolderTransaction unlockFolderTransaction = new(folderToUnlock);
             unlockFolderTransaction.Execute();
             UnitOfWork.Commit();
+        }
+
+        private Folder GetFolderIfBelongsToUser(int userId, int folderId)
+        {
+            var spec = new FolderByIdWithNotesSpecification(folderId);
+            var folder = UnitOfWork.Folders.GetBySpecification(spec).FirstOrDefault();
+            if (folder.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("Cannot lock someone else's folder.");
+            }
+            return folder;
         }
     }
 }

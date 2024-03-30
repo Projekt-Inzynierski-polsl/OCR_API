@@ -20,7 +20,20 @@ namespace OCR_API.Specifications
 
         public override IQueryable<Folder> IncludeEntities(IQueryable<Folder> queryable)
         {
-            return queryable.Include(f => f.PasswordHash == null ? f.Notes : null);
+            var foldersWithNotes = queryable
+                .Where(f => f.PasswordHash == null)
+                .Include(f => f.Notes)
+                .ToList(); 
+
+            var foldersWithoutNotes = queryable
+                .Where(f => f.PasswordHash != null)
+                .ToList();
+
+            var allFolders = foldersWithNotes.Concat(foldersWithoutNotes);
+
+            var sortedFolders = allFolders.OrderBy(f => f.Id);
+
+            return sortedFolders.AsQueryable();
         }
     }
 }

@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OCR_API.ModelsDto.Validators;
 using Newtonsoft.Json.Linq;
+using OCR_API.Exceptions;
 
 namespace UnitTests
 {
@@ -176,7 +177,64 @@ namespace UnitTests
             var enumeratedFolders2 = folders2.ToList();
             Assert.AreEqual(name, enumeratedFolders2[0].Name);
             Assert.AreEqual(iconPath, enumeratedFolders2[0].IconPath);
-
+        }
+        [TestMethod]
+        public void TestGettingFolderByIdWithoutPassword()
+        {
+            string token = SetUpGetToken();
+            string name = "TestFolder";
+            string iconPath = "icons/my.png";
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
+            service.CreateFolder(token, addFolderDto);
+            FolderDto folder = service.GetById(token, 1);
+            Assert.IsNotNull(folder);
+            Assert.AreEqual(name, folder.Name);
+            Assert.AreEqual(iconPath, folder.IconPath);
+            Assert.IsFalse(folder.HasPassword);
+        }
+        [TestMethod]
+        public void TestGettingFolderByIdWithPassword()
+        {
+            string token = SetUpGetToken();
+            string name = "TestFolder";
+            string iconPath = "icons/my.png";
+            string password = "test123";
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
+            service.CreateFolder(token, addFolderDto);
+            PasswordDto passwordDto = new() { Password = password };
+            FolderDto folder = service.GetById(token, 1, passwordDto);
+            Assert.IsNotNull(folder);
+            Assert.AreEqual(name, folder.Name);
+            Assert.AreEqual(iconPath, folder.IconPath);
+            Assert.IsTrue(folder.HasPassword);
+        }
+        [TestMethod]
+        public void TestGettingFolderByIdWithWrongPassword()
+        {
+            string token = SetUpGetToken();
+            string name = "TestFolder";
+            string iconPath = "icons/my.png";
+            string password = "test123";
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
+            service.CreateFolder(token, addFolderDto);
+            PasswordDto passwordDto = new() { Password = "123" };
+            Assert.ThrowsException<BadRequestException>(() => service.GetById(token, 1, passwordDto));
+        }
+        [TestMethod]
+        public void TestGettingFolderByIdWithWrongToken()
+        {
+            string token = SetUpGetToken();
+            string name = "TestFolder";
+            string iconPath = "icons/my.png";
+            string password = "test123";
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
+            service.CreateFolder(token, addFolderDto);
+            PasswordDto passwordDto = new() { Password = "123" };
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            accountService.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
+            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
+            Assert.ThrowsException<UnauthorizedAccessException>(() => service.GetById(token2, 1, passwordDto));
         }
     }
 }

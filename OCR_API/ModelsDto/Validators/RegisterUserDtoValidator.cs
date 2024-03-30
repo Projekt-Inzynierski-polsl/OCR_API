@@ -35,6 +35,10 @@ namespace OCR_API.ModelsDto.Validators
                     }
                 });
 
+            RuleFor(x => x.RoleId)
+                .Equal(2);
+
+
             RuleFor(x => x.Password)
                 .MinimumLength(6);
 

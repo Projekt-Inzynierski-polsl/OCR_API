@@ -9,7 +9,7 @@ namespace OCR_API.MappingProfiles
         public FolderMappingProfile()
         {
             CreateMap<Folder, FolderDto>()
-             .ForMember(dest => dest.hasPassword, opt =>
+             .ForMember(dest => dest.HasPassword, opt =>
              {
                  opt.MapFrom(src => !string.IsNullOrEmpty(src.PasswordHash));
              });

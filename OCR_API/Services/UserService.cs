@@ -51,8 +51,11 @@ namespace OCR_API.Services
         public void UpdateUser(int userId, UpdateUserDto updateUserDto)
         {
             var updatedUser = mapper.Map<User>(updateUserDto);
-            var hashedPassword = passwordHasher.HashPassword(updatedUser, updateUserDto.Password);
-            updatedUser.PasswordHash = hashedPassword;
+            if(updateUserDto.Password != null)
+            {
+                var hashedPassword = passwordHasher.HashPassword(updatedUser, updateUserDto.Password);
+                updatedUser.PasswordHash = hashedPassword;
+            }
             UpdateUserTransaction updateUserTransaction = new(UnitOfWork.Users, userId, updatedUser);
             updateUserTransaction.Execute();
             UnitOfWork.Commit();

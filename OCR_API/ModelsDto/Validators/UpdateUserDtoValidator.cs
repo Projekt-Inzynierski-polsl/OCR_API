@@ -35,7 +35,7 @@ namespace OCR_API.ModelsDto.Validators
                 });
 
             RuleFor(x => x.Password)
-                .MinimumLength(6);
+                .MinimumLength(6).When(x => x.Password != null);
 
             RuleFor(x => x.RoleId)
                 .Custom((value, context) =>

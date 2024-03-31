@@ -56,10 +56,10 @@ namespace OCR_API.Controllers
 
         [HttpPut("{folderId}/update")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto, [FromBody] PasswordDto passwordDto = null)
+        public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.UpdateFolder(accessToken, folderId, updateFolderDto, passwordDto);
+            folderService.UpdateFolder(accessToken, folderId, updateFolderDto);
             return Ok();
         }
 

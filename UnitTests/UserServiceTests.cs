@@ -41,7 +41,7 @@ namespace UnitTests
 
 
         [TestMethod]
-        public void TestGettingAllUsers()
+        public void GetAllUsers_ReturnsAllUsers()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
@@ -63,8 +63,9 @@ namespace UnitTests
             Assert.AreEqual("TestUser2", secondUser.Nickname);
             Assert.AreEqual(2, secondUser.RoleId);
         }
+
         [TestMethod]
-        public void TestGettingUsersById()
+        public void GetUserById_ReturnsUserById()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
@@ -83,8 +84,9 @@ namespace UnitTests
             Assert.AreEqual("TestUser2", secondUser.Nickname);
             Assert.AreEqual(2, secondUser.RoleId);
         }
+
         [TestMethod]
-        public void TestDeletingUserWithExistingId()
+        public void DeleteUser_WithExistingId_SuccessfullyDeleted()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
@@ -96,19 +98,21 @@ namespace UnitTests
             Assert.IsNotNull(users);
             Assert.AreEqual(0, users.Count());
         }
+
         [TestMethod]
-        public void TestDeletingUserWithNotExistingId()
+        public void DeleteUser_WithNotExistingId_ThrowsException()
         {
-            Assert.ThrowsException<NotFoundException>(() =>  service.DeleteUser(1));
+            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(1));
         }
+
         [TestMethod]
-        public void TestUpdatingUserWithCorrectData()
+        public void UpdateUser_WithCorrectData_SuccessfullyUpdated()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
-            Assert.AreEqual(true, validationResult.IsValid);
+            Assert.IsTrue(validationResult.IsValid);
 
             service.UpdateUser(1, updateUserDto);
             User userInDatabase = service.UnitOfWork.Users.GetById(1);
@@ -122,39 +126,39 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestValidatingUpdateUserDtoWithWrongEmail()
+        public void ValidateUpdateUserDto_WithWrongEmail_ValidationFails()
         {
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
-        public void TestValidatingUpdateUserDtoWithTakenEmail()
+        public void ValidateUpdateUserDto_WithTakenEmail_ValidationFails()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
-        public void TestValidatingUpdateUserDtoWithTakenNickname()
+        public void ValidateUpdateUserDto_WithTakenNickname_ValidationFails()
         {
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "test@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
 
         [TestMethod]
-        public void TestValidatingUpdateUserDtoWithWrongRole()
+        public void ValidateUpdateUserDto_WithWrongRole_ValidationFails()
         {
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "TestUser", Password = "updatedPassword", RoleId = 0 };
             var validationResult = updateValidator.Validate(updateUserDto);
-            Assert.AreEqual(false, validationResult.IsValid);
+            Assert.IsFalse(validationResult.IsValid);
         }
     }
 }

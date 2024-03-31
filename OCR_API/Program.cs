@@ -77,6 +77,7 @@ builder.Services.AddScoped<IRepository<UserLog>, Repository<UserLog>>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
+builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddAutoMapper(typeof(UserMappingProfile));
 builder.Services.AddAutoMapper(typeof(FolderMappingProfile));
 builder.Host.UseNLog();

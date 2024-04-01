@@ -2,7 +2,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using OCR_API.Entities;
-using OCR_API.ModelsDto.Validators;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
 using OCR_API;
@@ -30,7 +29,7 @@ namespace UnitTests
             userPasswordHasher = new PasswordHasher<User>();
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            service = new NoteService(unitOfWork, mapper);
+            service = new NoteService(unitOfWork, mapper, jwtTokenHelper);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper);
         }
 

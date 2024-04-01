@@ -26,7 +26,8 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(d => d.Notes)
                 .WithOne(r => r.Folder)
                 .HasForeignKey(d => d.FolderId)
-                .HasConstraintName("notes_ibfk_2");
+                .HasConstraintName("notes_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
-            builder.Property(e => e.FolderId).HasColumnName("folder_id").IsRequired();
+            builder.Property(e => e.FolderId).HasColumnName("folder_id").HasDefaultValueSql(null);
             builder.Property(e => e.NoteFileId).HasColumnName("file_id").IsRequired();
             builder.Property(e => e.Name).HasColumnName("name").IsRequired();
             builder.Property(e => e.Content).HasColumnName("content");
@@ -35,7 +35,8 @@ namespace OCR_API.Database.Configurations
             builder.HasOne(d => d.NoteFile)
                 .WithMany(r => r.Notes)
                 .HasForeignKey(d => d.NoteFileId)
-                .HasConstraintName("notes_ibfk_3");
+                .HasConstraintName("notes_ibfk_3")
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(n => n.Categories)
                 .WithMany(c => c.Notes)

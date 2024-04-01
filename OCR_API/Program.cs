@@ -60,6 +60,7 @@ builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateFolderDto>, UpdateFolderDtoValidator>();
 builder.Services.AddScoped<IValidator<ConfirmedPasswordDto>, ConfirmedPasswordDtoValidator>();
+builder.Services.AddScoped<IValidator<AddNoteDto>, AddNoteDtoValidator>();
 
 builder.Services.AddScoped<IRepository<BlackListToken>, Repository<BlackListToken>>();
 builder.Services.AddScoped<IRepository<BoundingBox>, Repository<BoundingBox>>();

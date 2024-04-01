@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
-using OCR_API.ModelsDto;
 
 namespace OCR_API.ModelsDto.Validators
 {
-    public class UpdateFolderDtoValidator : AbstractValidator<UpdateFolderDto>
+    public class UpdateNoteDtoValidator : AbstractValidator<UpdateNoteDto>
     {
         private readonly IUnitOfWork unitOfWork;
 
-        public UpdateFolderDtoValidator(IUnitOfWork unitOfWork)
+        public UpdateNoteDtoValidator(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
 
@@ -15,7 +14,7 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    bool nameInUse = unitOfWork.Folders.Entity.Any(u => u.Name == value);
+                    bool nameInUse = unitOfWork.Notes.Entity.Any(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");

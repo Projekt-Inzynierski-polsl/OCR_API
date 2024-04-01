@@ -27,7 +27,8 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(d => d.Lines)
                 .WithOne(r => r.BoundingBox)
                 .HasForeignKey(d => d.BoundingBoxId)
-                .HasConstraintName("line_ibfk_1");
+                .HasConstraintName("line_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

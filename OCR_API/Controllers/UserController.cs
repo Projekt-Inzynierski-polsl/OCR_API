@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OCR_API.ModelsDto;
 using OCR_API.Services;
+using OCR_API.ModelsDto;
 
 namespace OCR_API.Controllers
 {

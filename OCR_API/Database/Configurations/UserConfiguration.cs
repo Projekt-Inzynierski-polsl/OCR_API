@@ -28,12 +28,14 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(d => d.Folders)
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("folder_ibfk_1");
+                .HasConstraintName("folder_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(d => d.Notes)
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("notes_ibfk_1");
+                .HasConstraintName("notes_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(d => d.UploadedModels)
                 .WithOne(r => r.User)
@@ -49,12 +51,14 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(d => d.NoteCategories)
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("note_category_list_ibfk_1");
+                .HasConstraintName("note_category_list_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(d => d.BlackListedTokens)
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("black_listed_tokens_ibfk_1");
+                .HasConstraintName("black_listed_tokens_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

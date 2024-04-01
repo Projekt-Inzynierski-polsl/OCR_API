@@ -8,6 +8,7 @@ public interface IUnitOfWork
     IRepository<BlackListToken> BlackListedTokens { get; }
     IRepository<BoundingBox> BoundingBoxes { get; }
     IRepository<Folder> Folders { get; }
+    IRepository<Note> Notes { get; }
     IRepository<NoteCategory> NoteCategories { get; }
     IRepository<NoteFile> NoteFiles { get; }
     IRepository<NoteLine> NoteLines { get; }
@@ -27,6 +28,7 @@ public class UnitOfWork : IUnitOfWork
     private Repository<BlackListToken> blackListedTokens;
     private Repository<BoundingBox> boundingBoxes;
     private Repository<Folder> folders;
+    private Repository<Note> notes;
     private Repository<NoteCategory> noteCategories;
     private Repository<NoteFile> noteFiles;
     private Repository<NoteLine> noteLines;
@@ -83,6 +85,15 @@ public class UnitOfWork : IUnitOfWork
         {
             return folders ??
                 (folders = new Repository<Folder>(dbContext));
+        }
+    }
+
+    public IRepository<Note> Notes
+    {
+        get
+        {
+            return notes ??
+                (notes = new Repository<Note>(dbContext));
         }
     }
 

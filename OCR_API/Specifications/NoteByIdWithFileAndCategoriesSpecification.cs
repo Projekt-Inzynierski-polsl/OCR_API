@@ -20,7 +20,8 @@ namespace OCR_API.Specifications
 
         public override IQueryable<Note> IncludeEntities(IQueryable<Note> queryable)
         {
-            return queryable.Include(f => f.Categories).Include(f => f.NoteFile);
+            return queryable.Include(f => f.Categories)
+                .Include(f => f.NoteFile);
         }
     }
 }

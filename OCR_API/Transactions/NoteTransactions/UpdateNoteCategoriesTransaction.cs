@@ -24,9 +24,13 @@ namespace OCR_API.Transactions.NoteTransactions
             foreach (int id in categoriesIds)
             {
                 NoteCategory noteCategory = unitOfWork.NoteCategories.GetById(id);
-                if (noteCategory is not null && noteCategory.UserId == userId)
+                if (noteCategory.UserId == userId)
                 {
                     categories.Add(noteCategory);
+                }
+                else
+                {
+                    throw new BadRequestException("Cannot operate someone else's category.");
                 }
             }
             noteToUpdate.Categories = categories;

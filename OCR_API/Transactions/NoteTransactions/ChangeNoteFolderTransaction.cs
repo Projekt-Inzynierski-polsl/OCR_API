@@ -8,9 +8,9 @@ namespace OCR_API.Transactions.NoteTransactions
         private readonly IUnitOfWork unitOfWork;
         private readonly int userId;
         private readonly Note noteToMove;
-        private readonly int folderId;
+        private readonly int? folderId;
 
-        public ChangeNoteFolderTransaction(IUnitOfWork unitOfWork, int userId, Note noteToMove, int folderId)
+        public ChangeNoteFolderTransaction(IUnitOfWork unitOfWork, int userId, Note noteToMove, int? folderId)
         {
             this.unitOfWork = unitOfWork;
             this.userId = userId;
@@ -19,16 +19,22 @@ namespace OCR_API.Transactions.NoteTransactions
         }
         public void Execute()
         {
-            Folder folder = unitOfWork.Folders.GetById(folderId);
-            if(folder is not null && folder.UserId == userId)
+            if(folderId == null)
             {
-                noteToMove.FolderId = folderId != 0 ? folderId : null;
+                noteToMove.FolderId = 0;
             }
             else
             {
-                throw new BadRequestException("Wrong folder id.");
-            }
-            
+                Folder folder = unitOfWork.Folders.GetById((int)folderId);
+                if (folder is not null && folder.UserId == userId)
+                {
+                    noteToMove.FolderId = folderId;
+                }
+                else
+                {
+                    throw new BadRequestException("Wrong folder id.");
+                }
+            }  
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class ChangeNoteFolderDto
     {
-        public int FolderId { get; set; }
+        public int? FolderId { get; set; }
     }
 }

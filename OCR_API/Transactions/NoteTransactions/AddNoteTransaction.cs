@@ -1,17 +1,18 @@
 ﻿using OCR_API.Entities;
+using OCR_API.Exceptions;
 using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.NoteTransactions
 {
     public class AddNoteTransaction : ITransaction
     {
-        private readonly IRepository<Note> repository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly int userId;
         public readonly Note NoteToAdd;
 
-        public AddNoteTransaction(IRepository<Note> repository, int userId, Note noteToAdd)
+        public AddNoteTransaction(IUnitOfWork unitOfWork, int userId, Note noteToAdd)
         {
-            this.repository = repository;
+            this.unitOfWork = unitOfWork;
             this.userId = userId;
             this.NoteToAdd = noteToAdd;
         }
@@ -19,7 +20,23 @@ namespace OCR_API.Transactions.NoteTransactions
         public void Execute()
         {
             NoteToAdd.UserId = userId;
-            repository.Add(NoteToAdd);
+            if (NoteToAdd.FolderId == null)
+            {
+                NoteToAdd.FolderId = 0;
+                unitOfWork.Notes.Add(NoteToAdd);
+            }
+            else
+            {
+                Folder folder = unitOfWork.Folders.GetById((int)NoteToAdd.FolderId);
+                if (folder is not null && folder.UserId == userId)
+                {
+                    unitOfWork.Notes.Add(NoteToAdd);
+                }
+                else
+                {
+                    throw new BadRequestException("Wrong folder id.");
+                }
+            }
         }
     }
 }

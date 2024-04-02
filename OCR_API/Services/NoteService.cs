@@ -44,10 +44,10 @@ namespace OCR_API.Services
             return notesDto;
         }
 
-        public NoteDto GetById(string jwtToken, int folderId)
+        public NoteDto GetById(string jwtToken, int noteId)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            Note note = GetNoteIfBelongsToUser(userId, folderId);
+            Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteDto = mapper.Map<NoteDto>(note);
 
             return noteDto;
@@ -57,7 +57,7 @@ namespace OCR_API.Services
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             Note noteToAdd = mapper.Map<Note>(addNoteDto); 
-            AddNoteTransaction addNoteTransaction = new(UnitOfWork.Notes, userId, noteToAdd);
+            AddNoteTransaction addNoteTransaction = new(UnitOfWork, userId, noteToAdd);
             addNoteTransaction.Execute();
             UnitOfWork.Commit();
             var newNoteId = addNoteTransaction.NoteToAdd.Id;

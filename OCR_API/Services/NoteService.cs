@@ -78,7 +78,7 @@ namespace OCR_API.Services
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             Note noteToUpdate = GetNoteIfBelongsToUser(userId, noteId);
-            UpdateNoteTransaction updateNoteTransaction = new(UnitOfWork, userId, noteToUpdate, updateNoteDto.Name, updateNoteDto.IsPrivate);
+            UpdateNoteTransaction updateNoteTransaction = new(noteToUpdate, updateNoteDto.Name, updateNoteDto.Content, updateNoteDto.IsPrivate);
             updateNoteTransaction.Execute();
             UnitOfWork.Commit();
         }

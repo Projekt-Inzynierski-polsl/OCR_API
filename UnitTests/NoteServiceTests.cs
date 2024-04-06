@@ -154,7 +154,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetAll__ReturnsNotesDto()
+        public void GetAll_ReturnsNotesDto()
         {
             string token = SetUpGetToken();
             string noteName = "TestNote";
@@ -162,17 +162,20 @@ namespace UnitTests
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test" });
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test2" });
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test3" });
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test4" });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(token, addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, IsPrivate = true, NoteFileId = 1, FolderId = null };
             service.CreateNote(token, addNoteDto);
             string noteName2 = "TestNote2";
             string content2 = "my2";
-            addNoteDto = new AddNoteDto() { Name = noteName2, Content = content2, IsPrivate = false, NoteFileId = 1, FolderId = 1 };
+            addNoteDto = new AddNoteDto() { Name = noteName2, Content = content2, IsPrivate = false, NoteFileId = 2, FolderId = 1 };
             service.CreateNote(token, addNoteDto);
             string noteName3 = "TestNote2";
             string content3 = "my3";
-            addNoteDto = new AddNoteDto() { Name = noteName3, Content = content3, IsPrivate = false, NoteFileId = 1, FolderId = 1 };
+            addNoteDto = new AddNoteDto() { Name = noteName3, Content = content3, IsPrivate = false, NoteFileId = 3, FolderId = 1 };
             service.CreateNote(token, addNoteDto);
 
 
@@ -182,7 +185,7 @@ namespace UnitTests
             string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(token2, addFolderDto);
-            addNoteDto = new AddNoteDto() { Name = noteName2, Content = content2, IsPrivate = false, NoteFileId = 1, FolderId = 2 };
+            addNoteDto = new AddNoteDto() { Name = noteName2, Content = content2, IsPrivate = false, NoteFileId = 4, FolderId = 2 };
             service.CreateNote(token2, addNoteDto);
 
             var notes = service.GetAll(token);
@@ -287,16 +290,16 @@ namespace UnitTests
             string noteName = "TestNote";
             string content = "Test";
             string existingNoteName = "ExistingNote";
-            bool existingIsPrivateValue = false;
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test" });
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test2" });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(token, addFolderDto);
-            AddNoteDto addNoteDto = new AddNoteDto() { Name = existingNoteName, Content = content, IsPrivate = existingIsPrivateValue, NoteFileId = 1, FolderId = 1 };
+            AddNoteDto addNoteDto = new AddNoteDto() { Name = existingNoteName, Content = content, IsPrivate = false, NoteFileId = 1, FolderId = 1 };
             service.CreateNote(token, addNoteDto);
-            AddNoteDto addNoteDto2 = new AddNoteDto() { Name = noteName, Content = content, IsPrivate = true, NoteFileId = 1, FolderId = 1 };
+            AddNoteDto addNoteDto2 = new AddNoteDto() { Name = noteName, Content = content, IsPrivate = false, NoteFileId = 2, FolderId = 1 };
             service.CreateNote(token, addNoteDto2);
 
-            UpdateNoteDto updateNoteDto = new UpdateNoteDto() { Name = existingNoteName, IsPrivate = existingIsPrivateValue };
+            UpdateNoteDto updateNoteDto = new UpdateNoteDto() { Name = existingNoteName, IsPrivate = false, Content = content };
             var validationResult = updateNoteValidator.Validate(updateNoteDto);
             Assert.IsFalse(validationResult.IsValid);
         }

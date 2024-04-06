@@ -1,6 +1,6 @@
 ﻿namespace OCR_API.Entities
 {
-    public class Folder
+    public class Folder : IHasUserId
     {
         public int Id { get; set; }
         public int UserId { get; set; }

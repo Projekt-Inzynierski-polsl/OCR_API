@@ -13,8 +13,7 @@ namespace OCR_API.Database.Configurations
             builder.HasIndex(e => e.BoundingBoxId, "note_lines_ibfk_1");
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
-            builder.Property(e => e.BoundingBoxId).HasColumnName("path").IsRequired();
-            builder.Property(e => e.Content).HasColumnName("content");
+            builder.Property(e => e.BoundingBoxId).HasColumnName("bounding_box_id").IsRequired();
             builder.Property(e => e.Coordinates)
                .HasDefaultValueSql("'{}'")
                .HasColumnType("json")
@@ -25,10 +24,10 @@ namespace OCR_API.Database.Configurations
                 .HasForeignKey(d => d.BoundingBoxId)
                 .HasConstraintName("note_lines_ibfk_1");
 
-            builder.HasMany(d => d.WorldErrors)
-                .WithOne(r => r.Line)
+            builder.HasMany(d => d.Words)
+                .WithOne(r => r.NoteLine)
                 .HasForeignKey(d => d.LineId)
-                .HasConstraintName("note_world_errors_1");
+                .HasConstraintName("note_word_errors_1");
         }
     }
 }

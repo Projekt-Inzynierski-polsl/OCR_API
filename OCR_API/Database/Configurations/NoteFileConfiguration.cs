@@ -20,9 +20,9 @@ namespace OCR_API.Database.Configurations
                 .HasConstraintName("bounding_box_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(d => d.Notes)
+            builder.HasOne(d => d.Note)
             .WithOne(r => r.NoteFile)
-            .HasForeignKey(d => d.NoteFileId)
+            .HasForeignKey<Note>(d => d.NoteFileId)
             .HasConstraintName("notes_ibfk_3");
         }
     }

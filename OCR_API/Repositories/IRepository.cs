@@ -10,6 +10,7 @@ namespace OCR_API.Repositories
         void Remove(int id);
         TEntity GetById(int id);
         List<TEntity> GetAll();
+        List<TEntity> GetAllByUser(int userId);
         IQueryable<TEntity> GetBySpecification(Specification<TEntity> spec);
     }
 }

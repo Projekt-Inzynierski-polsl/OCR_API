@@ -1,6 +1,6 @@
 ﻿namespace OCR_API.Entities
 {
-    public class NoteCategory
+    public class NoteCategory : IHasUserId
     {
         public int Id { get; set; }
         public string Name { get; set; }

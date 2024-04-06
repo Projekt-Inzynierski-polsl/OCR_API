@@ -40,8 +40,7 @@ namespace OCR_API.Services
 
         public IEnumerable<UploadedModelDto> GetAllByUserId(int userId)
         {
-            var spec = new UploadedModelsByUserIdSpecification(userId);
-            var models = UnitOfWork.UploadedModels.GetBySpecification(spec).Select(f => mapper.Map<UploadedModelDto>(f)).ToList();
+            var models = UnitOfWork.UploadedModels.GetAllByUser(userId).Select(f => mapper.Map<UploadedModelDto>(f)).ToList();
             return models;
         }
 

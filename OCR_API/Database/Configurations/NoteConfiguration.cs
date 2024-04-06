@@ -33,8 +33,8 @@ namespace OCR_API.Database.Configurations
                 .HasConstraintName("notes_ibfk_2");
 
             builder.HasOne(d => d.NoteFile)
-                .WithMany(r => r.Notes)
-                .HasForeignKey(d => d.NoteFileId)
+                .WithOne(r => r.Note)
+                .HasForeignKey<Note>(d => d.NoteFileId)
                 .HasConstraintName("notes_ibfk_3")
                 .OnDelete(DeleteBehavior.Cascade);
 

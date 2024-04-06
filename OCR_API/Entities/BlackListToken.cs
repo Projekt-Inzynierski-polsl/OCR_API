@@ -1,6 +1,6 @@
 ﻿namespace OCR_API.Entities
 {
-    public class BlackListToken
+    public class BlackListToken : IHasUserId
     {
         public int Id { get; set; }
         public string Token { get; set; }

@@ -17,6 +17,7 @@ namespace OCR_API.Repositories
 
         public DbSet<TEntity> Entity => dbContext.Set<TEntity>();
 
+
         public void Add(TEntity entity)
         {
             Entity.Add(entity);
@@ -49,6 +50,23 @@ namespace OCR_API.Repositories
         public List<TEntity> GetAll()
         {
             return Entity.ToList();
+        }
+
+        public List<TEntity> GetAllByUser(int userId)
+        {
+            if (typeof(TEntity).GetInterfaces().Contains(typeof(IHasUserId)))
+            {
+                // Jeśli tak, wykonaj zapytanie z filtrowaniem UserId
+                return Entity.AsQueryable()
+                    .Cast<IHasUserId>()
+                    .Where(e => e.UserId == userId)
+                    .Cast<TEntity>()
+                    .ToList();
+            }
+            else
+            {
+                return Entity.ToList();
+            }
         }
 
         public IQueryable<TEntity> GetBySpecification(Specification<TEntity> spec)

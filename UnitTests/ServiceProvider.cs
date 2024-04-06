@@ -63,7 +63,7 @@ internal class Helper
         var roles = Helper.GetRoles();
         dbContext.Roles.AddRange(roles);
         dbContext.SaveChanges();
-       return new UnitOfWork(dbContext);
+       return new UnitOfWork(dbContext) { UserId = 1 };
     }
 
     public static IEnumerable<Role> GetRoles()

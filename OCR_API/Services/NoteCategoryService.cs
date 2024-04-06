@@ -37,8 +37,7 @@ namespace OCR_API.Services
         public ICollection<NoteCategoryDto> GetAll(string jwtToken)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new NoteCategoriesByUserId(userId);
-            var noteCategories = UnitOfWork.NoteCategories.GetBySpecification(spec);
+            var noteCategories = UnitOfWork.NoteCategories.GetAllByUser(userId);
             var noteCategoriesDto = noteCategories.Select(f => mapper.Map<NoteCategoryDto>(f)).ToList();
 
             return noteCategoriesDto;

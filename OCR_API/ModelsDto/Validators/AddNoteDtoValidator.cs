@@ -14,7 +14,8 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    bool nameInUse = unitOfWork.Notes.Entity.Any(u => u.Name == value);
+                    var userEntity = unitOfWork.Notes.GetAllByUser(unitOfWork.UserId);
+                    bool nameInUse = userEntity.Any(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");
@@ -26,7 +27,8 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                  .Custom((value, context) =>
                  {
-                     bool folderExist = unitOfWork.Folders.Entity.Any(u => u.Id == value);
+                     var userEntity = unitOfWork.Folders.GetAllByUser(unitOfWork.UserId);
+                     bool folderExist = userEntity.Any(u => u.Id == value);
                      if (!folderExist)
                      {
                          context.AddFailure("FolderId", "That folder doesn't exist.");
@@ -37,7 +39,8 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                  .Custom((value, context) =>
                  {
-                     bool fileExist = unitOfWork.NoteFiles.Entity.Any(u => u.Id == value);
+                     var userEntity = unitOfWork.NoteFiles.GetAllByUser(unitOfWork.UserId);
+                     bool fileExist = userEntity.Any(u => u.Id == value);
                      if (!fileExist)
                      {
                          context.AddFailure("NoteFileId", "That file doesn't exist.");

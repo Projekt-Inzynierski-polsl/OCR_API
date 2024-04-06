@@ -12,8 +12,8 @@ using OCR_API.DbContexts;
 namespace OCR_API.Migrations
 {
     [DbContext(typeof(SystemDbContext))]
-    [Migration("20240329212123_Changed column name in folders")]
-    partial class Changedcolumnnameinfolders
+    [Migration("20240406175235_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,6 +93,26 @@ namespace OCR_API.Migrations
                     b.ToTable("bounding_boxes", (string)null);
                 });
 
+            modelBuilder.Entity("OCR_API.Entities.ErrorCutFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("path");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("error_cut_files", (string)null);
+                });
+
             modelBuilder.Entity("OCR_API.Entities.Folder", b =>
                 {
                     b.Property<int>("Id")
@@ -142,7 +162,7 @@ namespace OCR_API.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("content");
 
-                    b.Property<int>("FolderId")
+                    b.Property<int?>("FolderId")
                         .HasColumnType("int")
                         .HasColumnName("folder_id");
 
@@ -165,6 +185,9 @@ namespace OCR_API.Migrations
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("NoteFileId")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "UserId" }, "notes_ibfk_1");
 
@@ -232,12 +255,7 @@ namespace OCR_API.Migrations
 
                     b.Property<int>("BoundingBoxId")
                         .HasColumnType("int")
-                        .HasColumnName("path");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("content");
+                        .HasColumnName("bounding_box_id");
 
                     b.Property<string>("Coordinates")
                         .IsRequired()
@@ -254,7 +272,7 @@ namespace OCR_API.Migrations
                     b.ToTable("note_lines", (string)null);
                 });
 
-            modelBuilder.Entity("OCR_API.Entities.NoteWorldError", b =>
+            modelBuilder.Entity("OCR_API.Entities.NoteLineWord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -263,31 +281,59 @@ namespace OCR_API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BoundingBoxId")
-                        .HasColumnType("int");
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Coordinates")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("json")
+                        .HasColumnName("coordinates")
+                        .HasDefaultValueSql("'{}'");
+
+                    b.Property<int>("LineId")
+                        .HasColumnType("int")
+                        .HasColumnName("line_id");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex(new[] { "LineId" }, "note_line_words_ibfk_1");
+
+                    b.ToTable("note_line_words", (string)null);
+                });
+
+            modelBuilder.Entity("OCR_API.Entities.NoteWordError", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CorrectContent")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("correct_content");
 
-                    b.Property<int>("LineId")
+                    b.Property<int>("FileId")
                         .HasColumnType("int")
-                        .HasColumnName("line_id");
+                        .HasColumnName("file_id");
 
-                    b.Property<int?>("NoteId")
-                        .HasColumnType("int");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("BoundingBoxId");
+                    b.HasIndex(new[] { "FileId" }, "note_word_errors_ibfk_1");
 
-                    b.HasIndex("NoteId");
+                    b.HasIndex(new[] { "UserId" }, "note_word_errors_ibfk_2");
 
-                    b.HasIndex(new[] { "LineId" }, "note_world_errors_ibfk_1");
-
-                    b.ToTable("note_world_errors", (string)null);
+                    b.ToTable("note_word_errors", (string)null);
                 });
 
             modelBuilder.Entity("OCR_API.Entities.Role", b =>
@@ -489,12 +535,11 @@ namespace OCR_API.Migrations
                         .WithMany("Notes")
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("notes_ibfk_2");
 
                     b.HasOne("OCR_API.Entities.NoteFile", "NoteFile")
-                        .WithMany("Notes")
-                        .HasForeignKey("NoteFileId")
+                        .WithOne("Note")
+                        .HasForeignKey("OCR_API.Entities.Note", "NoteFileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("notes_ibfk_3");
@@ -537,24 +582,37 @@ namespace OCR_API.Migrations
                     b.Navigation("BoundingBox");
                 });
 
-            modelBuilder.Entity("OCR_API.Entities.NoteWorldError", b =>
+            modelBuilder.Entity("OCR_API.Entities.NoteLineWord", b =>
                 {
-                    b.HasOne("OCR_API.Entities.BoundingBox", null)
-                        .WithMany("WorldErrors")
-                        .HasForeignKey("BoundingBoxId");
-
-                    b.HasOne("OCR_API.Entities.NoteLine", "Line")
-                        .WithMany("WorldErrors")
+                    b.HasOne("OCR_API.Entities.NoteLine", "NoteLine")
+                        .WithMany("Words")
                         .HasForeignKey("LineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("note_world_errors_ibfk_1");
+                        .HasConstraintName("note_line_words_ibfk_1");
 
-                    b.HasOne("OCR_API.Entities.Note", null)
-                        .WithMany("WorldErrors")
-                        .HasForeignKey("NoteId");
+                    b.Navigation("NoteLine");
+                });
 
-                    b.Navigation("Line");
+            modelBuilder.Entity("OCR_API.Entities.NoteWordError", b =>
+                {
+                    b.HasOne("OCR_API.Entities.ErrorCutFile", "File")
+                        .WithMany("Errors")
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("note_word_errors_ibfk_1");
+
+                    b.HasOne("OCR_API.Entities.User", "User")
+                        .WithMany("Errors")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("note_word_errors_ibfk_2");
+
+                    b.Navigation("File");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("OCR_API.Entities.UploadedModel", b =>
@@ -605,8 +663,11 @@ namespace OCR_API.Migrations
             modelBuilder.Entity("OCR_API.Entities.BoundingBox", b =>
                 {
                     b.Navigation("Lines");
+                });
 
-                    b.Navigation("WorldErrors");
+            modelBuilder.Entity("OCR_API.Entities.ErrorCutFile", b =>
+                {
+                    b.Navigation("Errors");
                 });
 
             modelBuilder.Entity("OCR_API.Entities.Folder", b =>
@@ -614,21 +675,17 @@ namespace OCR_API.Migrations
                     b.Navigation("Notes");
                 });
 
-            modelBuilder.Entity("OCR_API.Entities.Note", b =>
-                {
-                    b.Navigation("WorldErrors");
-                });
-
             modelBuilder.Entity("OCR_API.Entities.NoteFile", b =>
                 {
                     b.Navigation("BoundingBoxes");
 
-                    b.Navigation("Notes");
+                    b.Navigation("Note")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OCR_API.Entities.NoteLine", b =>
                 {
-                    b.Navigation("WorldErrors");
+                    b.Navigation("Words");
                 });
 
             modelBuilder.Entity("OCR_API.Entities.Role", b =>
@@ -639,6 +696,8 @@ namespace OCR_API.Migrations
             modelBuilder.Entity("OCR_API.Entities.User", b =>
                 {
                     b.Navigation("BlackListedTokens");
+
+                    b.Navigation("Errors");
 
                     b.Navigation("Folders");
 

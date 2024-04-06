@@ -7,12 +7,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OCR_API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "error_cut_files",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    path = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PRIMARY", x => x.id);
+                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -114,9 +129,7 @@ namespace OCR_API.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    path = table.Column<int>(type: "int", nullable: false),
-                    content = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    bounding_box_id = table.Column<int>(type: "int", nullable: false),
                     coordinates = table.Column<string>(type: "json", nullable: false, defaultValueSql: "'{}'")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
@@ -125,8 +138,30 @@ namespace OCR_API.Migrations
                     table.PrimaryKey("PRIMARY", x => x.id);
                     table.ForeignKey(
                         name: "note_lines_ibfk_1",
-                        column: x => x.path,
+                        column: x => x.bounding_box_id,
                         principalTable: "bounding_boxes",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "black_listed_tokens",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    token = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PRIMARY", x => x.id);
+                    table.ForeignKey(
+                        name: "black_listed_tokens_ibfk_1",
+                        column: x => x.UserId,
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -143,7 +178,7 @@ namespace OCR_API.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     icon_path = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    hashed_password = table.Column<string>(type: "longtext", nullable: true)
+                    password_hash = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -173,6 +208,35 @@ namespace OCR_API.Migrations
                     table.PrimaryKey("PRIMARY", x => x.id);
                     table.ForeignKey(
                         name: "note_category_list_ibfk_1",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "note_word_errors",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    file_id = table.Column<int>(type: "int", nullable: false),
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    correct_content = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PRIMARY", x => x.id);
+                    table.ForeignKey(
+                        name: "note_word_errors_ibfk_1",
+                        column: x => x.file_id,
+                        principalTable: "error_cut_files",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "note_word_errors_ibfk_2",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -234,13 +298,37 @@ namespace OCR_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "note_line_words",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    line_id = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    coordinates = table.Column<string>(type: "json", nullable: false, defaultValueSql: "'{}'")
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PRIMARY", x => x.id);
+                    table.ForeignKey(
+                        name: "note_line_words_ibfk_1",
+                        column: x => x.line_id,
+                        principalTable: "note_lines",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "notes",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     user_id = table.Column<int>(type: "int", nullable: false),
-                    folder_id = table.Column<int>(type: "int", nullable: false),
+                    folder_id = table.Column<int>(type: "int", nullable: true),
                     file_id = table.Column<int>(type: "int", nullable: false),
                     name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -273,40 +361,6 @@ namespace OCR_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "note_world_errors",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    line_id = table.Column<int>(type: "int", nullable: false),
-                    correct_content = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    BoundingBoxId = table.Column<int>(type: "int", nullable: true),
-                    NoteId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PRIMARY", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_note_world_errors_bounding_boxes_BoundingBoxId",
-                        column: x => x.BoundingBoxId,
-                        principalTable: "bounding_boxes",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_note_world_errors_notes_NoteId",
-                        column: x => x.NoteId,
-                        principalTable: "notes",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "note_world_errors_ibfk_1",
-                        column: x => x.line_id,
-                        principalTable: "note_lines",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "notes_category_map",
                 columns: table => new
                 {
@@ -332,6 +386,11 @@ namespace OCR_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
+                name: "black_listed_tokens_ibfk_1",
+                table: "black_listed_tokens",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "bounding_box_ibfk_1",
                 table: "bounding_boxes",
                 column: "file_id");
@@ -347,24 +406,30 @@ namespace OCR_API.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "note_line_words_ibfk_1",
+                table: "note_line_words",
+                column: "line_id");
+
+            migrationBuilder.CreateIndex(
                 name: "note_lines_ibfk_1",
                 table: "note_lines",
-                column: "path");
+                column: "bounding_box_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_note_world_errors_BoundingBoxId",
-                table: "note_world_errors",
-                column: "BoundingBoxId");
+                name: "note_word_errors_ibfk_1",
+                table: "note_word_errors",
+                column: "file_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_note_world_errors_NoteId",
-                table: "note_world_errors",
-                column: "NoteId");
+                name: "note_word_errors_ibfk_2",
+                table: "note_word_errors",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "note_world_errors_ibfk_1",
-                table: "note_world_errors",
-                column: "line_id");
+                name: "IX_notes_file_id",
+                table: "notes",
+                column: "file_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "notes_ibfk_1",
@@ -411,7 +476,13 @@ namespace OCR_API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "note_world_errors");
+                name: "black_listed_tokens");
+
+            migrationBuilder.DropTable(
+                name: "note_line_words");
+
+            migrationBuilder.DropTable(
+                name: "note_word_errors");
 
             migrationBuilder.DropTable(
                 name: "notes_category_map");
@@ -424,6 +495,9 @@ namespace OCR_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "note_lines");
+
+            migrationBuilder.DropTable(
+                name: "error_cut_files");
 
             migrationBuilder.DropTable(
                 name: "note_category_list");

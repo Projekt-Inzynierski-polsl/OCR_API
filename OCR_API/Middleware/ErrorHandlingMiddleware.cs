@@ -8,24 +8,26 @@ namespace OCR_API.Middleware
     public class ErrorHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<ErrorHandlingMiddleware> logger;
-        private readonly IRepository<BlackListToken> blackListedTokens;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly JwtTokenHelper jwtTokenHelper;
 
-        public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IRepository<BlackListToken> blackListedTokens)
+        public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IUnitOfWork unitOfWork, JwtTokenHelper jwtTokenHelper)
         {
             this.logger = logger;
-            this.blackListedTokens = blackListedTokens;
+            this.unitOfWork = unitOfWork;
+            this.jwtTokenHelper = jwtTokenHelper;
         }
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
                 var jwtToken = context.Request.Headers["Authorization"].ToString()?.Split(" ").LastOrDefault();
-
-                if (!string.IsNullOrEmpty(jwtToken) && blackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
+                if (!string.IsNullOrEmpty(jwtToken) && unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
                 {
                     throw new UnauthorizedAccessException("Unauthorized: Token is blacklisted.");
                 }
-
+                var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+                unitOfWork.UserId = userId;
                 await next.Invoke(context);
             }
             catch(NotFoundException e)

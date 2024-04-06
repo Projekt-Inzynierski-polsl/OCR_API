@@ -70,7 +70,7 @@ builder.Services.AddScoped<IRepository<Folder>, Repository<Folder>>();
 builder.Services.AddScoped<IRepository<NoteCategory>, Repository<NoteCategory>>();
 builder.Services.AddScoped<IRepository<NoteFile>, Repository<NoteFile>>();
 builder.Services.AddScoped<IRepository<NoteLine>, Repository<NoteLine>>();
-builder.Services.AddScoped<IRepository<NoteWorldError>, Repository<NoteWorldError>>();
+builder.Services.AddScoped<IRepository<NoteWordError>, Repository<NoteWordError>>();
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
 builder.Services.AddScoped<IRepository<UploadedModel>, Repository<UploadedModel>>();

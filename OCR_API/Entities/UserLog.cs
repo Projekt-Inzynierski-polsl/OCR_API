@@ -1,6 +1,6 @@
 ﻿namespace OCR_API.Entities
 {
-    public class UserLog
+    public class UserLog : IHasUserId
     {
         public int Id { get; set; }
         public int UserId { get; set; }

@@ -9,6 +9,5 @@ namespace OCR_API.Entities
         public string Coordinates { get; set; }
         public virtual NoteFile NoteFile { get; set; }
         public virtual ICollection<NoteLine> Lines { get; set; } = new List<NoteLine>();
-        public virtual ICollection<NoteWorldError> WorldErrors { get; set; } = new List<NoteWorldError>();
     }
 }

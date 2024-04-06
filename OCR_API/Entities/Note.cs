@@ -2,7 +2,7 @@
 
 namespace OCR_API.Entities
 {
-    public class Note
+    public class Note : IHasUserId
     {
         public int Id { get; set; }
         public int UserId { get; set; }
@@ -16,7 +16,6 @@ namespace OCR_API.Entities
         public virtual Folder? Folder { get; set; }
         public virtual NoteFile NoteFile { get; set; }
         public virtual ICollection<NoteCategory> Categories { get; set; } = new List<NoteCategory>();
-        public virtual ICollection<NoteWorldError> WorldErrors { get; set; } = new List<NoteWorldError>();
 
     }
 }

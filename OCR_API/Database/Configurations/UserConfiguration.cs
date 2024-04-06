@@ -59,6 +59,12 @@ namespace OCR_API.Database.Configurations
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("black_listed_tokens_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(d => d.Errors)
+                .WithOne(r => r.User)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("note_word_errors_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

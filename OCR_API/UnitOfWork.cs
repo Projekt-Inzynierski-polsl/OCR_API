@@ -5,6 +5,7 @@ using OCR_API.Repositories;
 
 public interface IUnitOfWork
 {
+    int UserId { get; set; }
     IRepository<BlackListToken> BlackListedTokens { get; }
     IRepository<BoundingBox> BoundingBoxes { get; }
     IRepository<Folder> Folders { get; }
@@ -12,7 +13,7 @@ public interface IUnitOfWork
     IRepository<NoteCategory> NoteCategories { get; }
     IRepository<NoteFile> NoteFiles { get; }
     IRepository<NoteLine> NoteLines { get; }
-    IRepository<NoteWorldError> NoteWorldErrors { get; }
+    IRepository<NoteWordError> NoteWordErrors { get; }
     IRepository<User> Users { get; }
     IRepository<Role> Roles { get; }
     IRepository<UploadedModel> UploadedModels { get; }
@@ -25,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
 
     private readonly SystemDbContext dbContext;
 
+    public int UserId { get; set; }
     private Repository<BlackListToken> blackListedTokens;
     private Repository<BoundingBox> boundingBoxes;
     private Repository<Folder> folders;
@@ -32,7 +34,7 @@ public class UnitOfWork : IUnitOfWork
     private Repository<NoteCategory> noteCategories;
     private Repository<NoteFile> noteFiles;
     private Repository<NoteLine> noteLines;
-    private Repository<NoteWorldError> noteWorldErrors;
+    private Repository<NoteWordError> noteWordErrors;
     private Repository<UploadedModel> uploadedModels;
     private Repository<User> users;
     private Repository<Role> roles;
@@ -123,12 +125,12 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public IRepository<NoteWorldError> NoteWorldErrors
+    public IRepository<NoteWordError> NoteWordErrors
     {
         get
         {
-            return noteWorldErrors ??
-                (noteWorldErrors = new Repository<NoteWorldError>(dbContext));
+            return noteWordErrors ??
+                (noteWordErrors = new Repository<NoteWordError>(dbContext));
         }
     }
 

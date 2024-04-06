@@ -10,7 +10,7 @@ using OCR_API.Transactions.NoteTransactions;
 
 namespace OCR_API.Services
 {
-    public interface INoteCategoriesService
+    public interface INoteCategoryService
     {
         IUnitOfWork UnitOfWork { get; }
         ICollection<NoteCategoryDto> GetAll(string accessToken);
@@ -20,14 +20,14 @@ namespace OCR_API.Services
         void UpdateCategoryName(string accessToken, int categoryId, NameNoteCategoryDto nameNoteCategoryDto);
 
     }
-    public class NoteCategoriesService : INoteCategoriesService
+    public class NoteCategoryService : INoteCategoryService
     {
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
 
 
-        public NoteCategoriesService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
         {
             this.UnitOfWork = unitOfWork;
             this.mapper = mapper;

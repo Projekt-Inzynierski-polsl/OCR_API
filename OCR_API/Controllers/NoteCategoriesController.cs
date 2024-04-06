@@ -12,9 +12,9 @@ namespace OCR_API.Controllers
     [Authorize]
     public class NoteCategoriesController : ControllerBase
     {
-        private readonly INoteCategoriesService noteCategoriesService;
+        private readonly INoteCategoryService noteCategoriesService;
 
-        public NoteCategoriesController(INoteCategoriesService noteCategoriesService)
+        public NoteCategoriesController(INoteCategoryService noteCategoriesService)
         {
             this.noteCategoriesService = noteCategoriesService;
         }

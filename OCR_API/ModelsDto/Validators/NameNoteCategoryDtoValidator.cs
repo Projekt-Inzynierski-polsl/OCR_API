@@ -15,7 +15,7 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    bool nameInUse = unitOfWork.Folders.Entity.Any(u => u.Name == value);
+                    bool nameInUse = unitOfWork.NoteCategories.Entity.Any(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");

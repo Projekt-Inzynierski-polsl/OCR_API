@@ -83,6 +83,7 @@ builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<IUploadedModelService, UploadedModelService>();
 builder.Services.AddScoped<INoteCategoryService, NoteCategoryService>();
+builder.Services.AddScoped<INoteWordErrorService, NoteWordErrorService>();
 builder.Services.AddAutoMapper(typeof(UserMappingProfile));
 builder.Services.AddAutoMapper(typeof(FolderMappingProfile));
 builder.Host.UseNLog();

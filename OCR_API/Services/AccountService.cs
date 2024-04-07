@@ -90,7 +90,8 @@ namespace OCR_API.Services
                 throw new BadRequestException("Token has already expired.");
             }
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var user = UnitOfWork.Users.GetById(userId);
+            var spec = new UserByIdWithRoleSpecification(userId);
+            var user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
             string token = jwtTokenHelper.CreateJwtToken(user);
             return token;
         }

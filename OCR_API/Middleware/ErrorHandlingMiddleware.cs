@@ -20,14 +20,18 @@ namespace OCR_API.Middleware
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
-            {
+            {       
                 var jwtToken = context.Request.Headers["Authorization"].ToString()?.Split(" ").LastOrDefault();
-                if (!string.IsNullOrEmpty(jwtToken) && unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
+                if (!string.IsNullOrEmpty(jwtToken))
                 {
-                    throw new UnauthorizedAccessException("Unauthorized: Token is blacklisted.");
+                    if (unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
+                    {
+                        throw new UnauthorizedAccessException("Unauthorized: Token is blacklisted.");
+                    }
+                    var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+                    unitOfWork.UserId = userId;
                 }
-                var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-                unitOfWork.UserId = userId;
+
                 await next.Invoke(context);
             }
             catch(NotFoundException e)

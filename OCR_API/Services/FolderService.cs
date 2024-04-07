@@ -7,6 +7,7 @@ using OCR_API.Exceptions;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
 using OCR_API.Specifications;
+using OCR_API.Transactions;
 using OCR_API.Transactions.FolderTransactions;
 using OCR_API.Transactions.UserTransactions;
 
@@ -94,7 +95,7 @@ namespace OCR_API.Services
                     throw new BadRequestException("Invalid password.");
                 }
             }
-            DeleteFolderTransaction deleteFolderTransaction = new(UnitOfWork.Folders, folderId);
+            DeleteEntityTransaction<Folder> deleteFolderTransaction = new(UnitOfWork.Folders, folderId);
             deleteFolderTransaction.Execute();
             UnitOfWork.Commit();
         }

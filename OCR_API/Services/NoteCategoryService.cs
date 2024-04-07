@@ -5,6 +5,7 @@ using OCR_API.Exceptions;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
 using OCR_API.Specifications;
+using OCR_API.Transactions;
 using OCR_API.Transactions.NoteCategoriesTransactions;
 using OCR_API.Transactions.NoteTransactions;
 
@@ -67,7 +68,7 @@ namespace OCR_API.Services
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             NoteCategory noteCategoryToRemove = GetNoteCategoryIfBelongsToUser(userId, categoryId);
-            DeleteNoteCategoryTransaction deleteNoteCategoryTransaction = new(UnitOfWork.NoteCategories, noteCategoryToRemove.Id);
+            DeleteEntityTransaction<NoteCategory> deleteNoteCategoryTransaction = new(UnitOfWork.NoteCategories, noteCategoryToRemove.Id);
             deleteNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
         }

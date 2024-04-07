@@ -7,6 +7,7 @@ using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
+using OCR_API.Transactions;
 using OCR_API.Transactions.UserTransactions;
 
 namespace OCR_API.Services
@@ -62,7 +63,7 @@ namespace OCR_API.Services
         }
         public void DeleteUser(int userId)
         {
-            DeleteUserTransaction deleteUserTransaction = new(UnitOfWork.Users, userId);
+            DeleteEntityTransaction<User> deleteUserTransaction = new(UnitOfWork.Users, userId);
             deleteUserTransaction.Execute();
             UnitOfWork.Commit();
         }

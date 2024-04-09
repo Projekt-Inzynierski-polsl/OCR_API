@@ -20,7 +20,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> GetAllAsync()
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");

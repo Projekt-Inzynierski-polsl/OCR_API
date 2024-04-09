@@ -9,6 +9,7 @@ using OCR_API;
 using OCR_API.ModelsDto.Validators;
 using Newtonsoft.Json.Linq;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 
 namespace UnitTests
 {
@@ -25,6 +26,7 @@ namespace UnitTests
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
+        private UserActionLogger logger;
 
         public FolderServiceTests()
         {
@@ -36,8 +38,9 @@ namespace UnitTests
             addFolderValidator = new AddFolderDtoValidator(unitOfWork);
             updateFolderValidator = new UpdateFolderDtoValidator(unitOfWork);
             confirmedPasswordValidator = new ConfirmedPasswordDtoValidator();
-            service = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper);
-            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper);
+            logger = new UserActionLogger(unitOfWork.UserLogs);
+            service = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper, logger);
+            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
         }
 
         public string SetUpGetToken()

@@ -17,6 +17,8 @@ using OCR_API.Seeders;
 using OCR_API.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
+using OCR_API.Logger;
 
 namespace UnitTests
 {
@@ -29,6 +31,7 @@ namespace UnitTests
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
+        private UserActionLogger logger;
         public AccountServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -36,7 +39,8 @@ namespace UnitTests
             registerValidator = new RegisterUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper);
+            logger = new UserActionLogger(unitOfWork.UserLogs);
+            service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
             
         }
 

@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
 using OCR_API.Specifications;
@@ -26,13 +27,14 @@ namespace OCR_API.Services
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
 
-
-        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             this.UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public ICollection<NoteCategoryDto> GetAll(string jwtToken)

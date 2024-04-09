@@ -8,6 +8,7 @@ using NLog.Web;
 using OCR_API;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
+using OCR_API.Logger;
 using OCR_API.MappingProfiles;
 using OCR_API.Middleware;
 using OCR_API.ModelsDto;
@@ -52,6 +53,7 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
 
 builder.Services.AddScoped<Seeder>();
 builder.Services.AddScoped<JwtTokenHelper>();
+builder.Services.AddScoped<UserActionLogger>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

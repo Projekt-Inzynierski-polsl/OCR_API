@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
+using OCR_API.Logger;
 using System.Security.Cryptography;
 
 namespace OCR_API.Seeders
@@ -9,10 +10,12 @@ namespace OCR_API.Seeders
     public class Seeder
     {
         private readonly SystemDbContext dbContext;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Seeder(SystemDbContext dbContext)
+        public Seeder(SystemDbContext dbContext, IUnitOfWork unitOfWork)
         {
             this.dbContext = dbContext;
+            this.unitOfWork = unitOfWork;
         }
         public void Seed()
         {
@@ -24,11 +27,44 @@ namespace OCR_API.Seeders
                     dbContext.Database.Migrate();
                 }
 
-                if(!dbContext.Roles.Any())
+                if(!unitOfWork.Roles.Entity.Any())
                 {
                     var roles = GetRoles();
-                    dbContext.Roles.AddRange(roles);
-                    dbContext.SaveChanges();
+                    unitOfWork.Roles.Entity.AddRange(roles);
+                    unitOfWork.Commit();
+                }
+
+                if (!unitOfWork.UserActions.Entity.Any())
+                {
+                    Dictionary<EUserAction, string> userActions = new Dictionary<EUserAction, string>
+                    {
+                        { EUserAction.Registration, "Registration" },
+                        { EUserAction.Login, "Login" },
+                        { EUserAction.RefreshToken, "RefreshToken" },
+                        { EUserAction.AddFolder, "AddFolder" },
+                        { EUserAction.RemoveFolder, "RemoveFolder" },
+                        { EUserAction.EditFolder, "EditFolder" },
+                        { EUserAction.AddNote, "AddNote" },
+                        { EUserAction.RemoveNote, "RemoveNote" },
+                        { EUserAction.EditNote, "EditNote" },
+                        { EUserAction.ChangeNoteFolder, "ChangeNoteFolder" },
+                        { EUserAction.ReportError, "ReportError" },
+                        { EUserAction.EditUser, "EditUser" },
+                        { EUserAction.LogoutUser, "LogoutUser" },
+                        { EUserAction.DeleteError, "DeleteError" },
+                        { EUserAction.DownloadErrors, "DownloadErrors" },
+                        { EUserAction.ClearErrorTable, "ClearErrorTable" },
+                        { EUserAction.AddCategory, "AddCategory" },
+                        { EUserAction.RemoveCategory, "RemoveCategory" },
+                        { EUserAction.UpdateCategory, "UpdateCategory" }
+                    };
+
+                    foreach(var action in userActions)
+                    {
+                        unitOfWork.UserActions.Add(new UserAction() { Id = (int)action.Key, Name = action.Value });
+                    }
+                    unitOfWork.Commit();
+
                 }
             }
         }

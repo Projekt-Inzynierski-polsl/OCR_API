@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.Specifications;
@@ -24,12 +25,14 @@ namespace OCR_API.Services
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
 
-        public UploadedModelService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public UploadedModelService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public IEnumerable<UploadedModelDto> GetAll()

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 
 namespace UnitTests
 {
@@ -26,7 +27,7 @@ namespace UnitTests
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
-
+        private readonly UserActionLogger logger;
         public UserServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -34,8 +35,9 @@ namespace UnitTests
             updateValidator = new UpdateUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            service = new UserService(unitOfWork, passwordHasher, mapper);
-            accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper);
+            logger = new UserActionLogger(unitOfWork.UserLogs);
+            service = new UserService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
+            accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
 
         }
 

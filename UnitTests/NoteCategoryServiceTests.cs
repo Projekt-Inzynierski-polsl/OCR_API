@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
 using Newtonsoft.Json.Linq;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 
 namespace UnitTests
 {
@@ -27,6 +28,7 @@ namespace UnitTests
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly IValidator<NameNoteCategoryDto> nameNoteCategoryValidator;
         private IUnitOfWork unitOfWork;
+        private readonly UserActionLogger logger;
 
         public NoteCategoryServiceTests()
         {
@@ -35,8 +37,9 @@ namespace UnitTests
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
             nameNoteCategoryValidator = new NameNoteCategoryDtoValidator(unitOfWork);
-            service = new NoteCategoryService(unitOfWork, mapper, jwtTokenHelper);
-            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper);
+            logger = new UserActionLogger(unitOfWork.UserLogs);
+            service = new NoteCategoryService(unitOfWork, mapper, jwtTokenHelper, logger);
+            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
         }
 
         public string SetUpGetToken()

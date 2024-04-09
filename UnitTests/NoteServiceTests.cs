@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using OCR_API;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.Validators;
 using OCR_API.Services;
@@ -23,7 +24,7 @@ namespace UnitTests
         private readonly IValidator<AddNoteDto> addNoteValidator;
         private readonly IValidator<UpdateNoteDto> updateNoteValidator;
         private IUnitOfWork unitOfWork;
-
+        private readonly UserActionLogger logger;
         public NoteServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -33,9 +34,10 @@ namespace UnitTests
             jwtTokenHelper = new JwtTokenHelper();
             addNoteValidator = new AddNoteDtoValidator(unitOfWork);
             updateNoteValidator = new UpdateNoteDtoValidator(unitOfWork);
-            service = new NoteService(unitOfWork, mapper, jwtTokenHelper);
-            folderService = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper);
-            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper);
+            logger = new UserActionLogger(unitOfWork.UserLogs);
+            service = new NoteService(unitOfWork, mapper, jwtTokenHelper, logger);
+            folderService = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper, logger);
+            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
         }
 
         public string SetUpGetToken()

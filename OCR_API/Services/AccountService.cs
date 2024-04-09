@@ -13,6 +13,7 @@ using OCR_API.ModelsDto;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using OCR_API.Logger;
 
 namespace OCR_API.Services
 {
@@ -31,13 +32,15 @@ namespace OCR_API.Services
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
 
-        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public string RegisterAccount(RegisterUserDto registerUserDto)

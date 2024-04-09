@@ -14,7 +14,7 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.Name).HasColumnName("name").IsRequired();
-            builder.Property(e => e.HexColor).HasColumnName("hex_color");
+            builder.Property(e => e.HexColor).HasColumnName("hex_color").HasDefaultValueSql(null);
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 
 

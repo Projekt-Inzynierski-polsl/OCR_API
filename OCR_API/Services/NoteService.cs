@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
@@ -16,6 +17,7 @@ namespace OCR_API.Services
 
         IEnumerable<NoteDto> GetAll(string accessToken);
         NoteDto GetById(string accessToken, int noteId);
+        IEnumerable<NoteDto> GetLastEdited(string accessToken, int amount);
         int CreateNote(string accessToken, AddNoteDto addNoteDto);
         void DeleteNote(string accessToken, int noteId);
         void UpdateNote(string accessToken, int noteId, UpdateNoteDto updateNoteDto);
@@ -27,12 +29,14 @@ namespace OCR_API.Services
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
 
-        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public IEnumerable<NoteDto> GetAll(string jwtToken)
@@ -52,6 +56,18 @@ namespace OCR_API.Services
             var noteDto = mapper.Map<NoteDto>(note);
 
             return noteDto;
+        }
+
+        public IEnumerable<NoteDto> GetLastEdited(string jwtToken, int amount)
+        {
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            int minNoteUserAction = (int)EUserAction.AddNote;
+            int maxNoteUserAction = (int)EUserAction.ChangeNoteFolder;
+            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && f.ActionId >= minNoteUserAction && f.ActionId <= maxNoteUserAction).TakeLast(amount).Select(f => f.ObjectId);
+            var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
+            var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
+
+            return notesDto;
         }
 
         public int CreateNote(string jwtToken, AddNoteDto addNoteDto)

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NLog.Filters;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
 using OCR_API.Specifications;
@@ -30,13 +31,15 @@ namespace OCR_API.Services
         private readonly IPasswordHasher<Folder> passwordHasher;
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
 
-        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public IEnumerable<FolderDto> GetAll(string jwtToken)

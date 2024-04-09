@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.Services;
 using OCR_API.ModelsDto;
+using Microsoft.AspNetCore.Authentication;
 
 namespace OCR_API.Controllers
 {
@@ -32,6 +33,16 @@ namespace OCR_API.Controllers
             var user = userService.GetById(userId);
             return Ok(user);
         }
+
+        [HttpGet("logged")]
+
+        public async Task<ActionResult> GetLoggedUserAsync()
+        {
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            var user = userService.GetLoggedUser(accessToken);
+            return Ok(user);
+        }
+
 
         [HttpPut("{userId}")]
         [Authorize(Roles = "Admin")]

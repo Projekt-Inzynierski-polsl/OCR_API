@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int UserId { get; set; }
         public int ActionId { get; set; }
+        public int? ObjectId { get; set; } = null;
         public string Description { get; set; }
         public DateTime LogTime { get; set; }
 

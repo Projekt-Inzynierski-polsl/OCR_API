@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.Specifications;
@@ -27,13 +28,15 @@ namespace OCR_API.Services
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly UserActionLogger logger;
         private string OCR_ERRORS_DIRECTORY_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ocr_errors");
 
-        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper)
+        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
+            this.logger = logger;
         }
 
         public IEnumerable<NoteWordErrorDto> GetAll()

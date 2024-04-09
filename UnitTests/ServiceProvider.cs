@@ -13,6 +13,7 @@ using OCR_API.Seeders;
 using OCR_API.Services;
 using OCR_API;
 using Microsoft.EntityFrameworkCore;
+using OCR_API.Logger;
 
 internal class Helper
 {
@@ -45,6 +46,7 @@ internal class Helper
         services.AddScoped<ErrorHandlingMiddleware>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddSingleton<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<UserActionLogger> ();
         services.AddSingleton<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
         services.AddSingleton<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
         services.AddSingleton<IRepository<User>, Repository<User>>();

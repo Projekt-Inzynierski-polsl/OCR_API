@@ -6,15 +6,18 @@ namespace OCR_API.Transactions.NoteCategoriesTransactions
     {
         private readonly NoteCategory noteCategoryToUpdate;
         private readonly string newName;
+        private readonly string? newColor;
 
-        public UpdateNoteCategoryTransaction(NoteCategory notecategoryToUpdate, string newName)
+        public UpdateNoteCategoryTransaction(NoteCategory notecategoryToUpdate, string newName, string? newColor)
         {
             this.noteCategoryToUpdate = notecategoryToUpdate;
             this.newName = newName;
+            this.newColor = newColor;
         }
         public void Execute()
         {
             noteCategoryToUpdate.Name = newName;
+            noteCategoryToUpdate.HexColor = newColor;
         }
     }
 }

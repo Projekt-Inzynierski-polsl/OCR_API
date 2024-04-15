@@ -17,9 +17,9 @@ namespace OCR_API.Services
         IUnitOfWork UnitOfWork { get; }
         ICollection<NoteCategoryDto> GetAll(string accessToken);
         NoteCategoryDto GetById(string accessToken, int categoryId);
-        int AddNewCategory(string accessToken, NameNoteCategoryDto nameNoteCategoryDto);
+        int AddNewCategory(string accessToken, ActionNoteCategoryDto actionNoteCategoryDto);
         void DeleteCategory(string accessToken, int categoryId);
-        void UpdateCategoryName(string accessToken, int categoryId, NameNoteCategoryDto nameNoteCategoryDto);
+        void UpdateCategory(string accessToken, int categoryId, ActionNoteCategoryDto acctionNoteCategoryDto);
 
     }
     public class NoteCategoryService : INoteCategoryService
@@ -55,11 +55,11 @@ namespace OCR_API.Services
             return noteCategoryDto;
         }
 
-        public int AddNewCategory(string jwtToken, NameNoteCategoryDto nameNoteCategoryDto)
+        public int AddNewCategory(string jwtToken, ActionNoteCategoryDto actionNoteCategoryDto)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            NoteCategory noteCategoryToAdd = mapper.Map<NoteCategory>(nameNoteCategoryDto);
-            AddNoteCategoryTransaction addNoteCategoryTransaction = new(UnitOfWork, userId, noteCategoryToAdd.Name);
+            NoteCategory noteCategoryToAdd = mapper.Map<NoteCategory>(actionNoteCategoryDto);
+            AddNoteCategoryTransaction addNoteCategoryTransaction = new(UnitOfWork, userId, noteCategoryToAdd.Name, actionNoteCategoryDto.HexColor);
             addNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
             var newNoteCategoryId = addNoteCategoryTransaction.NoteCategoryToAdd.Id;
@@ -75,11 +75,11 @@ namespace OCR_API.Services
             UnitOfWork.Commit();
         }
 
-        public void UpdateCategoryName(string jwtToken, int categoryId, NameNoteCategoryDto nameNoteCategoryDto)
+        public void UpdateCategory(string jwtToken, int categoryId, ActionNoteCategoryDto actionNoteCategoryDto)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             NoteCategory noteCategoryToUpdate = GetNoteCategoryIfBelongsToUser(userId, categoryId);
-            UpdateNoteCategoryTransaction updateNoteCategoryTransaction = new(noteCategoryToUpdate, nameNoteCategoryDto.Name);
+            UpdateNoteCategoryTransaction updateNoteCategoryTransaction = new(noteCategoryToUpdate, actionNoteCategoryDto.Name, actionNoteCategoryDto.HexColor);
             updateNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
         }

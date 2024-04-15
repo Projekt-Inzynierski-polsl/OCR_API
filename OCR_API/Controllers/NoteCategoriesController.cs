@@ -36,7 +36,7 @@ namespace OCR_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddNewCategory([FromBody] NameNoteCategoryDto nameNoteCategoryDto)
+        public async Task<ActionResult> AddNewCategory([FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
             int id = noteCategoriesService.AddNewCategory(accessToken, nameNoteCategoryDto);
@@ -52,10 +52,10 @@ namespace OCR_API.Controllers
         }
 
         [HttpPut("{categoryId}")]
-        public async Task<ActionResult> UpdateCategoryName(int categoryId, [FromBody] NameNoteCategoryDto nameNoteCategoryDto)
+        public async Task<ActionResult> UpdateCategory(int categoryId, [FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteCategoriesService.UpdateCategoryName(accessToken, categoryId, nameNoteCategoryDto);
+            noteCategoriesService.UpdateCategory(accessToken, categoryId, nameNoteCategoryDto);
             return Ok();
         }
     }

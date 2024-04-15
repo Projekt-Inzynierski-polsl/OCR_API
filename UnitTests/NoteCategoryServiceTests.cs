@@ -26,7 +26,7 @@ namespace UnitTests
         private readonly IAccountService accountService;
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
-        private readonly IValidator<NameNoteCategoryDto> nameNoteCategoryValidator;
+        private readonly IValidator<ActionNoteCategoryDto> actionNoteCategoryValidator;
         private IUnitOfWork unitOfWork;
         private readonly UserActionLogger logger;
 
@@ -36,7 +36,7 @@ namespace UnitTests
             userPasswordHasher = new PasswordHasher<User>();
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            nameNoteCategoryValidator = new NameNoteCategoryDtoValidator(unitOfWork);
+            actionNoteCategoryValidator = new ActionNoteCategoryDtoValidator(unitOfWork);
             logger = new UserActionLogger(unitOfWork.UserLogs);
             service = new NoteCategoryService(unitOfWork, mapper, jwtTokenHelper, logger);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
@@ -59,7 +59,7 @@ namespace UnitTests
             var user1CategoryNames = new List<string> { "Category1", "Category2", "Category3" };
             foreach (var name in user1CategoryNames)
             {
-                var addCategoryDto = new NameNoteCategoryDto() { Name = name };
+                var addCategoryDto = new ActionNoteCategoryDto() { Name = name };
                 var category = service.AddNewCategory(token, addCategoryDto);
             }
 
@@ -67,7 +67,7 @@ namespace UnitTests
             accountService.RegisterAccount(registerDto);
             LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
             string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-            var addCategoryDto2 = new NameNoteCategoryDto() { Name = "test" };
+            var addCategoryDto2 = new ActionNoteCategoryDto() { Name = "test" };
             var category2 = service.AddNewCategory(token2, addCategoryDto2);
 
             var user1Categories = service.GetAll(token);
@@ -86,7 +86,7 @@ namespace UnitTests
         {
             string token = SetUpGetToken();
             string categoryName = "TestCategory";
-            NameNoteCategoryDto categoryDto = new NameNoteCategoryDto { Name = categoryName };
+            ActionNoteCategoryDto categoryDto = new ActionNoteCategoryDto { Name = categoryName };
 
             int newCategoryId = service.AddNewCategory(token, categoryDto);
 
@@ -101,13 +101,13 @@ namespace UnitTests
         {
             string token = SetUpGetToken();
             string categoryName = "TestCategory";
-            NameNoteCategoryDto categoryDto1 = new NameNoteCategoryDto { Name = categoryName };
-            NameNoteCategoryDto categoryDto2 = new NameNoteCategoryDto { Name = categoryName };
+            ActionNoteCategoryDto categoryDto1 = new ActionNoteCategoryDto { Name = categoryName };
+            ActionNoteCategoryDto categoryDto2 = new ActionNoteCategoryDto { Name = categoryName };
 
             int categoryId1 = service.AddNewCategory(token, categoryDto1);
             Assert.IsTrue(categoryId1 > 0);
 
-            var validationResult = nameNoteCategoryValidator.Validate(categoryDto2);
+            var validationResult = actionNoteCategoryValidator.Validate(categoryDto2);
             Assert.IsFalse(validationResult.IsValid);
         }
 
@@ -115,7 +115,7 @@ namespace UnitTests
         public void GetById_ValidCategoryId_ReturnsNoteCategoryDto()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
             var retrievedCategoryDto = service.GetById(token, categoryId);
 
@@ -127,7 +127,7 @@ namespace UnitTests
         public void GetById_WithTokenFromAnotherUser_ThrowsUnauthorizedAccessException()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
 
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
@@ -142,7 +142,7 @@ namespace UnitTests
         public void GetById_WithInvalidCategoryId_ReturnsNull()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int validCategoryId = service.AddNewCategory(token, categoryDto);
             int invalidCategoryId = validCategoryId + 1;
 
@@ -153,7 +153,7 @@ namespace UnitTests
         public void DeleteCategory_ValidCategoryId_CategorySuccessfullyDeleted()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
             var categories = service.GetAll(token);
             Assert.AreEqual(1, categories.Count);
@@ -177,7 +177,7 @@ namespace UnitTests
         public void DeleteCategory_CategoryNotBelongingToUser_ThrowsUnauthorizedAccessException()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
 
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
@@ -192,12 +192,12 @@ namespace UnitTests
         public void UpdateCategoryName_ValidInput_CategoryNameSuccessfullyUpdated()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
 
             string updatedName = "UpdatedCategoryName";
-            var updatedCategoryDto = new NameNoteCategoryDto { Name = updatedName };
-            service.UpdateCategoryName(token, categoryId, updatedCategoryDto);
+            var updatedCategoryDto = new ActionNoteCategoryDto { Name = updatedName };
+            service.UpdateCategory(token, categoryId, updatedCategoryDto);
 
             var retrievedCategory = service.GetById(token, categoryId);
             Assert.IsNotNull(retrievedCategory);
@@ -208,13 +208,13 @@ namespace UnitTests
         public void UpdateCategoryName_ExistingName_ValidationFails()
         {
             string token = SetUpGetToken();
-            var categoryDto1 = new NameNoteCategoryDto { Name = "TestCategory1" };
-            var categoryDto2 = new NameNoteCategoryDto { Name = "TestCategory2" };
+            var categoryDto1 = new ActionNoteCategoryDto { Name = "TestCategory1" };
+            var categoryDto2 = new ActionNoteCategoryDto { Name = "TestCategory2" };
             int categoryId1 = service.AddNewCategory(token, categoryDto1);
             int categoryId2 = service.AddNewCategory(token, categoryDto2);
 
-            var updatedCategoryDto2 = new NameNoteCategoryDto { Name = "TestCategory1" };
-            var validationResult = nameNoteCategoryValidator.Validate(updatedCategoryDto2);
+            var updatedCategoryDto2 = new ActionNoteCategoryDto { Name = "TestCategory1" };
+            var validationResult = actionNoteCategoryValidator.Validate(updatedCategoryDto2);
             Assert.IsFalse(validationResult.IsValid);
         }
 
@@ -223,16 +223,16 @@ namespace UnitTests
         {
             string token = SetUpGetToken();
             int invalidCategoryId = 999;
-            var updatedCategoryDto = new NameNoteCategoryDto { Name = "UpdatedCategoryName" };
+            var updatedCategoryDto = new ActionNoteCategoryDto { Name = "UpdatedCategoryName" };
 
-            Assert.ThrowsException<NotFoundException>(() => service.UpdateCategoryName(token, invalidCategoryId, updatedCategoryDto));
+            Assert.ThrowsException<NotFoundException>(() => service.UpdateCategory(token, invalidCategoryId, updatedCategoryDto));
         }
 
         [TestMethod]
         public void UpdateCategoryName_CategoryNotBelongingToUser_ThrowsUnauthorizedAccessException()
         {
             string token = SetUpGetToken();
-            var categoryDto = new NameNoteCategoryDto { Name = "TestCategory" };
+            var categoryDto = new ActionNoteCategoryDto { Name = "TestCategory" };
             int categoryId = service.AddNewCategory(token, categoryDto);
 
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
@@ -240,8 +240,8 @@ namespace UnitTests
             LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
             string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
 
-            var updatedCategoryDto = new NameNoteCategoryDto { Name = "UpdatedCategoryName" };
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.UpdateCategoryName(token2, categoryId, updatedCategoryDto));
+            var updatedCategoryDto = new ActionNoteCategoryDto { Name = "UpdatedCategoryName" };
+            Assert.ThrowsException<UnauthorizedAccessException>(() => service.UpdateCategory(token2, categoryId, updatedCategoryDto));
         }
 
     }

@@ -11,8 +11,8 @@ namespace OCR_API.MappingProfiles
         {
             CreateMap<NoteCategory, NoteCategoryDto>();
             CreateMap<NoteCategoryDto, NoteCategory>();
-            CreateMap<NoteCategory, NameNoteCategoryDto>();
-            CreateMap<NameNoteCategoryDto, NoteCategory>();
+            CreateMap<NoteCategory, ActionNoteCategoryDto>();
+            CreateMap<ActionNoteCategoryDto, NoteCategory>();
         }
     }
 }

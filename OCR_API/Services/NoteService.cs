@@ -8,6 +8,7 @@ using OCR_API.ModelsDto;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteTransactions;
+using System.Linq;
 
 namespace OCR_API.Services
 {
@@ -61,9 +62,8 @@ namespace OCR_API.Services
         public IEnumerable<NoteDto> GetLastEdited(string jwtToken, int amount)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            int minNoteUserAction = (int)EUserAction.AddNote;
-            int maxNoteUserAction = (int)EUserAction.ChangeNoteFolder;
-            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && f.ActionId >= minNoteUserAction && f.ActionId <= maxNoteUserAction).TakeLast(amount).Select(f => f.ObjectId);
+            EUserAction[] lastEditedAction = new[] { EUserAction.AddNote, EUserAction.EditNote, EUserAction.ChangeNoteFolder, EUserAction.AddCategoryToNote };
+            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedAction.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
             var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
 

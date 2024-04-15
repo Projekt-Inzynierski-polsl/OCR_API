@@ -3,11 +3,11 @@ using OCR_API.ModelsDto.NoteCategoriesDtos;
 
 namespace OCR_API.ModelsDto.Validators
 {
-    public class NameNoteCategoryDtoValidator : AbstractValidator<NameNoteCategoryDto>
+    public class ActionNoteCategoryDtoValidator : AbstractValidator<ActionNoteCategoryDto>
     {
         private readonly IUnitOfWork unitOfWork;
 
-        public NameNoteCategoryDtoValidator(IUnitOfWork unitOfWork)
+        public ActionNoteCategoryDtoValidator(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
 

@@ -34,7 +34,7 @@ namespace OCR_API.Controllers
             return Ok(folder);
         }
 
-        [HttpGet("{lastEdited}")]
+        [HttpGet("lastEdited")]
         public async Task<ActionResult> GetLastEditedNotesAsync([FromQuery] int amount = 3)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");

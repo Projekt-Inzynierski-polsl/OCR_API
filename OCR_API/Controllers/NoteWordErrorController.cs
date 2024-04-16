@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
@@ -38,25 +39,28 @@ namespace OCR_API.Controllers
 
         [HttpDelete("{errorId}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult DeleteById(int errorId)
+        public async Task<ActionResult> DeleteByIdAsync(int errorId)
         {
-            noteWordErrorService.DeleteById(errorId);
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            noteWordErrorService.DeleteById(accessToken, errorId);
             return NoContent();
         }
 
         [HttpDelete]
         [Authorize(Roles = "Admin")]
-        public ActionResult DeleteAll()
+        public async Task<ActionResult> DeleteAllAsync()
         {
-            noteWordErrorService.DeleteAll();
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            noteWordErrorService.DeleteAll(accessToken);
             return NoContent();
         }
 
         [HttpGet("csv")]
         [Authorize(Roles = "Admin")]
-        public ActionResult DownloadErrors()
+        public async Task<ActionResult> DownloadErrorsAsync()
         {
-            MemoryStream memoryStream = noteWordErrorService.DownloadErrors();
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            MemoryStream memoryStream = noteWordErrorService.DownloadErrors(accessToken);
             return File(memoryStream, "application/zip", "errors.zip");
 
         }

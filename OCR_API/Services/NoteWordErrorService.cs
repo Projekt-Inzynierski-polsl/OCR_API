@@ -8,6 +8,7 @@ using OCR_API.Specifications;
 using OCR_API.Transactions;
 using System.IO.Compression;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OCR_API.Services
 {
@@ -18,9 +19,9 @@ namespace OCR_API.Services
         IEnumerable<NoteWordErrorDto> GetAll();
         IEnumerable<NoteWordErrorDto> GetAllForUser(int userId);
         NoteWordErrorDto GetById(int errorId);
-        void DeleteById(int errorId);
-        void DeleteAll();
-        MemoryStream DownloadErrors();
+        void DeleteById(string jwtToken, int errorId);
+        void DeleteAll(string jwtToken);
+        MemoryStream DownloadErrors(string jwtToken);
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -55,18 +56,20 @@ namespace OCR_API.Services
             var errorDto = mapper.Map<NoteWordErrorDto>(error);
 
             return errorDto;
-
         }
 
-        public void DeleteById(int errorId)
+        public void DeleteById(string jwtToken, int errorId)
         {
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             DeleteEntityTransaction<NoteWordError> deleteUserTransaction = new(UnitOfWork.NoteWordErrors, errorId);
             deleteUserTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.DeleteError, userId, DateTime.Now, errorId);
         }
 
-        public void DeleteAll()
+        public void DeleteAll(string jwtToken)
         {
+  
             TruncateTableTransaction<NoteWordError> truncateTableTransaction = new(UnitOfWork.NoteWordErrors);
             truncateTableTransaction.Execute();
             try
@@ -92,9 +95,11 @@ namespace OCR_API.Services
             }
 
             UnitOfWork.Commit();
-    }
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            logger.Log(EUserAction.ClearErrorTable, userId, DateTime.Now);
+        }
 
-        public MemoryStream DownloadErrors()
+        public MemoryStream DownloadErrors(string jwtToken)
         {
             var memoryStream = new MemoryStream();
 
@@ -121,7 +126,8 @@ namespace OCR_API.Services
             }
 
             memoryStream.Seek(0, SeekOrigin.Begin);
-
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            logger.Log(EUserAction.DownloadErrors, userId, DateTime.Now);
             return memoryStream;
         }
 

@@ -36,32 +36,11 @@ namespace OCR_API.Seeders
 
                 if (!unitOfWork.UserActions.Entity.Any())
                 {
-                    Dictionary<EUserAction, string> userActions = new Dictionary<EUserAction, string>
-                    {
-                        { EUserAction.Registration, "Registration" },
-                        { EUserAction.Login, "Login" },
-                        { EUserAction.RefreshToken, "RefreshToken" },
-                        { EUserAction.AddFolder, "AddFolder" },
-                        { EUserAction.RemoveFolder, "RemoveFolder" },
-                        { EUserAction.EditFolder, "EditFolder" },
-                        { EUserAction.AddNote, "AddNote" },
-                        { EUserAction.RemoveNote, "RemoveNote" },
-                        { EUserAction.EditNote, "EditNote" },
-                        { EUserAction.ChangeNoteFolder, "ChangeNoteFolder" },
-                        { EUserAction.ReportError, "ReportError" },
-                        { EUserAction.EditUser, "EditUser" },
-                        { EUserAction.LogoutUser, "LogoutUser" },
-                        { EUserAction.DeleteError, "DeleteError" },
-                        { EUserAction.DownloadErrors, "DownloadErrors" },
-                        { EUserAction.ClearErrorTable, "ClearErrorTable" },
-                        { EUserAction.AddCategory, "AddCategory" },
-                        { EUserAction.RemoveCategory, "RemoveCategory" },
-                        { EUserAction.UpdateCategory, "UpdateCategory" }
-                    };
+                    EUserAction[] userActions = (EUserAction[])Enum.GetValues(typeof(EUserAction));
 
-                    foreach(var action in userActions)
+                    foreach (var action in userActions)
                     {
-                        unitOfWork.UserActions.Add(new UserAction() { Id = (int)action.Key, Name = action.Value });
+                        if((int)action > 0) unitOfWork.UserActions.Add(new UserAction() { Id = (int)action, Name = action.ToString() });
                     }
                     unitOfWork.Commit();
 

@@ -53,6 +53,7 @@ namespace OCR_API.Services
             AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
             addUserTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.Registration, newUser.Id, DateTime.UtcNow);
             var token = jwtTokenHelper.CreateJwtToken(newUser);
             return token;
 
@@ -63,6 +64,7 @@ namespace OCR_API.Services
             if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User user))
             {
                 var token = jwtTokenHelper.CreateJwtToken(user);
+                logger.Log(EUserAction.Login, user.Id, DateTime.UtcNow);
                 return token;
             }
             else
@@ -96,6 +98,7 @@ namespace OCR_API.Services
             var spec = new UserByIdWithRoleSpecification(userId);
             var user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
             string token = jwtTokenHelper.CreateJwtToken(user);
+            logger.Log(EUserAction.RefreshToken, userId, DateTime.UtcNow);
             return token;
         }
 
@@ -105,6 +108,7 @@ namespace OCR_API.Services
             AddBlackListedTokenTransaction addBlackListedTokenTransaction = new(UnitOfWork.BlackListedTokens, userId, jwtToken);
             addBlackListedTokenTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.LogoutUser, userId, DateTime.UtcNow);
         }
     }
 }

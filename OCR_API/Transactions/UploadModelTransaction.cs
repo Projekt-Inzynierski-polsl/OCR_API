@@ -21,7 +21,7 @@ namespace OCR_API.Transactions
         {
             int nextId = repository.Entity.Count() + 1;
             string folderPath = Path.Combine(path, nextId.ToString());
-            UploadedModel modelToUpload = new() { UserId = userId, Path = folderPath, UploadTime = DateTime.Now };
+            UploadedModel modelToUpload = new() { UserId = userId, Path = folderPath, UploadTime = DateTime.UtcNow };
             repository.Add(modelToUpload);
             model = modelToUpload;
         }

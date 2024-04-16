@@ -20,8 +20,8 @@ namespace OCR_API.Services
         IEnumerable<UserDto> GetAll();
         UserDto GetById(int id);
         UserDto GetLoggedUser(string accessToken);
-        void UpdateUser(int userId, UpdateUserDto updateUserDto);
-        void DeleteUser(int userId);
+        void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto);
+        void DeleteUser(string jwtToken, int userId);
     }
     public class UserService : IUserService
     {
@@ -65,8 +65,9 @@ namespace OCR_API.Services
             return userDto;
         }
 
-        public void UpdateUser(int userId, UpdateUserDto updateUserDto)
+        public void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto)
         {
+            var adminId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             var updatedUser = mapper.Map<User>(updateUserDto);
             if(updateUserDto.Password != null)
             {
@@ -76,12 +77,15 @@ namespace OCR_API.Services
             UpdateUserTransaction updateUserTransaction = new(UnitOfWork.Users, userId, updatedUser);
             updateUserTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UpdateUser, adminId , DateTime.UtcNow, userId);
         }
-        public void DeleteUser(int userId)
+        public void DeleteUser(string jwtToken, int userId)
         {
+            var adminId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             DeleteEntityTransaction<User> deleteUserTransaction = new(UnitOfWork.Users, userId);
             deleteUserTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.DeleteUser, adminId, DateTime.UtcNow, userId);
         }
 
     }

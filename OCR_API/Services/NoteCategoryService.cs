@@ -63,6 +63,7 @@ namespace OCR_API.Services
             addNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
             var newNoteCategoryId = addNoteCategoryTransaction.NoteCategoryToAdd.Id;
+            logger.Log(EUserAction.AddCategory, userId, DateTime.UtcNow, newNoteCategoryId);
             return newNoteCategoryId;
         }
 
@@ -73,6 +74,7 @@ namespace OCR_API.Services
             DeleteEntityTransaction<NoteCategory> deleteNoteCategoryTransaction = new(UnitOfWork.NoteCategories, noteCategoryToRemove.Id);
             deleteNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.DeleteCategory, userId, DateTime.UtcNow, categoryId);
         }
 
         public void UpdateCategory(string jwtToken, int categoryId, ActionNoteCategoryDto actionNoteCategoryDto)
@@ -82,6 +84,7 @@ namespace OCR_API.Services
             UpdateNoteCategoryTransaction updateNoteCategoryTransaction = new(noteCategoryToUpdate, actionNoteCategoryDto.Name, actionNoteCategoryDto.HexColor);
             updateNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UpdateCategory, userId, DateTime.UtcNow, categoryId);
         }
 
         private NoteCategory GetNoteCategoryIfBelongsToUser(int userId, int noteId)

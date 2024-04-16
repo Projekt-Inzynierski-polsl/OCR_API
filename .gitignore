@@ -7,6 +7,7 @@
 */wwwroot/*
 *Dockerfile
 *TestResult*
+/OCR_API/Migrations/*
 /OCR_API/bin/*
 /OCR_API/obj/*
 /UnitTests/bin/*

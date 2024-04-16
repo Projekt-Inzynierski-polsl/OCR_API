@@ -40,7 +40,14 @@ namespace UnitTests
             accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
 
         }
-
+        public string SetUpGetToken()
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
+            accountService.RegisterAccount(registerDto);
+            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
+            string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
+            return token;
+        }
 
         [TestMethod]
         public void GetAllUsers_ReturnsAllUsers()
@@ -90,12 +97,13 @@ namespace UnitTests
         [TestMethod]
         public void DeleteUser_WithExistingId_SuccessfullyDeleted()
         {
+            string token = SetUpGetToken();
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             var users = service.GetAll();
             Assert.IsNotNull(users);
             Assert.AreEqual(1, users.Count());
-            service.DeleteUser(1);
+            service.DeleteUser(token, 1);
             users = service.GetAll();
             Assert.IsNotNull(users);
             Assert.AreEqual(0, users.Count());
@@ -104,19 +112,21 @@ namespace UnitTests
         [TestMethod]
         public void DeleteUser_WithNotExistingId_ThrowsException()
         {
-            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(1));
+            string token = SetUpGetToken();
+            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(token, 1));
         }
 
         [TestMethod]
         public void UpdateUser_WithCorrectData_SuccessfullyUpdated()
         {
+            string token = SetUpGetToken();
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
             Assert.IsTrue(validationResult.IsValid);
 
-            service.UpdateUser(1, updateUserDto);
+            service.UpdateUser(token, 1, updateUserDto);
             User userInDatabase = service.UnitOfWork.Users.GetById(1);
             Assert.IsNotNull(userInDatabase);
             Assert.AreEqual(updateUserDto.Email, userInDatabase.Email);

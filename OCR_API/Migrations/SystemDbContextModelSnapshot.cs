@@ -204,6 +204,10 @@ namespace OCR_API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("HexColor")
+                        .HasColumnType("longtext")
+                        .HasColumnName("hex_color");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -460,6 +464,10 @@ namespace OCR_API.Migrations
                     b.Property<DateTime>("LogTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("log_time");
+
+                    b.Property<int?>("ObjectId")
+                        .HasColumnType("int")
+                        .HasColumnName("object_id");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int")

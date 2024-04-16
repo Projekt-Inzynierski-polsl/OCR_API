@@ -79,6 +79,7 @@ namespace OCR_API.Services
             addFolderTransaction.Execute();
             UnitOfWork.Commit();
             var newFolderId = addFolderTransaction.Folder.Id;
+            logger.Log(EUserAction.CreateFolder, userId, DateTime.UtcNow, newFolderId);
             return newFolderId;
         }
 
@@ -101,6 +102,7 @@ namespace OCR_API.Services
             DeleteEntityTransaction<Folder> deleteFolderTransaction = new(UnitOfWork.Folders, folderId);
             deleteFolderTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.DeleteFolder, userId, DateTime.UtcNow, folderId);
         }
 
         public void UpdateFolder(string jwtToken, int folderId, UpdateFolderDto updateFolderDto)
@@ -122,6 +124,7 @@ namespace OCR_API.Services
             UpdateFolderTransaction updateFolderTransaction = new(folderToUpdate, updateFolderDto.Name, updateFolderDto.IconPath);
             updateFolderTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UpdateFolder, userId, DateTime.UtcNow, folderId);
         }
 
         public void LockFolder(string jwtToken, int folderId, ConfirmedPasswordDto confirmedPasswordDto)
@@ -135,6 +138,7 @@ namespace OCR_API.Services
             LockFolderTransaction lockFolderTransaction = new(folderToLock, passwordHasher, confirmedPasswordDto.Password);
             lockFolderTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.LockFolder, userId, DateTime.UtcNow, folderId);
         }
 
         public void UnlockFolder(string jwtToken, int folderId, PasswordDto passwordDto)
@@ -153,6 +157,7 @@ namespace OCR_API.Services
             UnlockFolderTransaction unlockFolderTransaction = new(folderToUnlock);
             unlockFolderTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UnlockFolder, userId, DateTime.UtcNow, folderId);
         }
 
         private Folder GetFolderIfBelongsToUser(int userId, int folderId)

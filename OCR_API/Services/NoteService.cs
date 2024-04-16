@@ -62,8 +62,8 @@ namespace OCR_API.Services
         public IEnumerable<NoteDto> GetLastEdited(string jwtToken, int amount)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            EUserAction[] lastEditedAction = new[] { EUserAction.AddNote, EUserAction.EditNote, EUserAction.ChangeNoteFolder, EUserAction.AddCategoryToNote };
-            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedAction.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
+            EUserAction[] lastEditedActions = new[] { EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories };
+            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedActions.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
             var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
 
@@ -78,6 +78,7 @@ namespace OCR_API.Services
             addNoteTransaction.Execute();
             UnitOfWork.Commit();
             var newNoteId = addNoteTransaction.NoteToAdd.Id;
+            logger.Log(EUserAction.CreateNote, userId, DateTime.UtcNow, newNoteId);
             return newNoteId;
         }
 
@@ -89,6 +90,7 @@ namespace OCR_API.Services
             DeleteEntityTransaction<Note> deleteNoteTransaction = new(UnitOfWork.Notes, noteToRemove.Id);
             deleteNoteTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.DeleteNote, userId, DateTime.UtcNow, noteId);
         }
 
         public void UpdateNote(string jwtToken, int noteId, UpdateNoteDto updateNoteDto)
@@ -98,6 +100,7 @@ namespace OCR_API.Services
             UpdateNoteTransaction updateNoteTransaction = new(noteToUpdate, updateNoteDto.Name, updateNoteDto.Content, updateNoteDto.IsPrivate);
             updateNoteTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UpdateNote, userId, DateTime.UtcNow, noteId);
         }
 
         public void ChangeNoteFolder(string jwtToken, int noteId, ChangeNoteFolderDto changeNoteFolderDto)
@@ -107,6 +110,7 @@ namespace OCR_API.Services
             ChangeNoteFolderTransaction changeNoteFolderTransaction = new(UnitOfWork, userId, noteToMove, changeNoteFolderDto.FolderId);
             changeNoteFolderTransaction.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.ChangeNoteFolder, userId, DateTime.UtcNow, noteId);
         }
 
         public void UpdateNoteCategories(string jwtToken, int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto)
@@ -116,6 +120,7 @@ namespace OCR_API.Services
             UpdateNoteCategoriesTransaction updateNoteCategories = new(UnitOfWork, noteToUpdate, userId, updateNoteCategoriesFolderDto.CategoriesIds);
             updateNoteCategories.Execute();
             UnitOfWork.Commit();
+            logger.Log(EUserAction.UpdateNoteCategories, userId, DateTime.UtcNow, noteId);
         }
 
         private Note GetNoteIfBelongsToUser(int userId, int noteId)

@@ -169,6 +169,10 @@ namespace OCR_API.Services
 
         private void GetUserIdAndShareUserId(string jwtToken, SharedObjectDto sharedObjectDto, out int userId, out int? shareUserId)
         {
+            if (sharedObjectDto.ShareMode == EShareMode.None)
+            {
+                throw new BadRequestException("Wrong share mode.");
+            }
             userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             shareUserId = UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
             if (shareUserId == null)

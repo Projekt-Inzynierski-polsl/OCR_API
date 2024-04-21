@@ -10,5 +10,6 @@
 
         public virtual User User { get; set; }
         public virtual ICollection<Note> Notes { get; set; } = new List<Note>();
+        public virtual ICollection<Shared> SharedObjects { get; set; } = new List<Shared>();
     }
 }

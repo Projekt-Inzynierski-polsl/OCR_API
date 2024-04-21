@@ -4,13 +4,15 @@ using System.Linq.Expressions;
 
 namespace OCR_API.Specifications
 {
-    public class FolderByIdWithNotesSpecification : Specification<Folder>
+    public class FolderByIdWithNotesAndSharedSpecification : Specification<Folder>
     {
         private readonly int folderId;
+        private readonly int userId;
 
-        public FolderByIdWithNotesSpecification(int folderId)
+        public FolderByIdWithNotesAndSharedSpecification(int folderId, int userId)
         {
             this.folderId = folderId;
+            this.userId = userId;
         }
 
         public override Expression<Func<Folder, bool>> ToExpression()
@@ -20,7 +22,7 @@ namespace OCR_API.Specifications
 
         public override IQueryable<Folder> IncludeEntities(IQueryable<Folder> queryable)
         {
-            return queryable.Include(f => f.Notes);
+            return queryable.Include(f => f.Notes).Include(f => f.SharedObjects.Where(s => s.UserId == userId));
         }
     }
 }

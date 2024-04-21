@@ -9,6 +9,7 @@ namespace OCR_API.MappingProfiles
         public NoteMappingProfile()
         {
             CreateMap<Note, NoteDto>();
+            CreateMap<Shared, NoteDto>();
             CreateMap<AddNoteDto, Note>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.CategoriesIds.Select(id => new NoteCategory { Id = id })));
         }

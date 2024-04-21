@@ -28,6 +28,12 @@ namespace OCR_API.Database.Configurations
                 .HasForeignKey(d => d.FolderId)
                 .HasConstraintName("notes_ibfk_2")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(f => f.SharedObjects)
+                .WithOne(u => u.Folder)
+                .HasForeignKey(f => f.FolderId)
+                .HasConstraintName("shared_objects_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

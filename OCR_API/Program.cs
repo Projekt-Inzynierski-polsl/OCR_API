@@ -65,6 +65,7 @@ builder.Services.AddScoped<IValidator<UpdateFolderDto>, UpdateFolderDtoValidator
 builder.Services.AddScoped<IValidator<ConfirmedPasswordDto>, ConfirmedPasswordDtoValidator>();
 builder.Services.AddScoped<IValidator<AddNoteDto>, AddNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<ActionNoteCategoryDto>, ActionNoteCategoryDtoValidator>();
+builder.Services.AddScoped<IValidator<SharedObjectDto>, SharedObjectDtoValidator>();
 
 builder.Services.AddScoped<IRepository<BlackListToken>, Repository<BlackListToken>>();
 builder.Services.AddScoped<IRepository<BoundingBox>, Repository<BoundingBox>>();
@@ -89,6 +90,7 @@ builder.Services.AddScoped<IUploadedModelService, UploadedModelService>();
 builder.Services.AddScoped<INoteCategoryService, NoteCategoryService>();
 builder.Services.AddScoped<INoteWordErrorService, NoteWordErrorService>();
 builder.Services.AddScoped<IUserLogService, UserLogService>();
+builder.Services.AddScoped<ISharedService, SharedService>();
 builder.Services.AddAutoMapper(typeof(UserMappingProfile));
 builder.Services.AddAutoMapper(typeof(FolderMappingProfile));
 builder.Host.UseNLog();

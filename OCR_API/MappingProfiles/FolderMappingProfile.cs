@@ -13,6 +13,12 @@ namespace OCR_API.MappingProfiles
              {
                  opt.MapFrom(src => !string.IsNullOrEmpty(src.PasswordHash));
              });
+
+            CreateMap<Shared, FolderDto>()
+                             .ForMember(dest => dest.HasPassword, opt =>
+                             {
+                                 opt.MapFrom(src => !string.IsNullOrEmpty(src.Folder.PasswordHash));
+                             }); ;
         }
     }
 }

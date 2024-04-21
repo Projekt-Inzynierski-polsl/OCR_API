@@ -34,7 +34,7 @@ namespace OCR_API.Seeders
                     unitOfWork.Commit();
                 }
 
-                if (!unitOfWork.Roles.Entity.Any())
+                if (!unitOfWork.ShareMode.Entity.Any())
                 {
                     var modes = GetModes();
                     unitOfWork.ShareMode.Entity.AddRange(modes);

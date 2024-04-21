@@ -4,13 +4,15 @@ using System.Linq.Expressions;
 
 namespace OCR_API.Specifications
 {
-    public class NoteByIdWithFileAndCategoriesSpecification : Specification<Note>
+    public class NoteByIdWithFileAndCategoriesAndSharedSpecification : Specification<Note>
     {
         private readonly int noteId;
+        private readonly int userId;
 
-        public NoteByIdWithFileAndCategoriesSpecification(int noteId)
+        public NoteByIdWithFileAndCategoriesAndSharedSpecification(int noteId, int userId)
         {
             this.noteId = noteId;
+            this.userId = userId;
         }
 
         public override Expression<Func<Note, bool>> ToExpression()
@@ -21,7 +23,7 @@ namespace OCR_API.Specifications
         public override IQueryable<Note> IncludeEntities(IQueryable<Note> queryable)
         {
             return queryable.Include(f => f.Categories)
-                .Include(f => f.NoteFile);
+                .Include(f => f.NoteFile).Include(f => f.SharedObjects.Where(s => s.UserId == userId));
         }
     }
 }

@@ -18,7 +18,6 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
             builder.Property(e => e.ActionId).HasColumnName("action_id").IsRequired();
             builder.Property(e => e.ObjectId).HasColumnName("object_id").HasDefaultValueSql(null);
-            builder.Property(e => e.Description).HasColumnName("description");
             builder.Property(e => e.LogTime).HasColumnName("log_time");
 
             builder.HasOne(r => r.User)

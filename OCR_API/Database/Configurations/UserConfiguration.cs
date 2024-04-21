@@ -65,6 +65,11 @@ namespace OCR_API.Database.Configurations
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("note_word_errors_ibfk_2")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(f => f.SharedObjects)
+                .WithOne(u => u.User)
+                .HasForeignKey(user => user.UserId)
+                .HasConstraintName("shared_objects_ibfk_1");
         }
     }
 }

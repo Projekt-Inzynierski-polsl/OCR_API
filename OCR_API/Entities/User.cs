@@ -19,5 +19,6 @@ namespace OCR_API.Entities
         public virtual ICollection<NoteCategory> NoteCategories { get; set; } = new List<NoteCategory>();
         public virtual ICollection<BlackListToken> BlackListedTokens { get; set; } = new List<BlackListToken>();
         public virtual ICollection<NoteWordError> Errors { get; set; } = new List<NoteWordError>();
+        public virtual ICollection<Shared> SharedObjects { get; set; } = new List<Shared>();
     }
 }

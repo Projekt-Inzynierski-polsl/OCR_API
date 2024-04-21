@@ -41,6 +41,12 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(n => n.Categories)
                 .WithMany(c => c.Notes)
                 .UsingEntity(j => j.ToTable("notes_category_map"));
+
+            builder.HasMany(f => f.SharedObjects)
+                .WithOne(u => u.Note)
+                .HasForeignKey(f => f.NoteId)
+                .HasConstraintName("shared_objects_ibfk_3")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

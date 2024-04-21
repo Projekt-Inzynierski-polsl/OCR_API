@@ -26,6 +26,10 @@
         AddCategory,
         DeleteCategory,
         UpdateCategory,
+        ShareNote,
+        ShareFolder,
+        UnshareNote,
+        UnshareFolder
 
     }
 }

@@ -357,6 +357,65 @@ namespace OCR_API.Migrations
                     b.ToTable("roles", (string)null);
                 });
 
+            modelBuilder.Entity("OCR_API.Entities.ShareMode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("share_modes", (string)null);
+                });
+
+            modelBuilder.Entity("OCR_API.Entities.Shared", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("int")
+                        .HasColumnName("folder_id");
+
+                    b.Property<int>("ModeId")
+                        .HasColumnType("int")
+                        .HasColumnName("mode_id");
+
+                    b.Property<int?>("NoteId")
+                        .HasColumnType("int")
+                        .HasColumnName("note_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex(new[] { "UserId" }, "shared_objects_ibfk_1");
+
+                    b.HasIndex(new[] { "FolderId" }, "shared_objects_ibfk_2");
+
+                    b.HasIndex(new[] { "NoteId" }, "shared_objects_ibfk_3");
+
+                    b.HasIndex(new[] { "ModeId" }, "shared_objects_ibfk_4");
+
+                    b.ToTable("shared_objects", (string)null);
+                });
+
             modelBuilder.Entity("OCR_API.Entities.UploadedModel", b =>
                 {
                     b.Property<int>("Id")
@@ -455,11 +514,6 @@ namespace OCR_API.Migrations
                     b.Property<int>("ActionId")
                         .HasColumnType("int")
                         .HasColumnName("action_id");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("description");
 
                     b.Property<DateTime>("LogTime")
                         .HasColumnType("datetime(6)")
@@ -620,6 +674,43 @@ namespace OCR_API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("OCR_API.Entities.Shared", b =>
+                {
+                    b.HasOne("OCR_API.Entities.Folder", "Folder")
+                        .WithMany("SharedObjects")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("shared_objects_ibfk_2");
+
+                    b.HasOne("OCR_API.Entities.ShareMode", "Mode")
+                        .WithMany("SharedObjects")
+                        .HasForeignKey("ModeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("shared_objects_ibfk_4");
+
+                    b.HasOne("OCR_API.Entities.Note", "Note")
+                        .WithMany("SharedObjects")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("shared_objects_ibfk_3");
+
+                    b.HasOne("OCR_API.Entities.User", "User")
+                        .WithMany("SharedObjects")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("shared_objects_ibfk_1");
+
+                    b.Navigation("Folder");
+
+                    b.Navigation("Mode");
+
+                    b.Navigation("Note");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OCR_API.Entities.UploadedModel", b =>
                 {
                     b.HasOne("OCR_API.Entities.User", "User")
@@ -678,6 +769,13 @@ namespace OCR_API.Migrations
             modelBuilder.Entity("OCR_API.Entities.Folder", b =>
                 {
                     b.Navigation("Notes");
+
+                    b.Navigation("SharedObjects");
+                });
+
+            modelBuilder.Entity("OCR_API.Entities.Note", b =>
+                {
+                    b.Navigation("SharedObjects");
                 });
 
             modelBuilder.Entity("OCR_API.Entities.NoteFile", b =>
@@ -698,6 +796,11 @@ namespace OCR_API.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("OCR_API.Entities.ShareMode", b =>
+                {
+                    b.Navigation("SharedObjects");
+                });
+
             modelBuilder.Entity("OCR_API.Entities.User", b =>
                 {
                     b.Navigation("BlackListedTokens");
@@ -711,6 +814,8 @@ namespace OCR_API.Migrations
                     b.Navigation("NoteCategories");
 
                     b.Navigation("Notes");
+
+                    b.Navigation("SharedObjects");
 
                     b.Navigation("UploadedModels");
                 });

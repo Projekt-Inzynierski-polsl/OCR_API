@@ -78,6 +78,8 @@ builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
 builder.Services.AddScoped<IRepository<UploadedModel>, Repository<UploadedModel>>();
 builder.Services.AddScoped<IRepository<UserAction>, Repository<UserAction>>();
 builder.Services.AddScoped<IRepository<UserLog>, Repository<UserLog>>();
+builder.Services.AddScoped<IRepository<Shared>, Repository<Shared>>();
+builder.Services.AddScoped<IRepository<ShareMode>, Repository<ShareMode>>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

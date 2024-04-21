@@ -19,6 +19,9 @@ public interface IUnitOfWork
     IRepository<UploadedModel> UploadedModels { get; }
     IRepository<UserAction> UserActions { get; }
     IRepository<UserLog> UserLogs { get; }
+
+    IRepository<Shared> Shared { get; }
+    IRepository<ShareMode> ShareMode { get; } 
     void Commit();
 }
 public class UnitOfWork : IUnitOfWork
@@ -40,7 +43,8 @@ public class UnitOfWork : IUnitOfWork
     private Repository<Role> roles;
     private Repository<UserAction> userActions;
     private Repository<UserLog> userLogs;
-
+    private Repository<Shared> shared;
+    private Repository<ShareMode> shareMode;
 
     public UnitOfWork(SystemDbContext dbContext)
     {
@@ -158,6 +162,24 @@ public class UnitOfWork : IUnitOfWork
         {
             return userLogs ??
                 (userLogs = new Repository<UserLog>(dbContext));
+        }
+    }
+
+    public IRepository<Shared> Shared
+    {
+        get
+        {
+            return shared ??
+                (shared = new Repository<Shared>(dbContext));
+        }
+    }
+
+    public IRepository<ShareMode> ShareMode
+    {
+        get
+        {
+            return shareMode ??
+                (shareMode = new Repository<ShareMode>(dbContext));
         }
     }
 

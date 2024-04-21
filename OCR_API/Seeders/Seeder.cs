@@ -34,6 +34,13 @@ namespace OCR_API.Seeders
                     unitOfWork.Commit();
                 }
 
+                if (!unitOfWork.Roles.Entity.Any())
+                {
+                    var modes = GetModes();
+                    unitOfWork.ShareMode.Entity.AddRange(modes);
+                    unitOfWork.Commit();
+                }
+
                 if (!unitOfWork.UserActions.Entity.Any())
                 {
                     EUserAction[] userActions = (EUserAction[])Enum.GetValues(typeof(EUserAction));
@@ -52,6 +59,12 @@ namespace OCR_API.Seeders
         {
             List<Role> roles = [new Role() { Name = "Admin" }, new Role() { Name = "User" }];
             return roles;
+        }
+
+        private IEnumerable<ShareMode> GetModes()
+        {
+            List<ShareMode> modes = [new ShareMode() { Name = "View" }, new ShareMode() { Name = "Edit" }];
+            return modes;
         }
     }
 }

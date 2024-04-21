@@ -62,7 +62,7 @@ namespace OCR_API.Services
         public IEnumerable<NoteDto> GetLastEdited(string jwtToken, int amount)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            EUserAction[] lastEditedActions = new[] { EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories };
+            EUserAction[] lastEditedActions = new[] { EUserAction.AddNote, EUserAction.EditNote, EUserAction.ChangeNoteFolder, EUserAction.AddCategoryToNote };
             var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedActions.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
             var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();

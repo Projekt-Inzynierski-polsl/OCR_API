@@ -11,9 +11,9 @@ namespace OCR_API.Controllers
     [Authorize]
     public class UserLogController : ControllerBase
     {
-        private readonly UserLogService userLogService;
+        private readonly IUserLogService userLogService;
 
-        public UserLogController(UserLogService userLogService)
+        public UserLogController(IUserLogService userLogService)
         {
             this.userLogService = userLogService;
         }

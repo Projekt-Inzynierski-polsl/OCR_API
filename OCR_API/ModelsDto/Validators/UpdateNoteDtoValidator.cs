@@ -15,7 +15,7 @@ namespace OCR_API.ModelsDto.Validators
                 .Custom((value, context) =>
                 {
                     var userEntity = unitOfWork.Notes.GetAllByUser(unitOfWork.UserId);
-                    bool nameInUse = userEntity.Any(u => u.Name == value);
+                    bool nameInUse = userEntity.Where(u => u.Name == value).Count() > 1;
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");

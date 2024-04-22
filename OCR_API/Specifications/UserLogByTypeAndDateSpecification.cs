@@ -22,15 +22,7 @@ namespace OCR_API.Specifications
 
         public override Expression<Func<UserLog, bool>> ToExpression()
         {
-            if(userId != 0)
-            {
-                return f => f.ActionId == (int)type && f.LogTime > start && f.LogTime < end;
-            }
-            else
-            {
-                return f => f.ActionId == (int)type && f.LogTime > start && f.LogTime < end && f.UserId == userId;
-            }
-            
+            return f => (type == 0 || f.ActionId == (int)type) && f.LogTime > start && f.LogTime < end && (userId == 0 || f.UserId == userId);
         }
     }
 }

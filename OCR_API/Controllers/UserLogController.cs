@@ -20,7 +20,7 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult Get([FromQuery]string type, [FromQuery] long startTimestamp = 0, [FromQuery] long endTimestamp = 0, [FromQuery] int userId = 0)
+        public ActionResult Get([FromQuery]string type = "None", [FromQuery] long startTimestamp = 0, [FromQuery] long endTimestamp = 0, [FromQuery] int userId = 0)
         {
             if (endTimestamp == 0)
             {

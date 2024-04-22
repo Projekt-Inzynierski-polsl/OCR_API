@@ -102,18 +102,18 @@ namespace UnitTests
             accountService.RegisterAccount(registerDto);
             var users = service.GetAll();
             Assert.IsNotNull(users);
-            Assert.AreEqual(1, users.Count());
+            Assert.AreEqual(2, users.Count());
             service.DeleteUser(token, 1);
             users = service.GetAll();
             Assert.IsNotNull(users);
-            Assert.AreEqual(0, users.Count());
+            Assert.AreEqual(1, users.Count());
         }
 
         [TestMethod]
         public void DeleteUser_WithNotExistingId_ThrowsException()
         {
             string token = SetUpGetToken();
-            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(token, 1));
+            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(token, 99));
         }
 
         [TestMethod]

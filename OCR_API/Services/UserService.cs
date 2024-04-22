@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
+using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.Repositories;
@@ -82,6 +83,11 @@ namespace OCR_API.Services
         public void DeleteUser(string jwtToken, int userId)
         {
             var adminId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var user = UnitOfWork.Users.GetById(userId);
+            if(user == null)
+            {
+                throw new NotFoundException("That user doesn't exist.");
+            }
             DeleteEntityTransaction<User> deleteUserTransaction = new(UnitOfWork.Users, userId);
             deleteUserTransaction.Execute();
             UnitOfWork.Commit();

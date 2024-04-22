@@ -5,10 +5,10 @@ namespace OCR_API.Transactions.NoteCategoriesTransactions
     public class UpdateNoteCategoryTransaction : ITransaction
     {
         private readonly NoteCategory noteCategoryToUpdate;
-        private readonly string newName;
+        private readonly string? newName;
         private readonly string? newColor;
 
-        public UpdateNoteCategoryTransaction(NoteCategory notecategoryToUpdate, string newName, string? newColor)
+        public UpdateNoteCategoryTransaction(NoteCategory notecategoryToUpdate, string? newName, string? newColor)
         {
             this.noteCategoryToUpdate = notecategoryToUpdate;
             this.newName = newName;
@@ -16,8 +16,15 @@ namespace OCR_API.Transactions.NoteCategoriesTransactions
         }
         public void Execute()
         {
-            noteCategoryToUpdate.Name = newName;
-            noteCategoryToUpdate.HexColor = newColor;
+            if(newName is not null)
+            {
+                noteCategoryToUpdate.Name = newName;
+            }
+            if(newColor is not null)
+            {
+                noteCategoryToUpdate.HexColor = newColor;
+            }
+
         }
     }
 }

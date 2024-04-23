@@ -398,7 +398,7 @@ namespace OCR_API.Migrations
                         .HasColumnType("int")
                         .HasColumnName("note_id");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("user_id");
 
@@ -698,8 +698,6 @@ namespace OCR_API.Migrations
                     b.HasOne("OCR_API.Entities.User", "User")
                         .WithMany("SharedObjects")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("shared_objects_ibfk_1");
 
                     b.Navigation("Folder");

@@ -3,7 +3,7 @@
     public class Shared
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; } = null;
         public int? FolderId { get; set; } = null;
         public int? NoteId { get; set; } = null;
         public int ModeId { get; set; } = 1;

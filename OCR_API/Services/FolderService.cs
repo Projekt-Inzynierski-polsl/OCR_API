@@ -207,12 +207,12 @@ namespace OCR_API.Services
 
         private bool IsShared(Folder folder, int userId)
         {
-            return folder.SharedObjects.Where(f => f.UserId == userId).Count() > 0;
+            return folder.SharedObjects.Where(f => f.UserId == userId).Count() > 0 || folder.SharedObjects.Where(f => f.UserId == null).Count() > 0;
         }
 
         private bool CanEdit(Folder folder, int userId)
         {
-            return folder.UserId == userId || folder.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
+            return folder.UserId == userId || folder.SharedObjects.FirstOrDefault(f => f.UserId == null).ModeId == (int)EShareMode.Edit || folder.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
         }
     }
 }

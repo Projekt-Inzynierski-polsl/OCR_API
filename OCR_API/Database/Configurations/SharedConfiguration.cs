@@ -17,7 +17,7 @@ namespace OCR_API.Database.Configurations
             builder.ToTable("shared_objects");
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
-            builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
+            builder.Property(e => e.UserId).HasColumnName("user_id").HasDefaultValueSql(null);
 
             builder.Property(e => e.FolderId).HasColumnName("folder_id").HasDefaultValueSql(null);
             builder.Property(e => e.NoteId).HasColumnName("note_id").HasDefaultValueSql(null);

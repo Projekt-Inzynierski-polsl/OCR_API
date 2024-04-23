@@ -9,7 +9,7 @@ namespace OCR_API.Transactions.FolderTransactions
 {
     public class ShareFolderTransaction : ShareTransaction, ITransaction
     {
-        public ShareFolderTransaction(IRepository<Shared> repository, int shareUserId, int folderId, EShareMode shareMode)
+        public ShareFolderTransaction(IRepository<Shared> repository, int? shareUserId, int folderId, EShareMode shareMode)
             : base(repository, shareUserId, folderId, shareMode)
         {
         }
@@ -17,6 +17,11 @@ namespace OCR_API.Transactions.FolderTransactions
         {
             Shared sharedToAdd = new() { FolderId = objectId, UserId = shareUserId, ModeId = (int)shareMode };
             repository.Add(sharedToAdd);
+            if (shareUserId is null)
+            {
+                var sharesToRemove = repository.Entity.Where(f => f.FolderId == objectId && f.UserId != null).ToList();
+                repository.Entity.RemoveRange(sharesToRemove);
+            }
         }
     }
 }

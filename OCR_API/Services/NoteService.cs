@@ -172,12 +172,12 @@ namespace OCR_API.Services
 
         private bool IsShared(Note note, int userId)
         {
-            return note.SharedObjects.Where(f => f.UserId == userId).Count() > 0;
+            return note.SharedObjects.Where(f => f.UserId == userId).Count() > 0 || note.SharedObjects.Where(f => f.UserId == null).Count() > 0;
         }
 
         private bool CanEdit(Note note, int userId)
         {
-            return note.UserId == userId || note.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
+            return note.UserId == userId || note.SharedObjects.FirstOrDefault(f => f.UserId == null).ModeId == (int)EShareMode.Edit || note.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
         }
     }
 }

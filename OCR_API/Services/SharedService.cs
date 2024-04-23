@@ -79,7 +79,7 @@ namespace OCR_API.Services
                     throw new BadRequestException("Invalid password.");
                 }
             }
-            ShareTransaction shareFolderTransaction = new ShareFolderTransaction(UnitOfWork.Shared, (int)shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
+            ShareTransaction shareFolderTransaction = new ShareFolderTransaction(UnitOfWork.Shared, shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
             shareFolderTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.ShareFolder, userId, DateTime.UtcNow, sharedObjectDto.ObjectId);
@@ -89,7 +89,7 @@ namespace OCR_API.Services
         {
             GetUserIdAndShareUserId(jwtToken, sharedObjectDto, out int userId, out int? shareUserId);
             Note Note = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
-            ShareTransaction shareNoteTransaction = new ShareNoteTransaction(UnitOfWork.Shared, (int)shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
+            ShareTransaction shareNoteTransaction = new ShareNoteTransaction(UnitOfWork.Shared, shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
             shareNoteTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.ShareNote, userId, DateTime.UtcNow, sharedObjectDto.ObjectId);
@@ -174,8 +174,8 @@ namespace OCR_API.Services
                 throw new BadRequestException("Wrong share mode.");
             }
             userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            shareUserId = UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
-            if (shareUserId == null)
+            shareUserId = string.IsNullOrEmpty(sharedObjectDto.Email) ? null : UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
+            if (shareUserId == null && !string.IsNullOrEmpty(sharedObjectDto.Email))
             {
                 throw new BadRequestException("That user doesn't exist.");
             }

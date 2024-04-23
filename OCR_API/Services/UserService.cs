@@ -18,7 +18,7 @@ namespace OCR_API.Services
     public interface IUserService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<UserDto> GetAll();
+        IEnumerable<UserDto> GetAll(string? searchPhrase = null);
         UserDto GetById(int id);
         UserDto GetLoggedUser(string accessToken);
         void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto);
@@ -41,10 +41,11 @@ namespace OCR_API.Services
             this.logger = logger;
         }
 
-        public IEnumerable<UserDto> GetAll()
+        public IEnumerable<UserDto> GetAll(string? searchPhrase = null)
         {
             var usersDto = UnitOfWork.Users
                 .GetAll()
+                .Where(f => searchPhrase == null || f.Nickname.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase))
                 .Select(u => mapper.Map<UserDto>(u))
                 .ToList();
 

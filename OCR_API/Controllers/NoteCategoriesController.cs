@@ -20,10 +20,10 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllAsync()
+        public async Task<ActionResult> GetAllAsync([FromQuery]string? searchPhrase)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var categories = noteCategoriesService.GetAll(accessToken);
+            var categories = noteCategoriesService.GetAll(accessToken, searchPhrase);
             return Ok(categories);
         }
 

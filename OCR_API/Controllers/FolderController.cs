@@ -20,10 +20,10 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> GetAllUserFoldersAsync()
+        public async Task<ActionResult> GetAllUserFoldersAsync([FromQuery]string? searchPhrase)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = folderService.GetAll(accessToken);
+            var folders = folderService.GetAll(accessToken, searchPhrase);
             return Ok(folders);
         }
 

@@ -7,15 +7,17 @@ namespace OCR_API.Specifications
     public class NotesWithFileAndCategoriesSpecification :Specification<Note>
     {
         private readonly int userId;
+        private readonly string searchPhrase;
 
-        public NotesWithFileAndCategoriesSpecification(int userId)
+        public NotesWithFileAndCategoriesSpecification(int userId, string? searchPhrase)
         {
             this.userId = userId;
+            this.searchPhrase = searchPhrase;
         }
 
         public override Expression<Func<Note, bool>> ToExpression()
         {
-            return f => f.UserId == userId;
+            return f => f.UserId == userId && (searchPhrase == null || f.Name.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase));
         }
 
         public override IQueryable<Note> IncludeEntities(IQueryable<Note> queryable)

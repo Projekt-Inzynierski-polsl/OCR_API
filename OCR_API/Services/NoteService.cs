@@ -17,7 +17,7 @@ namespace OCR_API.Services
     {
         IUnitOfWork UnitOfWork { get; }
 
-        IEnumerable<NoteDto> GetAll(string accessToken);
+        IEnumerable<NoteDto> GetAll(string accessToken, string? searchPhrase = null);
         NoteDto GetById(string accessToken, int noteId);
         IEnumerable<NoteDto> GetLastEdited(string accessToken, int amount);
         int CreateNote(string accessToken, AddNoteDto addNoteDto);
@@ -41,10 +41,10 @@ namespace OCR_API.Services
             this.logger = logger;
         }
 
-        public IEnumerable<NoteDto> GetAll(string jwtToken)
+        public IEnumerable<NoteDto> GetAll(string jwtToken, string? searchPhrase = null)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new NotesWithFileAndCategoriesSpecification(userId);
+            var spec = new NotesWithFileAndCategoriesSpecification(userId, searchPhrase);
             var notes = UnitOfWork.Notes.GetBySpecification(spec);
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
 

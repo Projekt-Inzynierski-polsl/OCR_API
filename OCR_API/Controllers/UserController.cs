@@ -20,9 +20,9 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery]string? searchPhrase)
         {
-            var users = userService.GetAll();
+            var users = userService.GetAll(searchPhrase);
             return Ok(users);
         }
 

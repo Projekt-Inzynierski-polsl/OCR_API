@@ -15,7 +15,7 @@ namespace OCR_API.Services
     public interface INoteCategoryService
     {
         IUnitOfWork UnitOfWork { get; }
-        ICollection<NoteCategoryDto> GetAll(string accessToken);
+        ICollection<NoteCategoryDto> GetAll(string accessToken, string? searchPhrase = null);
         NoteCategoryDto GetById(string accessToken, int categoryId);
         int AddNewCategory(string accessToken, ActionNoteCategoryDto actionNoteCategoryDto);
         void DeleteCategory(string accessToken, int categoryId);
@@ -37,11 +37,11 @@ namespace OCR_API.Services
             this.logger = logger;
         }
 
-        public ICollection<NoteCategoryDto> GetAll(string jwtToken)
+        public ICollection<NoteCategoryDto> GetAll(string jwtToken, string? searchPhrase = null)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
             var noteCategories = UnitOfWork.NoteCategories.GetAllByUser(userId);
-            var noteCategoriesDto = noteCategories.Select(f => mapper.Map<NoteCategoryDto>(f)).ToList();
+            var noteCategoriesDto = noteCategories.Where(f => searchPhrase == null || f.Name.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase)).Select(f => mapper.Map<NoteCategoryDto>(f)).ToList();
 
             return noteCategoriesDto;
         }

@@ -18,7 +18,7 @@ namespace OCR_API.Services
     public interface IFolderService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<FolderDto> GetAll(string jwtToken);
+        IEnumerable<FolderDto> GetAll(string jwtToken, string? searchPhrase = null);
         FolderDto GetById(string jwtToken, int id, PasswordDto? passwordDto = null);
         int CreateFolder(string jwtToken, AddFolderDto folderToAdd);
         void DeleteFolder(string jwtToken, int folderId, PasswordDto passwordDto = null);
@@ -43,10 +43,10 @@ namespace OCR_API.Services
             this.logger = logger;
         }
 
-        public IEnumerable<FolderDto> GetAll(string jwtToken)
+        public IEnumerable<FolderDto> GetAll(string jwtToken, string? searchPhrase = null)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new UserFoldersWithNotesSpecification(userId);
+            var spec = new UserFoldersWithNotesSpecification(userId, searchPhrase);
             var folders = UnitOfWork.Folders.GetBySpecification(spec);
             var foldersDto = folders.Select(f => mapper.Map<FolderDto>(f)).ToList();
 

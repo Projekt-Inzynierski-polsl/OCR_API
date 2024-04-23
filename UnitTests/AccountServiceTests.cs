@@ -39,7 +39,7 @@ namespace UnitTests
             registerValidator = new RegisterUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            logger = new UserActionLogger(unitOfWork.UserLogs);
+            logger = new UserActionLogger(unitOfWork);
             service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
             
         }

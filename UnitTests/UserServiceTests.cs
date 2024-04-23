@@ -35,7 +35,7 @@ namespace UnitTests
             updateValidator = new UpdateUserDtoValidator(unitOfWork);
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            logger = new UserActionLogger(unitOfWork.UserLogs);
+            logger = new UserActionLogger(unitOfWork);
             service = new UserService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
             accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
 

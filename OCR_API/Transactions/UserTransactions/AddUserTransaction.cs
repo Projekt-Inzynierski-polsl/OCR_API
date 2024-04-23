@@ -7,7 +7,7 @@ namespace OCR_API.Transactions.UserTransactions
     public class AddUserTransaction : ITransaction
     {
         private readonly IRepository<User> repository;
-        private readonly User userToAdd;
+        public User userToAdd;
 
         public AddUserTransaction(IRepository<User> repository, User userToAdd)
         {

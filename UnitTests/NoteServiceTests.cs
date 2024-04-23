@@ -34,7 +34,7 @@ namespace UnitTests
             jwtTokenHelper = new JwtTokenHelper();
             addNoteValidator = new AddNoteDtoValidator(unitOfWork);
             updateNoteValidator = new UpdateNoteDtoValidator(unitOfWork);
-            logger = new UserActionLogger(unitOfWork.UserLogs);
+            logger = new UserActionLogger(unitOfWork);
             service = new NoteService(unitOfWork, mapper, jwtTokenHelper, logger);
             folderService = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper, logger);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);

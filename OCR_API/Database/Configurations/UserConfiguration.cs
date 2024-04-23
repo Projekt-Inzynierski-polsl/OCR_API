@@ -46,7 +46,8 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(d => d.Logs)
                 .WithOne(r => r.User)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("user_logs_ibfk_1");
+                .HasConstraintName("user_logs_ibfk_1")
+                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(d => d.NoteCategories)
                 .WithOne(r => r.User)

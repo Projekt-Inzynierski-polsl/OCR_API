@@ -37,7 +37,7 @@ namespace UnitTests
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
             actionNoteCategoryValidator = new ActionNoteCategoryDtoValidator(unitOfWork);
-            logger = new UserActionLogger(unitOfWork.UserLogs);
+            logger = new UserActionLogger(unitOfWork);
             service = new NoteCategoryService(unitOfWork, mapper, jwtTokenHelper, logger);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
         }

@@ -38,7 +38,7 @@ namespace UnitTests
             addFolderValidator = new AddFolderDtoValidator(unitOfWork);
             updateFolderValidator = new UpdateFolderDtoValidator(unitOfWork);
             confirmedPasswordValidator = new ConfirmedPasswordDtoValidator();
-            logger = new UserActionLogger(unitOfWork.UserLogs);
+            logger = new UserActionLogger(unitOfWork);
             service = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper, logger);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
         }

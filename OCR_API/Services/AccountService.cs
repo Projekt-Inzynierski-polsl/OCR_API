@@ -52,7 +52,6 @@ namespace OCR_API.Services
             newUser.PasswordHash = hashedPassword;
             AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
             addUserTransaction.Execute();
-            UnitOfWork.Commit();
             logger.Log(EUserAction.Registration, newUser.Id, DateTime.UtcNow);
             var token = jwtTokenHelper.CreateJwtToken(newUser);
             return token;

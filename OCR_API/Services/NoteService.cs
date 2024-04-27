@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Enums;
@@ -10,6 +12,11 @@ using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteTransactions;
 using System.Linq;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace OCR_API.Services
 {
@@ -25,6 +32,8 @@ namespace OCR_API.Services
         void UpdateNote(string accessToken, int noteId, UpdateNoteDto updateNoteDto);
         void ChangeNoteFolder(string accessToken, int noteId, ChangeNoteFolderDto changeNoteFolderDto);
         void UpdateNoteCategories(string accessToken, int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto);
+        string ExportPdfById(string accessToken, int noteId);
+        string ExportDocxById(string accessToken, int noteId);
     }
     public class NoteService : INoteService
     {
@@ -178,6 +187,71 @@ namespace OCR_API.Services
         private bool CanEdit(Note note, int userId)
         {
             return note.UserId == userId || note.SharedObjects.FirstOrDefault(f => f.UserId == null).ModeId == (int)EShareMode.Edit || note.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
+        }
+
+        public string ExportDocxById(string jwtToken, int noteId)
+        {
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            Note note = GetNoteIfBelongsToUser(userId, noteId);
+            var noteContent = note.Content;
+            var directoryPath = "./wwwroot";
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var docxFilePath = $"{directoryPath}/{noteId}.docx";
+            var fullFilePath = Path.GetFullPath(docxFilePath);
+            if (File.Exists(fullFilePath))
+            {
+                return $"/{noteId}.docx";
+            }
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(fullFilePath, WordprocessingDocumentType.Document))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+                Body body = mainPart.Document.AppendChild(new Body());
+                string[] paragraphs = noteContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                foreach (string paragraphText in paragraphs)
+                {
+                    // Dodaj nowy paragraf
+                    var para = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+                    Run run = para.AppendChild(new Run());
+                    run.AppendChild(new Text(paragraphText));
+                }
+
+                mainPart.Document.Save();
+            }
+            return $"/{noteId}.docx";
+        }
+
+        public string ExportPdfById(string jwtToken, int noteId)
+        {
+            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            Note note = GetNoteIfBelongsToUser(userId, noteId);
+            var noteContent = note.Content;
+            var directoryPath = "./wwwroot";
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var pdfFilePath = $"{directoryPath}/{noteId}.pdf";
+            var fullFilePath = Path.GetFullPath(pdfFilePath);
+            if (File.Exists(fullFilePath))
+            {
+                return $"/{noteId}.pdf";
+            }
+            using (var stream = new MemoryStream())
+            {
+                var document = new iTextSharp.text.Document();
+                PdfWriter.GetInstance(document, new FileStream(fullFilePath, FileMode.Create));
+
+                document.Open();
+                document.Add(new iTextSharp.text.Paragraph(noteContent));
+                document.Close();
+            }
+            return $"/{noteId}.pdf";
         }
     }
 }

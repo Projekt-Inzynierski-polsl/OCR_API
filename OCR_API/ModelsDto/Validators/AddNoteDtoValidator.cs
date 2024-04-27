@@ -24,14 +24,18 @@ namespace OCR_API.ModelsDto.Validators
 
 
             RuleFor(x => x.FolderId)
-                .NotEmpty()
+                 .Cascade(CascadeMode.Stop)
+                 .NotNull().When(x => x.FolderId != null)
                  .Custom((value, context) =>
                  {
-                     var userEntity = unitOfWork.Folders.GetAllByUser(unitOfWork.UserId);
-                     bool folderExist = userEntity.Any(u => u.Id == value);
-                     if (!folderExist)
+                     if(value != null)
                      {
-                         context.AddFailure("FolderId", "That folder doesn't exist.");
+                         var userEntity = unitOfWork.Folders.GetAllByUser(unitOfWork.UserId);
+                         bool folderExist = userEntity.Any(u => u.Id == value);
+                         if (!folderExist)
+                         {
+                             context.AddFailure("FolderId", "That folder doesn't exist.");
+                         }
                      }
                  });
 

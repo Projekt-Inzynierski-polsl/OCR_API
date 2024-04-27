@@ -82,5 +82,25 @@ namespace OCR_API.Controllers
             noteService.UpdateNoteCategories(accessToken, noteId, updateNoteCategoriesFolderDto);
             return Ok();
         }
+
+        [HttpGet("{noteId}/pdf")]
+        public async Task<ActionResult> ExportPdfByIdAsync(int noteId)
+        {
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            string link = noteService.ExportPdfById(accessToken, noteId);
+            var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
+            var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
+            return Ok(fileUrl);
+        }
+
+        [HttpGet("{noteId}/docx")]
+        public async Task<ActionResult> ExportDocxByIdAsync(int noteId)
+        {
+            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+            string link = noteService.ExportDocxById(accessToken, noteId);
+            var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
+            var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
+            return Ok(fileUrl);
+        }
     }
 }

@@ -22,7 +22,6 @@ namespace OCR_API.Transactions.NoteTransactions
             NoteToAdd.UserId = userId;
             if (NoteToAdd.FolderId == null)
             {
-                NoteToAdd.FolderId = 0;
                 unitOfWork.Notes.Add(NoteToAdd);
             }
             else

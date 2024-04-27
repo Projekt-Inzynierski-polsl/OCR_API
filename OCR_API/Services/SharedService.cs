@@ -179,6 +179,10 @@ namespace OCR_API.Services
             {
                 throw new BadRequestException("That user doesn't exist.");
             }
+            if (shareUserId == userId)
+            {
+                throw new BadRequestException("Cannot share resource to yourself.");
+            }
         }
     }
 }

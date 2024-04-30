@@ -14,6 +14,7 @@ using OCR_API.Middleware;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
 using OCR_API.ModelsDto.Validators;
+using OCR_API.Registrars;
 using OCR_API.Repositories;
 using OCR_API.Seeders;
 using OCR_API.Services;
@@ -51,48 +52,12 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 }, ServiceLifetime.Transient);
 
-builder.Services.AddScoped<Seeder>();
-builder.Services.AddScoped<JwtTokenHelper>();
-builder.Services.AddScoped<UserActionLogger>();
-builder.Services.AddScoped<ErrorHandlingMiddleware>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddScoped<IPasswordHasher<Folder>, PasswordHasher<Folder>>();
-builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
-builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
-builder.Services.AddScoped<IValidator<LoginUserDto>, LoginUserDtoValidator>();
-builder.Services.AddScoped<IValidator<UpdateFolderDto>, UpdateFolderDtoValidator>();
-builder.Services.AddScoped<IValidator<ConfirmedPasswordDto>, ConfirmedPasswordDtoValidator>();
-builder.Services.AddScoped<IValidator<AddNoteDto>, AddNoteDtoValidator>();
-builder.Services.AddScoped<IValidator<ActionNoteCategoryDto>, ActionNoteCategoryDtoValidator>();
-builder.Services.AddScoped<IValidator<SharedObjectDto>, SharedObjectDtoValidator>();
 
-builder.Services.AddScoped<IRepository<BlackListToken>, Repository<BlackListToken>>();
-builder.Services.AddScoped<IRepository<BoundingBox>, Repository<BoundingBox>>();
-builder.Services.AddScoped<IRepository<Folder>, Repository<Folder>>();
-builder.Services.AddScoped<IRepository<NoteCategory>, Repository<NoteCategory>>();
-builder.Services.AddScoped<IRepository<NoteFile>, Repository<NoteFile>>();
-builder.Services.AddScoped<IRepository<NoteLine>, Repository<NoteLine>>();
-builder.Services.AddScoped<IRepository<NoteWordError>, Repository<NoteWordError>>();
-builder.Services.AddScoped<IRepository<User>, Repository<User>>();
-builder.Services.AddScoped<IRepository<Role>, Repository<Role>>();
-builder.Services.AddScoped<IRepository<UploadedModel>, Repository<UploadedModel>>();
-builder.Services.AddScoped<IRepository<UserAction>, Repository<UserAction>>();
-builder.Services.AddScoped<IRepository<UserLog>, Repository<UserLog>>();
-builder.Services.AddScoped<IRepository<Shared>, Repository<Shared>>();
-builder.Services.AddScoped<IRepository<ShareMode>, Repository<ShareMode>>();
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IFolderService, FolderService>();
-builder.Services.AddScoped<INoteService, NoteService>();
-builder.Services.AddScoped<IUploadedModelService, UploadedModelService>();
-builder.Services.AddScoped<INoteCategoryService, NoteCategoryService>();
-builder.Services.AddScoped<INoteWordErrorService, NoteWordErrorService>();
-builder.Services.AddScoped<IUserLogService, UserLogService>();
-builder.Services.AddScoped<ISharedService, SharedService>();
-builder.Services.AddAutoMapper(typeof(UserMappingProfile));
-builder.Services.AddAutoMapper(typeof(FolderMappingProfile));
+Registar registar = new Registar();
+registar.ConfigureServices(builder.Services);
+
+
 builder.Host.UseNLog();
 
 builder.Services.AddEndpointsApiExplorer();

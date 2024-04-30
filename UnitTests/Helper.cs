@@ -14,6 +14,7 @@ using OCR_API.Services;
 using OCR_API;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.Logger;
+using OCR_API.Registrars;
 
 internal class Helper
 {
@@ -28,7 +29,6 @@ internal class Helper
 
         services.AddDbContext<SystemDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
 
-        // Dodaj pozostałe usługi
         AddServices(services);
 
         return services.BuildServiceProvider();
@@ -42,21 +42,8 @@ internal class Helper
 
     private static void AddServices(IServiceCollection services)
     {
-        // Dodaj wszystkie niezbędne usługi
-        services.AddScoped<ErrorHandlingMiddleware>();
-        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-        services.AddSingleton<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<UserActionLogger> ();
-        services.AddSingleton<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
-        services.AddSingleton<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
-        services.AddSingleton<IRepository<User>, Repository<User>>();
-        services.AddSingleton<IRepository<Role>, Repository<Role>>();
-        var authenticationSettings = Configuration.GetSection("Authentication").Get<AuthenticationSettings>();
-        services.AddSingleton(authenticationSettings);
-
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IAccountService, AccountService>();
-        services.AddAutoMapper(typeof(UserMappingProfile));
+        Registar registar = new Registar();
+        registar.ConfigureServices(services);
     }
 
     public static IUnitOfWork CreateUnitOfWork()

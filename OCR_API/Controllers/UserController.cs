@@ -53,7 +53,7 @@ namespace OCR_API.Controllers
 
         [HttpDelete("{userId}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult DeleteAccount(int userId)
+        public ActionResult DeleteUser(int userId)
         {
             userService.DeleteUser(userId);
             return NoContent();

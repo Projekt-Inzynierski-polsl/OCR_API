@@ -32,6 +32,8 @@ namespace UnitTests
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
         private UserActionLogger logger;
+        private IUserContextService userContextService;
+
         public AccountServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -40,8 +42,8 @@ namespace UnitTests
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
             logger = new UserActionLogger(unitOfWork);
-            service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
-            
+            userContextService = Helper.CreateMockIUserContextService();
+            service = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger, userContextService);
         }
 
         [TestMethod]

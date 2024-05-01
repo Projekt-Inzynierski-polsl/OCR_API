@@ -1,6 +1,8 @@
-﻿namespace OCR_API.Entities
+﻿using OCR_API.Authorization;
+
+namespace OCR_API.Entities
 {
-    public class Folder : IHasUserId
+    public class Folder : IHasUserId, IResourceOperationAccess
     {
         public int Id { get; set; }
         public int UserId { get; set; }

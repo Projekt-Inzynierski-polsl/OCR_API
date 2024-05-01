@@ -19,50 +19,44 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet("folders")]
-        public async Task<ActionResult> GetAllFoldersByUserIdAsync()
+        public ActionResult GetAllFoldersByUserId()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = sharedService.GetAllFoldersByUserId(accessToken);
+            var folders = sharedService.GetAllFoldersByUserId();
             return Ok(folders);
         }
 
         [HttpGet("notes")]
-        public async Task<ActionResult> GetAllNotesByUserIdAsync()
+        public ActionResult GetAllNotesByUserId()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var notes = sharedService.GetAllNotesByUserId(accessToken);
+            var notes = sharedService.GetAllNotesByUserId();
             return Ok(notes);
         }
 
         [HttpPost("folder")]
-        public async Task<ActionResult> ShareFolderAsync(SharedObjectDto sharedObjectDto)
+        public ActionResult ShareFolder(SharedObjectDto sharedObjectDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            sharedService.ShareFolder(accessToken, sharedObjectDto);
+            sharedService.ShareFolder(sharedObjectDto);
             return Ok();
         }
 
         [HttpPost("note")]
-        public async Task<ActionResult> ShareNoteAsync(SharedObjectDto sharedObjectDto)
+        public ActionResult ShareNote(SharedObjectDto sharedObjectDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            sharedService.ShareNote(accessToken, sharedObjectDto);
+            sharedService.ShareNote(sharedObjectDto);
             return Ok();
         }
 
         [HttpDelete("folder")]
-        public async Task<ActionResult> UnshareFolderAsync(SharedObjectDto sharedObjectDto)
+        public ActionResult UnshareFolder(SharedObjectDto sharedObjectDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            sharedService.UnshareFolder(accessToken, sharedObjectDto);
+            sharedService.UnshareFolder(sharedObjectDto);
             return Ok();
         }
 
         [HttpDelete("note")]
-        public async Task<ActionResult> UnshareNoteAsync(SharedObjectDto sharedObjectDto)
+        public ActionResult UnshareNote(SharedObjectDto sharedObjectDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            sharedService.UnshareNote(accessToken, sharedObjectDto);
+            sharedService.UnshareNote(sharedObjectDto);
             return Ok();
         }
     }

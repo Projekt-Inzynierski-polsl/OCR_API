@@ -20,27 +20,28 @@ namespace OCR_API.Services
         IUnitOfWork UnitOfWork { get; }
         PageResults<UserDto> GetAll(GetAllQuery queryParameters);
         UserDto GetById(int id);
-        UserDto GetLoggedUser(string accessToken);
-        void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto);
-        void DeleteUser(string jwtToken, int userId);
+        UserDto GetLoggedUser();
+        void UpdateUser(int userId, UpdateUserDto updateUserDto);
+        void DeleteUser(int userId);
     }
     public class UserService : IUserService
     {
         public IUnitOfWork UnitOfWork { get; }
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
         private readonly IPaginationService queryParametersService;
+        private readonly IUserContextService userContextService;
 
-        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
+        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, 
+            UserActionLogger logger, IPaginationService queryParametersService, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
             this.queryParametersService = queryParametersService;
+            this.userContextService = userContextService;
         }
 
         public PageResults<UserDto> GetAll(GetAllQuery queryParameters)
@@ -59,18 +60,18 @@ namespace OCR_API.Services
             return userDto;
         }
 
-        public UserDto GetLoggedUser(string jwtToken)
+        public UserDto GetLoggedUser()
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             var spec = new UserByIdWithRoleSpecification(userId);
             var user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
             var userDto = mapper.Map<UserDto>(user);
             return userDto;
         }
 
-        public void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto)
+        public void UpdateUser(int userId, UpdateUserDto updateUserDto)
         {
-            var adminId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var adminId = userContextService.GetUserId;
             var updatedUser = mapper.Map<User>(updateUserDto);
             if(updateUserDto.Password != null)
             {
@@ -82,9 +83,9 @@ namespace OCR_API.Services
             UnitOfWork.Commit();
             logger.Log(EUserAction.UpdateUser, adminId , DateTime.UtcNow, userId);
         }
-        public void DeleteUser(string jwtToken, int userId)
+        public void DeleteUser(int userId)
         {
-            var adminId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var adminId = userContextService.GetUserId;
             var user = UnitOfWork.Users.GetById(userId);
             if(user == null)
             {

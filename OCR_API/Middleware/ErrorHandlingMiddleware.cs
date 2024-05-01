@@ -2,6 +2,7 @@
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Repositories;
+using OCR_API.Services;
 
 namespace OCR_API.Middleware
 {
@@ -9,13 +10,13 @@ namespace OCR_API.Middleware
     {
         private readonly ILogger<ErrorHandlingMiddleware> logger;
         private readonly IUnitOfWork unitOfWork;
-        private readonly JwtTokenHelper jwtTokenHelper;
+        private readonly IUserContextService userContextService;
 
-        public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IUnitOfWork unitOfWork, JwtTokenHelper jwtTokenHelper)
+        public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
             this.logger = logger;
             this.unitOfWork = unitOfWork;
-            this.jwtTokenHelper = jwtTokenHelper;
+            this.userContextService = userContextService;
         }
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -26,15 +27,21 @@ namespace OCR_API.Middleware
                 {
                     if (unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
                     {
-                        throw new UnauthorizedAccessException("Unauthorized: Token is blacklisted.");
+                        throw new ForbidException("Unauthorized: Token is blacklisted.");
                     }
-                    var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+                    var userId = userContextService.GetUserId;
                     unitOfWork.UserId = userId;
                 }
 
                 await next.Invoke(context);
             }
-            catch(NotFoundException e)
+            catch (ForbidException e)
+            {
+                logger.LogError(e, e.Message);
+                context.Response.StatusCode = 403;
+                await context.Response.WriteAsync(e.Message);
+            }
+            catch (NotFoundException e)
             {
                 logger.LogError(e, e.Message);
                 context.Response.StatusCode = 404;

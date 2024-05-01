@@ -19,58 +19,51 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllUserFoldersAsync([FromQuery]GetAllQuery queryParameters)
+        public ActionResult GetAllUserFolders([FromQuery]GetAllQuery queryParameters)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = folderService.GetAll(accessToken, queryParameters);
+            var folders = folderService.GetAll(queryParameters);
             return Ok(folders);
         }
 
         [HttpPost("{folderId}")]
-        public async Task<ActionResult> GetFolderByIdAsync(int folderId, [FromBody] PasswordDto? passwordDto = null)
+        public ActionResult GetFolderById(int folderId, [FromBody] PasswordDto? passwordDto = null)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folder = folderService.GetById(accessToken, folderId, passwordDto);
+            var folder = folderService.GetById(folderId, passwordDto);
             return Ok(folder);
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateFolderAcync([FromBody] AddFolderDto folderToAdd)
+        public ActionResult CreateFolder([FromBody] AddFolderDto folderToAdd)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folderId = folderService.CreateFolder(accessToken, folderToAdd);
+            var folderId = folderService.CreateFolder(folderToAdd);
             return Created($"api/user/folder/{folderId}", folderId);
         }
 
         [HttpDelete("{folderId}")]
-        public async Task<ActionResult> DeleteFolderAsync(int folderId, [FromBody] PasswordDto passwordDto = null)
+        public ActionResult DeleteFolder(int folderId, [FromBody] PasswordDto passwordDto = null)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.DeleteFolder(accessToken, folderId, passwordDto);
+            folderService.DeleteFolder(folderId, passwordDto);
             return NoContent();
         }
 
         [HttpPut("{folderId}/update")]
-        public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto)
+        public ActionResult UpdateFolder(int folderId, [FromBody] UpdateFolderDto updateFolderDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.UpdateFolder(accessToken, folderId, updateFolderDto);
+            folderService.UpdateFolder(folderId, updateFolderDto);
             return Ok();
         }
 
         [HttpPut("{folderId}/lock")]
-        public async Task<ActionResult> LockFolderAsync(int folderId, [FromBody] ConfirmedPasswordDto confirmedPasswordDto)
+        public ActionResult LockFolder(int folderId, [FromBody] ConfirmedPasswordDto confirmedPasswordDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.LockFolder(accessToken, folderId, confirmedPasswordDto);
+            folderService.LockFolder(folderId, confirmedPasswordDto);
             return Ok();
         }
 
         [HttpPut("{folderId}/unlock")]
-        public async Task<ActionResult> UnlockFolderAsync(int folderId, [FromBody] PasswordDto passwordDto)
+        public ActionResult UnlockFolder(int folderId, [FromBody] PasswordDto passwordDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            folderService.UnlockFolder(accessToken, folderId, passwordDto);
+            folderService.UnlockFolder(folderId, passwordDto);
             return Ok();
         }
     }

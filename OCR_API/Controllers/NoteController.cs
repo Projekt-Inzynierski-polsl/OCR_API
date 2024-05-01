@@ -19,85 +19,75 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAllUserNotesAsync([FromQuery] GetAllQuery queryParameters)
+        public ActionResult GetAllUserNotes([FromQuery] GetAllQuery queryParameters)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = noteService.GetAllByUser(accessToken, queryParameters);
+            var folders = noteService.GetAllByUser(queryParameters);
             return Ok(folders);
         }
 
         [HttpGet("{noteId}")]
-        public async Task<ActionResult> GetNoteByIdAsync(int noteId)
+        public ActionResult GetNoteById(int noteId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folder = noteService.GetById(accessToken, noteId);
+            var folder = noteService.GetById(noteId);
             return Ok(folder);
         }
 
         [HttpGet("lastEdited")]
-        public async Task<ActionResult> GetLastEditedNotesAsync([FromQuery] int amount = 3)
+        public ActionResult GetLastEditedNotes([FromQuery] int amount = 3)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folder = noteService.GetLastEdited(accessToken, amount);
+            var folder = noteService.GetLastEdited(amount);
             return Ok(folder);
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateNoteAcync([FromBody] AddNoteDto noteToAdd)
+        public ActionResult CreateNote([FromBody] AddNoteDto noteToAdd)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var noteId = noteService.CreateNote(accessToken, noteToAdd);
+            var noteId = noteService.CreateNote(noteToAdd);
             return Created($"api/user/note/{noteId}", noteId);
 
         }
 
         [HttpDelete("{noteId}")]
-        public async Task<ActionResult> DeleteNoteAsync(int noteId)
+        public ActionResult DeleteNoteAsync(int noteId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteService.DeleteNote(accessToken, noteId);
+            noteService.DeleteNote(noteId);
             return NoContent();
         }
 
         [HttpPut("{noteId}/update")]
-        public async Task<ActionResult> UpdateNoteAsync(int noteId, [FromBody] UpdateNoteDto updateNoteDto)
+        public ActionResult UpdateNote(int noteId, [FromBody] UpdateNoteDto updateNoteDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteService.UpdateNote(accessToken, noteId, updateNoteDto);
+            noteService.UpdateNote(noteId, updateNoteDto);
             return Ok();
         }
 
         [HttpPut("{noteId}/folder")]
-        public async Task<ActionResult> ChangeNoteFolderAsync(int noteId, [FromBody] ChangeNoteFolderDto changenNoteFolderDto)
+        public ActionResult ChangeNoteFolderAsync(int noteId, [FromBody] ChangeNoteFolderDto changenNoteFolderDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteService.ChangeNoteFolder(accessToken, noteId, changenNoteFolderDto);
+            noteService.ChangeNoteFolder(noteId, changenNoteFolderDto);
             return Ok();
         }
 
         [HttpPut("{noteId}/categories")]
-        public async Task<ActionResult> UpdateNoteCategoriesAsync(int noteId, [FromBody] UpdateNoteCategoriesDto updateNoteCategoriesFolderDto)
+        public ActionResult UpdateNoteCategories(int noteId, [FromBody] UpdateNoteCategoriesDto updateNoteCategoriesFolderDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteService.UpdateNoteCategories(accessToken, noteId, updateNoteCategoriesFolderDto);
+            noteService.UpdateNoteCategories(noteId, updateNoteCategoriesFolderDto);
             return Ok();
         }
 
         [HttpGet("{noteId}/pdf")]
-        public async Task<ActionResult> ExportPdfByIdAsync(int noteId)
+        public ActionResult ExportPdfById(int noteId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            string link = noteService.ExportPdfById(accessToken, noteId);
+            string link = noteService.ExportPdfById(noteId);
             var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
             var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
             return Ok(fileUrl);
         }
 
         [HttpGet("{noteId}/docx")]
-        public async Task<ActionResult> ExportDocxByIdAsync(int noteId)
+        public ActionResult ExportDocxById(int noteId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            string link = noteService.ExportDocxById(accessToken, noteId);
+            string link = noteService.ExportDocxById(noteId);
             var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
             var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
             return Ok(fileUrl);

@@ -19,9 +19,9 @@ namespace OCR_API.Services
         IEnumerable<NoteWordErrorDto> GetAll();
         IEnumerable<NoteWordErrorDto> GetAllForUser(int userId);
         NoteWordErrorDto GetById(int errorId);
-        void DeleteById(string jwtToken, int errorId);
-        void DeleteAll(string jwtToken);
-        MemoryStream DownloadErrors(string jwtToken);
+        void DeleteById(int errorId);
+        void DeleteAll();
+        MemoryStream DownloadErrors();
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -30,14 +30,17 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IUserContextService userContextService;
         private string OCR_ERRORS_DIRECTORY_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ocr_errors");
 
-        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger,
+            IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.userContextService = userContextService;
         }
 
         public IEnumerable<NoteWordErrorDto> GetAll()
@@ -58,18 +61,17 @@ namespace OCR_API.Services
             return errorDto;
         }
 
-        public void DeleteById(string jwtToken, int errorId)
+        public void DeleteById(int errorId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             DeleteEntityTransaction<NoteWordError> deleteUserTransaction = new(UnitOfWork.NoteWordErrors, errorId);
             deleteUserTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.DeleteError, userId, DateTime.Now, errorId);
         }
 
-        public void DeleteAll(string jwtToken)
+        public void DeleteAll()
         {
-  
             TruncateTableTransaction<NoteWordError> truncateTableTransaction = new(UnitOfWork.NoteWordErrors);
             truncateTableTransaction.Execute();
             try
@@ -95,11 +97,11 @@ namespace OCR_API.Services
             }
 
             UnitOfWork.Commit();
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             logger.Log(EUserAction.ClearErrorTable, userId, DateTime.Now);
         }
 
-        public MemoryStream DownloadErrors(string jwtToken)
+        public MemoryStream DownloadErrors()
         {
             var memoryStream = new MemoryStream();
 
@@ -126,7 +128,7 @@ namespace OCR_API.Services
             }
 
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             logger.Log(EUserAction.DownloadErrors, userId, DateTime.Now);
             return memoryStream;
         }

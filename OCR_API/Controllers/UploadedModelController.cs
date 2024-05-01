@@ -44,14 +44,11 @@ namespace OCR_API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UploadNewModelAsync()
+        public ActionResult UploadNewModel()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
             var file = Request.Form.Files[0];
-            await uploadedModelService.UploadNewModelAsync(accessToken, file);
+            uploadedModelService.UploadNewModelAsync(file);
             return Ok();
         }
-
-
     }
 }

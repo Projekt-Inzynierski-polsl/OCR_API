@@ -17,6 +17,7 @@ using iTextSharp.text.pdf;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
+using OCR_API.Authorization;
 
 namespace OCR_API.Services
 {
@@ -24,37 +25,38 @@ namespace OCR_API.Services
     {
         IUnitOfWork UnitOfWork { get; }
 
-        PageResults<NoteDto> GetAllByUser(string accessToken, GetAllQuery queryParameters);
-        NoteDto GetById(string accessToken, int noteId);
-        IEnumerable<NoteDto> GetLastEdited(string accessToken, int amount);
-        int CreateNote(string accessToken, AddNoteDto addNoteDto);
-        void DeleteNote(string accessToken, int noteId);
-        void UpdateNote(string accessToken, int noteId, UpdateNoteDto updateNoteDto);
-        void ChangeNoteFolder(string accessToken, int noteId, ChangeNoteFolderDto changeNoteFolderDto);
-        void UpdateNoteCategories(string accessToken, int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto);
-        string ExportPdfById(string accessToken, int noteId);
-        string ExportDocxById(string accessToken, int noteId);
+        PageResults<NoteDto> GetAllByUser(GetAllQuery queryParameters);
+        NoteDto GetById(int noteId);
+        IEnumerable<NoteDto> GetLastEdited(int amount);
+        int CreateNote(AddNoteDto addNoteDto);
+        void DeleteNote(int noteId);
+        void UpdateNote(int noteId, UpdateNoteDto updateNoteDto);
+        void ChangeNoteFolder(int noteId, ChangeNoteFolderDto changeNoteFolderDto);
+        void UpdateNoteCategories(int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto);
+        string ExportPdfById(int noteId);
+        string ExportDocxById(int noteId);
     }
     public class NoteService : INoteService
     {
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
         private readonly IPaginationService queryParametersService;
+        private readonly IUserContextService userContextService;
 
-        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
+        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, IPaginationService queryParametersService, 
+            IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
             this.queryParametersService = queryParametersService;
+            this.userContextService = userContextService;
         }
 
-        public PageResults<NoteDto> GetAllByUser(string jwtToken, GetAllQuery queryParameters)
+        public PageResults<NoteDto> GetAllByUser(GetAllQuery queryParameters)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             var spec = new NotesWithFileAndCategoriesSpecification(userId, queryParameters.SearchPhrase);
             var notesQuery = UnitOfWork.Notes.GetBySpecification(spec);
             var result = queryParametersService.PreparePaginationResults<NoteDto, Note>(queryParameters, notesQuery, mapper);
@@ -62,18 +64,18 @@ namespace OCR_API.Services
             return result;
         }
 
-        public NoteDto GetById(string jwtToken, int noteId)
+        public NoteDto GetById(int noteId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteDto = mapper.Map<NoteDto>(note);
 
             return noteDto;
         }
 
-        public IEnumerable<NoteDto> GetLastEdited(string jwtToken, int amount)
+        public IEnumerable<NoteDto> GetLastEdited(int amount)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             EUserAction[] lastEditedActions = new[] { EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories };
             var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedActions.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
             var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
@@ -82,9 +84,9 @@ namespace OCR_API.Services
             return notesDto;
         }
 
-        public int CreateNote(string jwtToken, AddNoteDto addNoteDto)
+        public int CreateNote(AddNoteDto addNoteDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note noteToAdd = mapper.Map<Note>(addNoteDto); 
             AddNoteTransaction addNoteTransaction = new(UnitOfWork, userId, noteToAdd);
             addNoteTransaction.Execute();
@@ -94,12 +96,12 @@ namespace OCR_API.Services
             return newNoteId;
         }
 
-        public void DeleteNote(string jwtToken, int noteId)
+        public void DeleteNote(int noteId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note noteToRemove = GetNoteIfBelongsToUser(userId, noteId);
 
-            if (CanEdit(noteToRemove, userId))
+            if (ResourceOperationAccess.CanEdit(noteToRemove, userId))
             {
                 DeleteEntityTransaction<Note> deleteNoteTransaction = new(UnitOfWork.Notes, noteToRemove.Id);
                 deleteNoteTransaction.Execute();
@@ -108,16 +110,16 @@ namespace OCR_API.Services
             }
             else
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
         }
 
-        public void UpdateNote(string jwtToken, int noteId, UpdateNoteDto updateNoteDto)
+        public void UpdateNote(int noteId, UpdateNoteDto updateNoteDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note noteToUpdate = GetNoteIfBelongsToUser(userId, noteId);
 
-            if (CanEdit(noteToUpdate, userId))
+            if (ResourceOperationAccess.CanEdit(noteToUpdate, userId))
             {
                 UpdateNoteTransaction updateNoteTransaction = new(noteToUpdate, updateNoteDto.Name, updateNoteDto.Content, updateNoteDto.IsPrivate);
                 updateNoteTransaction.Execute();
@@ -126,16 +128,16 @@ namespace OCR_API.Services
             }
             else
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
         }
 
-        public void ChangeNoteFolder(string jwtToken, int noteId, ChangeNoteFolderDto changeNoteFolderDto)
+        public void ChangeNoteFolder(int noteId, ChangeNoteFolderDto changeNoteFolderDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note noteToMove = GetNoteIfBelongsToUser(userId, noteId);
 
-            if (CanEdit(noteToMove, userId))
+            if (ResourceOperationAccess.CanEdit(noteToMove, userId))
             {
                 ChangeNoteFolderTransaction changeNoteFolderTransaction = new(UnitOfWork, userId, noteToMove, changeNoteFolderDto.FolderId);
                 changeNoteFolderTransaction.Execute();
@@ -144,16 +146,16 @@ namespace OCR_API.Services
             }
             else
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
         }
 
-        public void UpdateNoteCategories(string jwtToken, int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto)
+        public void UpdateNoteCategories(int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note noteToUpdate = GetNoteIfBelongsToUser(userId, noteId);
 
-            if (CanEdit(noteToUpdate, userId))
+            if (ResourceOperationAccess.CanEdit(noteToUpdate, userId))
             {
                 UpdateNoteCategoriesTransaction updateNoteCategories = new(UnitOfWork, noteToUpdate, userId, updateNoteCategoriesFolderDto.CategoriesIds);
                 updateNoteCategories.Execute();
@@ -162,7 +164,7 @@ namespace OCR_API.Services
             }
             else
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
         }
 
@@ -174,26 +176,16 @@ namespace OCR_API.Services
             {
                 throw new NotFoundException("That entity doesn't exist.");
             }
-            if (note.UserId != userId && !IsShared(note, userId))
+            if (note.UserId != userId && !ResourceOperationAccess.IsShared(note, userId))
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
             return note;
         }
 
-        private bool IsShared(Note note, int userId)
+        public string ExportDocxById(int noteId)
         {
-            return note.SharedObjects.Where(f => f.UserId == userId).Count() > 0 || note.SharedObjects.Where(f => f.UserId == null).Count() > 0;
-        }
-
-        private bool CanEdit(Note note, int userId)
-        {
-            return note.UserId == userId || note.SharedObjects.FirstOrDefault(f => f.UserId == null).ModeId == (int)EShareMode.Edit || note.SharedObjects.FirstOrDefault(f => f.UserId == userId).ModeId == (int)EShareMode.Edit;
-        }
-
-        public string ExportDocxById(string jwtToken, int noteId)
-        {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteContent = note.Content;
             var directoryPath = "./wwwroot";
@@ -227,9 +219,9 @@ namespace OCR_API.Services
             return $"/{noteId}.docx";
         }
 
-        public string ExportPdfById(string jwtToken, int noteId)
+        public string ExportPdfById(int noteId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteContent = note.Content;
             var directoryPath = "./wwwroot";

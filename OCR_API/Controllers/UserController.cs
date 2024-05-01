@@ -36,29 +36,26 @@ namespace OCR_API.Controllers
 
         [HttpGet("logged")]
 
-        public async Task<ActionResult> GetLoggedUserAsync()
+        public ActionResult GetLoggedUserAsync()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var user = userService.GetLoggedUser(accessToken);
+            var user = userService.GetLoggedUser();
             return Ok(user);
         }
 
 
         [HttpPut("{userId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateUserAsync(int userId, [FromBody] UpdateUserDto updateUserDto)
+        public ActionResult UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            userService.UpdateUser(accessToken, userId, updateUserDto);
+            userService.UpdateUser(userId, updateUserDto);
             return Ok();
         }
 
         [HttpDelete("{userId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteAccountAsync(int userId)
+        public ActionResult DeleteAccount(int userId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            userService.DeleteUser(accessToken, userId);
+            userService.DeleteUser(userId);
             return NoContent();
         }
     }

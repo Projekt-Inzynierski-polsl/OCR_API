@@ -27,6 +27,8 @@ namespace UnitTests
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
         private UserActionLogger logger;
+        private PaginationService paginationService;
+        private IUserContextService userContextService;
 
         public FolderServiceTests()
         {
@@ -39,27 +41,20 @@ namespace UnitTests
             updateFolderValidator = new UpdateFolderDtoValidator(unitOfWork);
             confirmedPasswordValidator = new ConfirmedPasswordDtoValidator();
             logger = new UserActionLogger(unitOfWork);
-            service = new FolderService(unitOfWork, folderPasswordHasher, mapper, jwtTokenHelper, logger);
-            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger);
-        }
-
-        public string SetUpGetToken()
-        {
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
-            string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-            return token;
+            paginationService = new();
+            userContextService = Helper.CreateMockIUserContextService();
+            service = new FolderService(unitOfWork, folderPasswordHasher, mapper, logger, paginationService, userContextService);
+            accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger, userContextService);
         }
 
         [TestMethod]
         public void AddFolder_WithoutPassword_SuccessfullyAdded()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             var folders = unitOfWork.Folders.GetAll();
             Assert.AreEqual(1, folders.Count);
             var folder = unitOfWork.Folders.GetById(1);
@@ -73,12 +68,12 @@ namespace UnitTests
         [TestMethod]
         public void AddFolder_WithCorrectPassword_SuccessfullyAdded()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             var folders = unitOfWork.Folders.GetAll();
             Assert.AreEqual(1, folders.Count);
             var folder = unitOfWork.Folders.GetById(1);
@@ -93,6 +88,7 @@ namespace UnitTests
         [TestMethod]
         public void AddFolder_WithWrongConfirmedPassword_ValidationFails()
         {
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
@@ -104,6 +100,7 @@ namespace UnitTests
         [TestMethod]
         public void AddFolder_WithWrongPassword_ValidationFails()
         {
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "123";
@@ -114,6 +111,7 @@ namespace UnitTests
         [TestMethod]
         public void AddFolder_WithoutName_ValidationFails()
         {
+            Helper.RegisterAccount(accountService);
             string iconPath = "icons/my.png";
             string password = "123";
             AddFolderDto addFolderDto = new AddFolderDto() { IconPath = iconPath, Password = password, ConfirmedPassword = password };
@@ -123,14 +121,14 @@ namespace UnitTests
         [TestMethod]
         public void AddFolder_WithTakenName_ValidationFails()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
             var validationResult = addFolderValidator.Validate(addFolderDto);
             Assert.IsTrue(validationResult.IsValid);
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             AddFolderDto addFolderDto2 = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
             var validationResult2 = addFolderValidator.Validate(addFolderDto2);
             Assert.IsFalse(validationResult2.IsValid);
@@ -138,44 +136,43 @@ namespace UnitTests
         [TestMethod]
         public void GetAll__ReturnsFoldersDto()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             string name2 = "TestFolder2";
             string iconPath2 = "icons/my2.png";
             AddFolderDto addFolderDto2 = new AddFolderDto() { Name = name2, IconPath = iconPath2 };
-            service.CreateFolder(token, addFolderDto2);
+            service.CreateFolder(addFolderDto2);
             string name3 = "TestFolder3";
             string iconPath3 = "icons/my.png";
             AddFolderDto addFolderDto3 = new AddFolderDto() { Name = name3, IconPath = iconPath3 };
-            service.CreateFolder(token, addFolderDto3);
+            service.CreateFolder(addFolderDto3);
 
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
 
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             AddFolderDto addFolderDto4 = new AddFolderDto() { Name = name, IconPath = iconPath };
-            service.CreateFolder(token2, addFolderDto4);
-
-            var folders = service.GetAll(token);
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            service.CreateFolder(addFolderDto4);
+            var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
+            Helper.ChangeIdInIUserContextService(userContextService, 1);
+            var folders = service.GetAll(parameters);
             Assert.IsNotNull(folders);
-            Assert.AreEqual(3, folders.Count());
-            var enumeratedFolders = folders.ToList();
+            Assert.AreEqual(3, folders.Items.Count);
+            var enumeratedFolders = folders.Items;
             Assert.AreEqual(name, enumeratedFolders[0].Name);
             Assert.AreEqual(iconPath, enumeratedFolders[0].IconPath);
             Assert.AreEqual(name2, enumeratedFolders[1].Name);
             Assert.AreEqual(iconPath2, enumeratedFolders[1].IconPath);
             Assert.AreEqual(name3, enumeratedFolders[2].Name);
             Assert.AreEqual(iconPath3, enumeratedFolders[2].IconPath);
-
-            var folders2 = service.GetAll(token2);
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            var folders2 = service.GetAll(parameters);
             Assert.IsNotNull(folders2);
-            Assert.AreEqual(1, folders2.Count());
-            var enumeratedFolders2 = folders2.ToList();
+            Assert.AreEqual(1, folders2.Items.Count);
+            var enumeratedFolders2 = folders2.Items;
             Assert.AreEqual(name, enumeratedFolders2[0].Name);
             Assert.AreEqual(iconPath, enumeratedFolders2[0].IconPath);
         }
@@ -183,12 +180,12 @@ namespace UnitTests
         [TestMethod]
         public void GetById_WithoutPassword_ReturnsFolderDto()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
-            service.CreateFolder(token, addFolderDto);
-            FolderDto folder = service.GetById(token, 1);
+            service.CreateFolder(addFolderDto);
+            FolderDto folder = service.GetById(1);
             Assert.IsNotNull(folder);
             Assert.AreEqual(name, folder.Name);
             Assert.AreEqual(iconPath, folder.IconPath);
@@ -198,14 +195,14 @@ namespace UnitTests
         [TestMethod]
         public void GetById_WithPassword_ReturnsFolderDto()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new() { Password = password };
-            FolderDto folder = service.GetById(token, 1, passwordDto);
+            FolderDto folder = service.GetById(1, passwordDto);
             Assert.IsNotNull(folder);
             Assert.AreEqual(name, folder.Name);
             Assert.AreEqual(iconPath, folder.IconPath);
@@ -215,120 +212,117 @@ namespace UnitTests
         [TestMethod]
         public void GetById_WithWrongPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new() { Password = "123" };
-            Assert.ThrowsException<BadRequestException>(() => service.GetById(token, 1, passwordDto));
+            Assert.ThrowsException<BadRequestException>(() => service.GetById(1, passwordDto));
         }
 
         [TestMethod]
         public void GetById_WithWrongToken_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new() { Password = "123" };
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.GetById(token2, 1, passwordDto));
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            Assert.ThrowsException<ForbidException>(() => service.GetById(1, passwordDto));
         }
         [TestMethod]
         public void DeleteFolder_WithoutPassword_WithCorrectIdAndPassword_SuccessfullyDeleted()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
-            service.CreateFolder(token, addFolderDto);
-            FolderDto folder = service.GetById(token, 1);
+            service.CreateFolder(addFolderDto);
+            FolderDto folder = service.GetById(1);
             Assert.IsNotNull(folder);
-            service.DeleteFolder(token, 1);
-            var folders = service.GetAll(token);
+            service.DeleteFolder(1);
+            var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
+            var folders = service.GetAll(parameters);
             Assert.IsNotNull(folders);
-            Assert.AreEqual(0, folders.Count());
+            Assert.AreEqual(0, folders.Items.Count());
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndPassword_SuccessfullyDeleted()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new() { Password = password };
-            FolderDto folder = service.GetById(token, 1, passwordDto);
+            FolderDto folder = service.GetById(1, passwordDto);
             Assert.IsNotNull(folder);
-            service.DeleteFolder(token, 1, passwordDto);
-            var folders = service.GetAll(token);
+            service.DeleteFolder(1, passwordDto);
+            var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
+            var folders = service.GetAll(parameters);
 
             Assert.IsNotNull(folders);
-            Assert.AreEqual(0, folders.Count());
+            Assert.AreEqual(0, folders.Items.Count());
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndWrongPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             string wrongPassword = "123";
             PasswordDto passwordDto = new() { Password = wrongPassword };
 
-            Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(token, 1, passwordDto));
+            Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(1, passwordDto));
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndWithoutPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
 
-            Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(token, 1));
+            Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(1));
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithWrongId_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.DeleteFolder(token2, 1));
+            service.CreateFolder(addFolderDto);
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            Assert.ThrowsException<ForbidException>(() => service.DeleteFolder(1));
         }
         [TestMethod]
         public void UpdateFolder_WithCorrectData_SuccessfullyUpdated()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             string newName = "Update";
             string newIcon = "UpdateIcon";
             UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon };
-            service.UpdateFolder(token, 1, updateFolderDto);
-            var folder = service.GetById(token, 1);
+            service.UpdateFolder(1, updateFolderDto);
+            var folder = service.GetById(1);
             Assert.IsNotNull(folder);
             Assert.AreEqual(newName, folder.Name);
             Assert.AreEqual(newIcon, folder.IconPath);
@@ -336,18 +330,18 @@ namespace UnitTests
         [TestMethod]
         public void UpdateFolder_WithPassword_WithCorrectData_SuccessfullyUpdated()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             string newName = "Update";
             string newIcon = "UpdateIcon";
             UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon, PasswordToFolder = password };
-            service.UpdateFolder(token, 1, updateFolderDto);
+            service.UpdateFolder(1, updateFolderDto);
             PasswordDto passwordDto = new() { Password = password };
-            var folder = service.GetById(token, 1, passwordDto);
+            var folder = service.GetById(1, passwordDto);
             Assert.IsNotNull(folder);
             Assert.AreEqual(newName, folder.Name);
             Assert.AreEqual(newIcon, folder.IconPath);
@@ -355,46 +349,44 @@ namespace UnitTests
         [TestMethod]
         public void UpdateFolder_WithPassword_WithWrongPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath, Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             string wrongPassword = "123";
             string newName = "Update";
             string newIcon = "UpdateIcon";
             UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon, PasswordToFolder = wrongPassword};
-            Assert.ThrowsException<BadRequestException>(() => service.UpdateFolder(token, 1, updateFolderDto));
+            Assert.ThrowsException<BadRequestException>(() => service.UpdateFolder(1, updateFolderDto));
         }
         [TestMethod]
         public void UpdateFolder_WithWrongId_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
-            service.CreateFolder(token, addFolderDto);
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
+            service.CreateFolder(addFolderDto);
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
             string newName = "Update";
             string newIcon = "UpdateIcon";
             UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon };
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.UpdateFolder(token2, 1, updateFolderDto));
+            Assert.ThrowsException<ForbidException>(() => service.UpdateFolder(1, updateFolderDto));
         }
         [TestMethod]
         public void UpdateFolder_WithTakenName_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
             string name2 = "Folder2";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             AddFolderDto addFolderDto2 = new AddFolderDto() { Name = name2, IconPath = iconPath };
-            service.CreateFolder(token, addFolderDto2);
+            service.CreateFolder(addFolderDto2);
             string newIcon = "UpdateIcon";
             UpdateFolderDto updateFolderDto = new() { Name = name, IconPath = newIcon };
             var validationResult = updateFolderValidator.Validate(updateFolderDto);
@@ -403,14 +395,13 @@ namespace UnitTests
         [TestMethod]
         public void LockFolder_WithCorrectData_SuccessfullyLocked()
         {
-            // Arrange
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png"};
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
 
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = password, ConfirmedPassword = password };
-            service.LockFolder(token, 1, confirmedPasswordDto);
+            service.LockFolder(1, confirmedPasswordDto);
 
             var folder = unitOfWork.Folders.GetById(1);
             Assert.IsNotNull(folder);
@@ -420,10 +411,10 @@ namespace UnitTests
         [TestMethod]
         public void LockFolder_WithIncorrectPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png"};
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
 
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = "incorrectpassword", ConfirmedPassword = password };
             var validationResult = confirmedPasswordValidator.Validate(confirmedPasswordDto);
@@ -433,43 +424,39 @@ namespace UnitTests
         [TestMethod]
         public void LockFolder_OnAlreadyLockedFolder_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png", Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = password, ConfirmedPassword = password };
 
-            Assert.ThrowsException<BadRequestException>(() => service.LockFolder(token, 1, confirmedPasswordDto));
+            Assert.ThrowsException<BadRequestException>(() => service.LockFolder(1, confirmedPasswordDto));
         }
 
         [TestMethod]
         public void LockFolder_OnNotOwnedFolder_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png", Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
-
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
+            service.CreateFolder(addFolderDto);
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
 
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = password, ConfirmedPassword = password };
-
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.LockFolder(token2, 1, confirmedPasswordDto));
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            Assert.ThrowsException<ForbidException>(() => service.LockFolder(1, confirmedPasswordDto));
         }
 
         [TestMethod]
         public void UnlockFolder_WithCorrectData_SuccessfullyUnlocked()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png", Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new PasswordDto() { Password = password };
 
-            service.UnlockFolder(token, 1, passwordDto);
+            service.UnlockFolder(1, passwordDto);
 
             var folder = unitOfWork.Folders.GetById(1);
             Assert.IsNotNull(folder);
@@ -479,51 +466,49 @@ namespace UnitTests
         [TestMethod]
         public void UnlockFolder_WithWrongPassword_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             string password = "test123";
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png", Password = password, ConfirmedPassword = password };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto wrongPasswordDto = new PasswordDto() { Password = "wrongpassword" };
 
-            Assert.ThrowsException<BadRequestException>(() => service.UnlockFolder(token, 1, wrongPasswordDto));
+            Assert.ThrowsException<BadRequestException>(() => service.UnlockFolder(1, wrongPasswordDto));
         }
 
         [TestMethod]
         public void UnlockFolder_OnAlreadyUnlockedFolder_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new PasswordDto() { Password = "test123" };
 
-            Assert.ThrowsException<BadRequestException>(() => service.UnlockFolder(token, 1, passwordDto));
+            Assert.ThrowsException<BadRequestException>(() => service.UnlockFolder(1, passwordDto));
         }
 
         [TestMethod]
         public void UnlockFolder_WithWrongFolderId_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             int wrongFolderId = 2;
             PasswordDto passwordDto = new PasswordDto() { Password = "test123" };
 
-            Assert.ThrowsException<NotFoundException>(() => service.UnlockFolder(token, wrongFolderId, passwordDto));
+            Assert.ThrowsException<NotFoundException>(() => service.UnlockFolder(wrongFolderId, passwordDto));
         }
 
         [TestMethod]
         public void UnlockFolder_WithWrongUserId_ThrowsException()
         {
-            string token = SetUpGetToken();
+            Helper.RegisterAccount(accountService);
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
-            service.CreateFolder(token, addFolderDto);
+            service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new PasswordDto() { Password = "test123" };
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
+            Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
             LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-
-            Assert.ThrowsException<UnauthorizedAccessException>(() => service.UnlockFolder(token2, 1, passwordDto));
+            Helper.ChangeIdInIUserContextService(userContextService, 2);
+            Assert.ThrowsException<ForbidException>(() => service.UnlockFolder(1, passwordDto));
         }
     }
 }

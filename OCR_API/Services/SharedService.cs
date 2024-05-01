@@ -16,12 +16,12 @@ namespace OCR_API.Services
     public interface ISharedService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<FolderDto> GetAllFoldersByUserId(string jwtToken);
-        IEnumerable<NoteDto> GetAllNotesByUserId(string jwtToken);
-        void ShareFolder(string jwtToken, SharedObjectDto sharedObjectDto);
-        void ShareNote(string jwtToken, SharedObjectDto sharedObjectDto);
-        void UnshareFolder(string jwtToken, SharedObjectDto sharedObjectDto);
-        void UnshareNote(string jwtToken, SharedObjectDto sharedObjectDto);
+        IEnumerable<FolderDto> GetAllFoldersByUserId();
+        IEnumerable<NoteDto> GetAllNotesByUserId();
+        void ShareFolder(SharedObjectDto sharedObjectDto);
+        void ShareNote(SharedObjectDto sharedObjectDto);
+        void UnshareFolder(SharedObjectDto sharedObjectDto);
+        void UnshareNote(SharedObjectDto sharedObjectDto);
     }
     public class SharedService : ISharedService
     {
@@ -29,21 +29,22 @@ namespace OCR_API.Services
 
         private readonly IPasswordHasher<Folder> passwordHasher;
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IUserContextService userContextService;
 
-        public SharedService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public SharedService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, UserActionLogger logger, 
+            IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.userContextService = userContextService;
         }
 
-        public IEnumerable<FolderDto> GetAllFoldersByUserId(string jwtToken)
+        public IEnumerable<FolderDto> GetAllFoldersByUserId()
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
 
             var spec = new SharedFoldersWithNotesSpecification(userId);
             var folders = UnitOfWork.Shared.GetBySpecification(spec);
@@ -52,9 +53,9 @@ namespace OCR_API.Services
             return foldersDto;
         }
 
-        public IEnumerable<NoteDto> GetAllNotesByUserId(string jwtToken)
+        public IEnumerable<NoteDto> GetAllNotesByUserId()
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
 
             var spec = new SharedNotesWithFileAndCategoriesSpecification(userId);
             var notes = UnitOfWork.Shared.GetBySpecification(spec);
@@ -63,9 +64,9 @@ namespace OCR_API.Services
             return notesDto;
         }
 
-        public void ShareFolder(string jwtToken, SharedObjectDto sharedObjectDto)
+        public void ShareFolder(SharedObjectDto sharedObjectDto)
         {
-            GetUserIdAndShareUserId(jwtToken, sharedObjectDto, out int userId, out int? shareUserId);
+            GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Folder folder = GetFolderIfBelongsToUser(userId, sharedObjectDto.ObjectId);
             if (folder.PasswordHash is not null)
             {
@@ -85,9 +86,9 @@ namespace OCR_API.Services
             logger.Log(EUserAction.ShareFolder, userId, DateTime.UtcNow, sharedObjectDto.ObjectId);
         }
 
-        public void ShareNote(string jwtToken, SharedObjectDto sharedObjectDto)
+        public void ShareNote(SharedObjectDto sharedObjectDto)
         {
-            GetUserIdAndShareUserId(jwtToken, sharedObjectDto, out int userId, out int? shareUserId);
+            GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Note Note = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
             ShareTransaction shareNoteTransaction = new ShareNoteTransaction(UnitOfWork.Shared, shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
             shareNoteTransaction.Execute();
@@ -95,9 +96,9 @@ namespace OCR_API.Services
             logger.Log(EUserAction.ShareNote, userId, DateTime.UtcNow, sharedObjectDto.ObjectId);
         }
 
-        public void UnshareFolder(string jwtToken, SharedObjectDto sharedObjectDto)
+        public void UnshareFolder(SharedObjectDto sharedObjectDto)
         {
-            GetUserIdAndShareUserId(jwtToken, sharedObjectDto, out int userId, out int? shareUserId);
+            GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Folder folder = GetFolderIfBelongsToUser(userId, sharedObjectDto.ObjectId);
             if (folder.PasswordHash is not null)
             {
@@ -122,9 +123,9 @@ namespace OCR_API.Services
             logger.Log(EUserAction.UnshareFolder, userId, DateTime.UtcNow, sharedObjectDto.ObjectId);
         }
 
-        public void UnshareNote(string jwtToken, SharedObjectDto sharedObjectDto)
+        public void UnshareNote(SharedObjectDto sharedObjectDto)
         {
-            GetUserIdAndShareUserId(jwtToken, sharedObjectDto, out int userId, out int? shareUserId);
+            GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Note folder = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
             var entityToDelete = UnitOfWork.Shared.Entity.FirstOrDefault(e => e.UserId == shareUserId && e.NoteId == sharedObjectDto.ObjectId);
             if(entityToDelete is null)
@@ -147,7 +148,7 @@ namespace OCR_API.Services
             }
             if (folder.UserId != userId)
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's folder.");
+                throw new ForbidException("Cannot operate someone else's folder.");
             }
             return folder;
         }
@@ -162,18 +163,18 @@ namespace OCR_API.Services
             }
             if (note.UserId != userId)
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
             return note;
         }
 
-        private void GetUserIdAndShareUserId(string jwtToken, SharedObjectDto sharedObjectDto, out int userId, out int? shareUserId)
+        private void GetUserIdAndShareUserId(SharedObjectDto sharedObjectDto, out int userId, out int? shareUserId)
         {
             if (sharedObjectDto.ShareMode == EShareMode.None)
             {
                 throw new BadRequestException("Wrong share mode.");
             }
-            userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            userId = userContextService.GetUserId;
             shareUserId = string.IsNullOrEmpty(sharedObjectDto.Email) ? null : UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
             if (shareUserId == null && !string.IsNullOrEmpty(sharedObjectDto.Email))
             {

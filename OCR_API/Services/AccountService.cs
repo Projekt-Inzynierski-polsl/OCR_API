@@ -33,14 +33,17 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IUserContextService userContextService;
 
-        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, 
+            UserActionLogger logger, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.userContextService = userContextService;
         }
 
         public string RegisterAccount(RegisterUserDto registerUserDto)
@@ -94,7 +97,7 @@ namespace OCR_API.Services
             {
                 throw new BadRequestException("Token has already expired.");
             }
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             var spec = new UserByIdWithRoleSpecification(userId);
             var user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
             string token = jwtTokenHelper.CreateJwtToken(user);
@@ -104,7 +107,7 @@ namespace OCR_API.Services
 
         public void Logout(string jwtToken)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             AddBlackListedTokenTransaction addBlackListedTokenTransaction = new(UnitOfWork.BlackListedTokens, userId, jwtToken);
             addBlackListedTokenTransaction.Execute();
             UnitOfWork.Commit();

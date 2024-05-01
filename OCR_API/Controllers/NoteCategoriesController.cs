@@ -20,42 +20,37 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllByUserAsync([FromQuery]GetAllQuery queryParameters)
+        public ActionResult GetAllByUser([FromQuery]GetAllQuery queryParameters)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var categories = noteCategoriesService.GetAllByUser(accessToken, queryParameters);
+            var categories = noteCategoriesService.GetAllByUser(queryParameters);
             return Ok(categories);
         }
 
         [HttpGet("{categoryId}")]
-        public async Task<ActionResult> GetByIdAsync(int categoryId)
+        public ActionResult GetById(int categoryId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var category = noteCategoriesService.GetById(accessToken, categoryId);
+            var category = noteCategoriesService.GetById(categoryId);
             return Ok(category);
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddNewCategory([FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
+        public ActionResult AddNewCategory([FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            int id = noteCategoriesService.AddNewCategory(accessToken, nameNoteCategoryDto);
+            int id = noteCategoriesService.AddNewCategory(nameNoteCategoryDto);
             return Created($"api/noteCategories/{id}", id);
         }
 
         [HttpDelete("{categoryId}")]
-        public async Task<ActionResult> DeleteCategory(int categoryId)
+        public ActionResult DeleteCategory(int categoryId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteCategoriesService.DeleteCategory(accessToken, categoryId);
+            noteCategoriesService.DeleteCategory(categoryId);
             return NoContent();
         }
 
         [HttpPut("{categoryId}")]
-        public async Task<ActionResult> UpdateCategory(int categoryId, [FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
+        public ActionResult UpdateCategory(int categoryId, [FromBody] ActionNoteCategoryDto nameNoteCategoryDto)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteCategoriesService.UpdateCategory(accessToken, categoryId, nameNoteCategoryDto);
+            noteCategoriesService.UpdateCategory(categoryId, nameNoteCategoryDto);
             return Ok();
         }
     }

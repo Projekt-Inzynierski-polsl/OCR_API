@@ -22,9 +22,18 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAll([FromQuery] string userId = null)
+        public ActionResult GetAll()
         {
-            var errors = userId != null && int.TryParse(userId, out int id) ? noteWordErrorService.GetAllForUser(id) : noteWordErrorService.GetAll();
+            var errors = noteWordErrorService.GetAll();
+
+            return Ok(errors);
+        }
+
+        [HttpGet("user/{userId}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult GetAll(int userId)
+        {
+            var errors = noteWordErrorService.GetAllForUser(userId);
 
             return Ok(errors);
         }
@@ -39,28 +48,25 @@ namespace OCR_API.Controllers
 
         [HttpDelete("{errorId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteByIdAsync(int errorId)
+        public ActionResult DeleteById(int errorId)
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteWordErrorService.DeleteById(accessToken, errorId);
+            noteWordErrorService.DeleteById(errorId);
             return NoContent();
         }
 
         [HttpDelete]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteAllAsync()
+        public ActionResult DeleteAllAsync()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            noteWordErrorService.DeleteAll(accessToken);
+            noteWordErrorService.DeleteAll();
             return NoContent();
         }
 
         [HttpGet("csv")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DownloadErrorsAsync()
+        public ActionResult DownloadErrors()
         {
-            var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            MemoryStream memoryStream = noteWordErrorService.DownloadErrors(accessToken);
+            MemoryStream memoryStream = noteWordErrorService.DownloadErrors();
             return File(memoryStream, "application/zip", "errors.zip");
 
         }

@@ -15,33 +15,34 @@ namespace OCR_API.Services
     public interface INoteCategoryService
     {
         IUnitOfWork UnitOfWork { get; }
-        PageResults<NoteCategoryDto> GetAllByUser(string accessToken, GetAllQuery queryParameters);
-        NoteCategoryDto GetById(string accessToken, int categoryId);
-        int AddNewCategory(string accessToken, ActionNoteCategoryDto actionNoteCategoryDto);
-        void DeleteCategory(string accessToken, int categoryId);
-        void UpdateCategory(string accessToken, int categoryId, ActionNoteCategoryDto acctionNoteCategoryDto);
+        PageResults<NoteCategoryDto> GetAllByUser(GetAllQuery queryParameters);
+        NoteCategoryDto GetById(int categoryId);
+        int AddNewCategory(ActionNoteCategoryDto actionNoteCategoryDto);
+        void DeleteCategory(int categoryId);
+        void UpdateCategory(int categoryId, ActionNoteCategoryDto acctionNoteCategoryDto);
 
     }
     public class NoteCategoryService : INoteCategoryService
     {
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
         private readonly IPaginationService queryParametersService;
+        private readonly IUserContextService userContextService;
 
-        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
+        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, 
+            IPaginationService queryParametersService, IUserContextService userContextService)
         {
             this.UnitOfWork = unitOfWork;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
             this.queryParametersService = queryParametersService;
+            this.userContextService = userContextService;
         }
 
-        public PageResults<NoteCategoryDto> GetAllByUser(string jwtToken, GetAllQuery queryParameters)
+        public PageResults<NoteCategoryDto> GetAllByUser(GetAllQuery queryParameters)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             var spec = new NoteCategoriesByUserIdSpecification(userId, queryParameters.SearchPhrase);
             var noteCategoriesQuery = UnitOfWork.NoteCategories.GetBySpecification(spec);
             var result = queryParametersService.PreparePaginationResults<NoteCategoryDto, NoteCategory>(queryParameters, noteCategoriesQuery, mapper);
@@ -49,18 +50,18 @@ namespace OCR_API.Services
             return result;
         }
 
-        public NoteCategoryDto GetById(string jwtToken, int categoryId)
+        public NoteCategoryDto GetById(int categoryId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             NoteCategory noteCategory = GetNoteCategoryIfBelongsToUser(userId, categoryId);
             var noteCategoryDto = mapper.Map<NoteCategoryDto>(noteCategory);
 
             return noteCategoryDto;
         }
 
-        public int AddNewCategory(string jwtToken, ActionNoteCategoryDto actionNoteCategoryDto)
+        public int AddNewCategory(ActionNoteCategoryDto actionNoteCategoryDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             NoteCategory noteCategoryToAdd = mapper.Map<NoteCategory>(actionNoteCategoryDto);
             AddNoteCategoryTransaction addNoteCategoryTransaction = new(UnitOfWork, userId, noteCategoryToAdd.Name, actionNoteCategoryDto.HexColor);
             addNoteCategoryTransaction.Execute();
@@ -70,9 +71,9 @@ namespace OCR_API.Services
             return newNoteCategoryId;
         }
 
-        public void DeleteCategory(string jwtToken, int categoryId)
+        public void DeleteCategory(int categoryId)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             NoteCategory noteCategoryToRemove = GetNoteCategoryIfBelongsToUser(userId, categoryId);
             DeleteEntityTransaction<NoteCategory> deleteNoteCategoryTransaction = new(UnitOfWork.NoteCategories, noteCategoryToRemove.Id);
             deleteNoteCategoryTransaction.Execute();
@@ -80,9 +81,9 @@ namespace OCR_API.Services
             logger.Log(EUserAction.DeleteCategory, userId, DateTime.UtcNow, categoryId);
         }
 
-        public void UpdateCategory(string jwtToken, int categoryId, ActionNoteCategoryDto actionNoteCategoryDto)
+        public void UpdateCategory(int categoryId, ActionNoteCategoryDto actionNoteCategoryDto)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
             NoteCategory noteCategoryToUpdate = GetNoteCategoryIfBelongsToUser(userId, categoryId);
             UpdateNoteCategoryTransaction updateNoteCategoryTransaction = new(noteCategoryToUpdate, actionNoteCategoryDto.Name, actionNoteCategoryDto.HexColor);
             updateNoteCategoryTransaction.Execute();
@@ -99,7 +100,7 @@ namespace OCR_API.Services
             }
             if (noteCategory.UserId != userId)
             {
-                throw new UnauthorizedAccessException("Cannot operate someone else's note.");
+                throw new ForbidException("Cannot operate someone else's note.");
             }
             return noteCategory;
         }

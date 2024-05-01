@@ -16,7 +16,7 @@ namespace OCR_API.Services
         IEnumerable<UploadedModelDto> GetAll();
         IEnumerable<UploadedModelDto> GetAllByUserId(int userId);
         UploadedModelDto GetById(int modelId);
-        Task UploadNewModelAsync(string accessToken, IFormFile modelToUpload);
+        Task UploadNewModelAsync(IFormFile modelToUpload);
     }
     public class UploadedModelService : IUploadedModelService
     {
@@ -24,15 +24,16 @@ namespace OCR_API.Services
         private const string FILE_EXTENSION = ".pt";
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IUserContextService userContextService;
 
-        public UploadedModelService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public UploadedModelService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
+            IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.userContextService = userContextService;
         }
 
         public IEnumerable<UploadedModelDto> GetAll()
@@ -53,9 +54,9 @@ namespace OCR_API.Services
             return model;
         }
 
-        public async Task UploadNewModelAsync(string jwtToken, IFormFile modelToUpload)
+        public async Task UploadNewModelAsync(IFormFile modelToUpload)
         {
-            var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
+            var userId = userContextService.GetUserId;
 
             if (modelToUpload.Length > 0)
             {

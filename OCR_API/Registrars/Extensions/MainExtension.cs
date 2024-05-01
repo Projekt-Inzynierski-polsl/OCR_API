@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using OCR_API.Authorization;
 using OCR_API.Entities;
 using OCR_API.Logger;
 using OCR_API.Middleware;
@@ -16,6 +18,7 @@ namespace OCR_API.Registrars.Extensions
             services.AddScoped<UserActionLogger>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHttpContextAccessor();
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IPasswordHasher<Folder>, PasswordHasher<Folder>>();

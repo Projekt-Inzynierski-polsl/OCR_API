@@ -1,4 +1,6 @@
-﻿namespace OCR_API.Entities
+﻿using OCR_API.Authorization;
+
+namespace OCR_API.Entities
 {
     public class NoteCategory : IHasUserId
     {

@@ -28,6 +28,9 @@ namespace UnitTests
         private readonly JwtTokenHelper jwtTokenHelper;
         private IUnitOfWork unitOfWork;
         private readonly UserActionLogger logger;
+        private PaginationService paginationService;
+        private IUserContextService userContextService;
+
         public UserServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -36,17 +39,11 @@ namespace UnitTests
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
             logger = new UserActionLogger(unitOfWork);
-            service = new UserService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
-            accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger);
+            paginationService = new();
+            userContextService = Helper.CreateMockIUserContextService();
+            service = new UserService(unitOfWork, passwordHasher, mapper, logger, paginationService, userContextService);
+            accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger, userContextService);
 
-        }
-        public string SetUpGetToken()
-        {
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser@dto.pl", Password = "TestPassword" };
-            string token = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
-            return token;
         }
 
         [TestMethod]
@@ -56,12 +53,13 @@ namespace UnitTests
             accountService.RegisterAccount(registerDto);
             RegisterUserDto registerDto2 = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword2", ConfirmedPassword = "TestPassword2" };
             accountService.RegisterAccount(registerDto2);
-            var users = service.GetAll();
+            var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
+            var users = service.GetAll(parameters);
             Assert.IsNotNull(users);
-            Assert.AreEqual(2, users.Count());
-            var firstUser = users.FirstOrDefault(u => u.Id == 1);
+            Assert.AreEqual(2, users.Items.Count());
+            var firstUser = users.Items.FirstOrDefault(u => u.Id == 1);
             Assert.IsNotNull(firstUser);
-            var secondUser = users.FirstOrDefault(u => u.Id == 2);
+            var secondUser = users.Items.FirstOrDefault(u => u.Id == 2);
             Assert.IsNotNull(secondUser);
             Assert.AreNotEqual(firstUser, secondUser);
             Assert.AreEqual("testUser@dto.pl", firstUser.Email);
@@ -97,36 +95,35 @@ namespace UnitTests
         [TestMethod]
         public void DeleteUser_WithExistingId_SuccessfullyDeleted()
         {
-            string token = SetUpGetToken();
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
-            var users = service.GetAll();
+            Helper.RegisterAccount(accountService);
+            RegisterUserDto registerDto2 = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword2", ConfirmedPassword = "TestPassword2" };
+            accountService.RegisterAccount(registerDto2);
+            var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
+            var users = service.GetAll(parameters);
             Assert.IsNotNull(users);
-            Assert.AreEqual(2, users.Count());
-            service.DeleteUser(token, 1);
-            users = service.GetAll();
+            Assert.AreEqual(2, users.Items.Count);
+            service.DeleteUser(1);
+            users = service.GetAll(parameters);
             Assert.IsNotNull(users);
-            Assert.AreEqual(1, users.Count());
+            Assert.AreEqual(1, users.Items.Count);
         }
 
         [TestMethod]
         public void DeleteUser_WithNotExistingId_ThrowsException()
         {
-            string token = SetUpGetToken();
-            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(token, 99));
+            Helper.RegisterAccount(accountService);
+            Assert.ThrowsException<NotFoundException>(() => service.DeleteUser(99));
         }
 
         [TestMethod]
         public void UpdateUser_WithCorrectData_SuccessfullyUpdated()
         {
-            string token = SetUpGetToken();
-            RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser@dto.pl", Nickname = "TestUser", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
-            accountService.RegisterAccount(registerDto);
+            Helper.RegisterAccount(accountService);
             UpdateUserDto updateUserDto = new UpdateUserDto() { Email = "update@dto.pl", Nickname = "Update", Password = "updatedPassword", RoleId = 1 };
             var validationResult = updateValidator.Validate(updateUserDto);
             Assert.IsTrue(validationResult.IsValid);
 
-            service.UpdateUser(token, 1, updateUserDto);
+            service.UpdateUser(1, updateUserDto);
             User userInDatabase = service.UnitOfWork.Users.GetById(1);
             Assert.IsNotNull(userInDatabase);
             Assert.AreEqual(updateUserDto.Email, userInDatabase.Email);

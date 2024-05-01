@@ -20,17 +20,6 @@ namespace OCR_API
             Configuration.GetSection("Authentication").Bind(authenticationSettings);
         }
 
-        public int GetUserIdFromToken(string jwtToken)
-        {
-            var token = ReadToken(jwtToken);
-            var userId = token?.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (int.TryParse(userId, out int id))
-            {
-                return id;
-            }
-            throw new BadRequestException("Invalid token.");
-        }
-
         public JwtSecurityToken ReadToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

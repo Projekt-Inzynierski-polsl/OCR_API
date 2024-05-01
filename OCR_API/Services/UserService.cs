@@ -18,7 +18,7 @@ namespace OCR_API.Services
     public interface IUserService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<UserDto> GetAll(string? searchPhrase = null);
+        PageResults<UserDto> GetAll(GetAllQuery queryParameters);
         UserDto GetById(int id);
         UserDto GetLoggedUser(string accessToken);
         void UpdateUser(string jwtToken, int userId, UpdateUserDto updateUserDto);
@@ -31,25 +31,26 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IPaginationService queryParametersService;
 
-        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.queryParametersService = queryParametersService;
         }
 
-        public IEnumerable<UserDto> GetAll(string? searchPhrase = null)
+        public PageResults<UserDto> GetAll(GetAllQuery queryParameters)
         {
-            var usersDto = UnitOfWork.Users
-                .GetAll()
-                .Where(f => searchPhrase == null || f.Nickname.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase))
-                .Select(u => mapper.Map<UserDto>(u))
-                .ToList();
+            var spec = new UsersWithRoleSpecification(queryParameters.SearchPhrase);
+            var usersQuery = UnitOfWork.Users.GetBySpecification(spec);
+            var result = queryParametersService.PreparePaginationResults<UserDto, User>(queryParameters, usersQuery, mapper);
 
-            return usersDto;
+            return result;
+
         }
         public UserDto GetById(int id)
         {

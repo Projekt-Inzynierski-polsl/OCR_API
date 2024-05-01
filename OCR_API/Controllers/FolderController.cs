@@ -19,16 +19,14 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult> GetAllUserFoldersAsync([FromQuery]string? searchPhrase)
+        public async Task<ActionResult> GetAllUserFoldersAsync([FromQuery]GetAllQuery queryParameters)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = folderService.GetAll(accessToken, searchPhrase);
+            var folders = folderService.GetAll(accessToken, queryParameters);
             return Ok(folders);
         }
 
         [HttpPost("{folderId}")]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> GetFolderByIdAsync(int folderId, [FromBody] PasswordDto? passwordDto = null)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
@@ -37,7 +35,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> CreateFolderAcync([FromBody] AddFolderDto folderToAdd)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
@@ -46,7 +43,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpDelete("{folderId}")]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> DeleteFolderAsync(int folderId, [FromBody] PasswordDto passwordDto = null)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
@@ -55,7 +51,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpPut("{folderId}/update")]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> UpdateFolderAsync(int folderId, [FromBody] UpdateFolderDto updateFolderDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
@@ -64,7 +59,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpPut("{folderId}/lock")]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> LockFolderAsync(int folderId, [FromBody] ConfirmedPasswordDto confirmedPasswordDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
@@ -73,7 +67,6 @@ namespace OCR_API.Controllers
         }
 
         [HttpPut("{folderId}/unlock")]
-        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult> UnlockFolderAsync(int folderId, [FromBody] PasswordDto passwordDto)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");

@@ -19,10 +19,10 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAllUserNotesAsync([FromQuery]string? searchPhrase)
+        public async Task<ActionResult> GetAllUserNotesAsync([FromQuery] GetAllQuery queryParameters)
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
-            var folders = noteService.GetAll(accessToken, searchPhrase);
+            var folders = noteService.GetAllByUser(accessToken, queryParameters);
             return Ok(folders);
         }
 

@@ -15,7 +15,7 @@ namespace OCR_API.Services
     public interface INoteCategoryService
     {
         IUnitOfWork UnitOfWork { get; }
-        ICollection<NoteCategoryDto> GetAll(string accessToken, string? searchPhrase = null);
+        PageResults<NoteCategoryDto> GetAllByUser(string accessToken, GetAllQuery queryParameters);
         NoteCategoryDto GetById(string accessToken, int categoryId);
         int AddNewCategory(string accessToken, ActionNoteCategoryDto actionNoteCategoryDto);
         void DeleteCategory(string accessToken, int categoryId);
@@ -28,22 +28,25 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IPaginationService queryParametersService;
 
-        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
         {
             this.UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.queryParametersService = queryParametersService;
         }
 
-        public ICollection<NoteCategoryDto> GetAll(string jwtToken, string? searchPhrase = null)
+        public PageResults<NoteCategoryDto> GetAllByUser(string jwtToken, GetAllQuery queryParameters)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var noteCategories = UnitOfWork.NoteCategories.GetAllByUser(userId);
-            var noteCategoriesDto = noteCategories.Where(f => searchPhrase == null || f.Name.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase)).Select(f => mapper.Map<NoteCategoryDto>(f)).ToList();
+            var spec = new NoteCategoriesByUserIdSpecification(userId, queryParameters.SearchPhrase);
+            var noteCategoriesQuery = UnitOfWork.NoteCategories.GetBySpecification(spec);
+            var result = queryParametersService.PreparePaginationResults<NoteCategoryDto, NoteCategory>(queryParameters, noteCategoriesQuery, mapper);
 
-            return noteCategoriesDto;
+            return result;
         }
 
         public NoteCategoryDto GetById(string jwtToken, int categoryId)

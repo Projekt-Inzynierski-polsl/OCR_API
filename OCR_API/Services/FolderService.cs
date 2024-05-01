@@ -18,7 +18,7 @@ namespace OCR_API.Services
     public interface IFolderService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<FolderDto> GetAll(string jwtToken, string? searchPhrase = null);
+        PageResults<FolderDto> GetAll(string jwtToken, GetAllQuery queryParameters);
         FolderDto GetById(string jwtToken, int id, PasswordDto? passwordDto = null);
         int CreateFolder(string jwtToken, AddFolderDto folderToAdd);
         void DeleteFolder(string jwtToken, int folderId, PasswordDto passwordDto = null);
@@ -33,24 +33,26 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IPaginationService queryParametersService;
 
-        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.queryParametersService = queryParametersService;
         }
 
-        public IEnumerable<FolderDto> GetAll(string jwtToken, string? searchPhrase = null)
+        public PageResults<FolderDto> GetAll(string jwtToken, GetAllQuery queryParameters)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new UserFoldersWithNotesSpecification(userId, searchPhrase);
-            var folders = UnitOfWork.Folders.GetBySpecification(spec);
-            var foldersDto = folders.Select(f => mapper.Map<FolderDto>(f)).ToList();
+            var spec = new UserFoldersWithNotesSpecification(userId, queryParameters.SearchPhrase);
+            var foldersQuery = UnitOfWork.Folders.GetBySpecification(spec);
+            var result = queryParametersService.PreparePaginationResults<FolderDto, Folder>(queryParameters, foldersQuery, mapper); ;
 
-            return foldersDto;
+            return result;
         }
         public FolderDto GetById(string jwtToken, int folderId, PasswordDto passwordDto = null)
         {

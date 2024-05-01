@@ -24,7 +24,7 @@ namespace OCR_API.Services
     {
         IUnitOfWork UnitOfWork { get; }
 
-        IEnumerable<NoteDto> GetAll(string accessToken, string? searchPhrase = null);
+        PageResults<NoteDto> GetAllByUser(string accessToken, GetAllQuery queryParameters);
         NoteDto GetById(string accessToken, int noteId);
         IEnumerable<NoteDto> GetLastEdited(string accessToken, int amount);
         int CreateNote(string accessToken, AddNoteDto addNoteDto);
@@ -41,23 +41,25 @@ namespace OCR_API.Services
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
+        private readonly IPaginationService queryParametersService;
 
-        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger)
+        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger, IPaginationService queryParametersService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
+            this.queryParametersService = queryParametersService;
         }
 
-        public IEnumerable<NoteDto> GetAll(string jwtToken, string? searchPhrase = null)
+        public PageResults<NoteDto> GetAllByUser(string jwtToken, GetAllQuery queryParameters)
         {
             var userId = jwtTokenHelper.GetUserIdFromToken(jwtToken);
-            var spec = new NotesWithFileAndCategoriesSpecification(userId, searchPhrase);
-            var notes = UnitOfWork.Notes.GetBySpecification(spec);
-            var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
+            var spec = new NotesWithFileAndCategoriesSpecification(userId, queryParameters.SearchPhrase);
+            var notesQuery = UnitOfWork.Notes.GetBySpecification(spec);
+            var result = queryParametersService.PreparePaginationResults<NoteDto, Note>(queryParameters, notesQuery, mapper);
 
-            return notesDto;
+            return result;
         }
 
         public NoteDto GetById(string jwtToken, int noteId)

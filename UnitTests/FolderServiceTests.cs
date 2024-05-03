@@ -25,10 +25,10 @@ namespace UnitTests
         private readonly IValidator<ConfirmedPasswordDto> confirmedPasswordValidator;
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
-        private IUnitOfWork unitOfWork;
-        private UserActionLogger logger;
-        private PaginationService paginationService;
-        private IUserContextService userContextService;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly UserActionLogger logger;
+        private readonly PaginationService paginationService;
+        private readonly IUserContextService userContextService;
 
         public FolderServiceTests()
         {
@@ -37,12 +37,12 @@ namespace UnitTests
             userPasswordHasher = new PasswordHasher<User>();
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            addFolderValidator = new AddFolderDtoValidator(unitOfWork);
-            updateFolderValidator = new UpdateFolderDtoValidator(unitOfWork);
+            userContextService = Helper.CreateMockIUserContextService();
+            addFolderValidator = new AddFolderDtoValidator(unitOfWork, userContextService);
+            updateFolderValidator = new UpdateFolderDtoValidator(unitOfWork, userContextService);
             confirmedPasswordValidator = new ConfirmedPasswordDtoValidator();
             logger = new UserActionLogger(unitOfWork);
             paginationService = new();
-            userContextService = Helper.CreateMockIUserContextService();
             service = new FolderService(unitOfWork, folderPasswordHasher, mapper, logger, paginationService, userContextService);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger, userContextService);
         }
@@ -81,8 +81,8 @@ namespace UnitTests
             Assert.AreEqual(name, folder.Name);
             Assert.AreEqual(iconPath, folder.IconPath);
             Assert.AreEqual(1, folder.UserId);
-            var result = folderPasswordHasher.VerifyHashedPassword(folder, folder.PasswordHash, password);
-            Assert.AreEqual(result, PasswordVerificationResult.Success);
+            var result = folderPasswordHasher.VerifyHashedPassword(folder, folder.PasswordHash!, password);
+            Assert.AreEqual(PasswordVerificationResult.Success, result);
 
         }
         [TestMethod]
@@ -250,7 +250,7 @@ namespace UnitTests
             var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
             var folders = service.GetAll(parameters);
             Assert.IsNotNull(folders);
-            Assert.AreEqual(0, folders.Items.Count());
+            Assert.AreEqual(0, folders.Items.Count);
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndPassword_SuccessfullyDeleted()
@@ -269,7 +269,7 @@ namespace UnitTests
             var folders = service.GetAll(parameters);
 
             Assert.IsNotNull(folders);
-            Assert.AreEqual(0, folders.Items.Count());
+            Assert.AreEqual(0, folders.Items.Count);
         }
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndWrongPassword_ThrowsException()
@@ -506,7 +506,6 @@ namespace UnitTests
             service.CreateFolder(addFolderDto);
             PasswordDto passwordDto = new PasswordDto() { Password = "test123" };
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
             Helper.ChangeIdInIUserContextService(userContextService, 2);
             Assert.ThrowsException<ForbidException>(() => service.UnlockFolder(1, passwordDto));
         }

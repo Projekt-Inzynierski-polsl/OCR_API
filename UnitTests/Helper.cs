@@ -19,81 +19,84 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using System.Security.Claims;
 
-internal class Helper
+namespace UnitTests
 {
-    private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .Build();
-
-    private static IServiceProvider Provider()
+    internal class Helper
     {
-        var services = new ServiceCollection();
+        private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
 
-        services.AddDbContext<SystemDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
-
-        AddServices(services);
-
-        return services.BuildServiceProvider();
-    }
-
-    public static T GetRequiredService<T>()
-    {
-        var provider = Provider();
-        return provider.GetRequiredService<T>();
-    }
-
-    private static void AddServices(IServiceCollection services)
-    {
-        Registar registar = new Registar();
-        registar.ConfigureServices(services);
-    }
-
-    public static IUnitOfWork CreateUnitOfWork()
-    {
-        var dbContext = Helper.GetRequiredService<SystemDbContext>();
-        var roles = Helper.GetRoles();
-        dbContext.Roles.AddRange(roles);
-        dbContext.SaveChanges();
-       return new UnitOfWork(dbContext) { UserId = 1 };
-    }
-
-    public static IUserContextService CreateMockIUserContextService()
-    {
-        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        private static IServiceProvider Provider()
         {
+            var services = new ServiceCollection();
+
+            services.AddDbContext<SystemDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+
+            AddServices(services);
+
+            return services.BuildServiceProvider();
+        }
+
+        public static T GetRequiredService<T>()
+        {
+            var provider = Provider();
+            return provider.GetRequiredService<T>();
+        }
+
+        private static void AddServices(IServiceCollection services)
+        {
+            Registar registar = new Registar();
+            registar.ConfigureServices(services);
+        }
+
+        public static IUnitOfWork CreateUnitOfWork()
+        {
+            var dbContext = GetRequiredService<SystemDbContext>();
+            var roles = GetRoles();
+            dbContext.Roles.AddRange(roles);
+            dbContext.SaveChanges();
+            return new UnitOfWork(dbContext);
+        }
+
+        public static IUserContextService CreateMockIUserContextService()
+        {
+            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
             new Claim(ClaimTypes.NameIdentifier, "1")
-        }));
+            }));
 
-        httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(user);
+            httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(user);
 
-        var userContextService = new UserContextService(httpContextAccessorMock.Object);
+            var userContextService = new UserContextService(httpContextAccessorMock.Object);
 
-        return userContextService;
-    }
+            return userContextService;
+        }
 
-    public static void ChangeIdInIUserContextService(IUserContextService userContextService, int userId)
-    {
-
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        public static void ChangeIdInIUserContextService(IUserContextService userContextService, int userId)
         {
+
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-        }));
+            }));
 
-        userContextService.User = user;
-    }
+            userContextService.User = user;
+        }
 
-    public static IEnumerable<Role> GetRoles()
-    {
-        List<Role> roles = [new Role() { Name = "Admin" }, new Role() { Name = "User" }];
-        return roles;
-    }
+        public static IEnumerable<Role> GetRoles()
+        {
+            List<Role> roles = [new Role() { Name = "Admin" }, new Role() { Name = "User" }];
+            return roles;
+        }
 
-    public static void RegisterAccount(IAccountService accountService, string email = "testUser@dto.pl", string nickname = "TestUser", string password = "TestPassword")
-    {
-        RegisterUserDto registerDto = new RegisterUserDto() { Email = email, Nickname = nickname, Password = password, ConfirmedPassword = password };
-        accountService.RegisterAccount(registerDto);
+        public static void RegisterAccount(IAccountService accountService, string email = "testUser@dto.pl", string nickname = "TestUser", string password = "TestPassword")
+        {
+            RegisterUserDto registerDto = new RegisterUserDto() { Email = email, Nickname = nickname, Password = password, ConfirmedPassword = password };
+            accountService.RegisterAccount(registerDto);
+        }
     }
 }

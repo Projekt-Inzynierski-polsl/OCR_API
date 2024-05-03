@@ -5,18 +5,18 @@ namespace OCR_API.ModelsDto.Validators
 {
     public class AddFolderDtoValidator : AbstractValidator<AddFolderDto>
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork UnitOfWork;
 
         public AddFolderDtoValidator(IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
-            this.unitOfWork = unitOfWork;
+            UnitOfWork = unitOfWork;
 
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    var userEntity = unitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
-                    bool nameInUse = userEntity.Any(u => u.Name == value);
+                    var userEntity = UnitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
+                    bool nameInUse = userEntity.Exists(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");

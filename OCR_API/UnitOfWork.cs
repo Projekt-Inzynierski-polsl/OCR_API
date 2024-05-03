@@ -2,187 +2,99 @@
 using OCR_API.Entities;
 using OCR_API.Repositories;
 
-
-public interface IUnitOfWork
+namespace OCR_API
 {
-    IRepository<BlackListToken> BlackListedTokens { get; }
-    IRepository<BoundingBox> BoundingBoxes { get; }
-    IRepository<Folder> Folders { get; }
-    IRepository<Note> Notes { get; }
-    IRepository<NoteCategory> NoteCategories { get; }
-    IRepository<NoteFile> NoteFiles { get; }
-    IRepository<NoteLine> NoteLines { get; }
-    IRepository<NoteWordError> NoteWordErrors { get; }
-    IRepository<User> Users { get; }
-    IRepository<Role> Roles { get; }
-    IRepository<UploadedModel> UploadedModels { get; }
-    IRepository<UserAction> UserActions { get; }
-    IRepository<UserLog> UserLogs { get; }
-
-    IRepository<Shared> Shared { get; }
-    IRepository<ShareMode> ShareMode { get; } 
-    void Commit();
-}
-public class UnitOfWork : IUnitOfWork
-{
-
-    private readonly SystemDbContext dbContext;
-
-    private Repository<BlackListToken> blackListedTokens;
-    private Repository<BoundingBox> boundingBoxes;
-    private Repository<Folder> folders;
-    private Repository<Note> notes;
-    private Repository<NoteCategory> noteCategories;
-    private Repository<NoteFile> noteFiles;
-    private Repository<NoteLine> noteLines;
-    private Repository<NoteWordError> noteWordErrors;
-    private Repository<UploadedModel> uploadedModels;
-    private Repository<User> users;
-    private Repository<Role> roles;
-    private Repository<UserAction> userActions;
-    private Repository<UserLog> userLogs;
-    private Repository<Shared> shared;
-    private Repository<ShareMode> shareMode;
-
-    public UnitOfWork(SystemDbContext dbContext)
+    public interface IUnitOfWork
     {
-        this.dbContext = dbContext;
+        IRepository<BlackListToken> BlackListedTokens { get; }
+        IRepository<BoundingBox> BoundingBoxes { get; }
+        IRepository<Folder> Folders { get; }
+        IRepository<Note> Notes { get; }
+        IRepository<NoteCategory> NoteCategories { get; }
+        IRepository<NoteFile> NoteFiles { get; }
+        IRepository<NoteLine> NoteLines { get; }
+        IRepository<NoteWordError> NoteWordErrors { get; }
+        IRepository<User> Users { get; }
+        IRepository<Role> Roles { get; }
+        IRepository<UploadedModel> UploadedModels { get; }
+        IRepository<UserAction> UserActions { get; }
+        IRepository<UserLog> UserLogs { get; }
+
+        IRepository<Shared> Shared { get; }
+        IRepository<ShareMode> ShareMode { get; }
+        void Commit();
     }
-
-    public IRepository<User> Users
+    public class UnitOfWork : IUnitOfWork
     {
-        get
+
+        private readonly SystemDbContext dbContext;
+
+        private readonly Repository<BlackListToken> blackListedTokens;
+        private readonly Repository<BoundingBox> boundingBoxes;
+        private readonly Repository<Folder> folders;
+        private readonly Repository<Note> notes;
+        private readonly Repository<NoteCategory> noteCategories;
+        private readonly Repository<NoteFile> noteFiles;
+        private readonly Repository<NoteLine> noteLines;
+        private readonly Repository<NoteWordError> noteWordErrors;
+        private readonly Repository<UploadedModel> uploadedModels;
+        private readonly Repository<User> users;
+        private readonly Repository<Role> roles;
+        private readonly Repository<UserAction> userActions;
+        private readonly Repository<UserLog> userLogs;
+        private readonly Repository<Shared> shared;
+        private readonly Repository<ShareMode> shareMode;
+
+        public UnitOfWork(SystemDbContext dbContext)
         {
-            return users ??
-                (users = new Repository<User>(dbContext));
+            this.dbContext = dbContext;
+            users = new Repository<User>(dbContext);
+            roles = new Repository<Role>(dbContext);
+            blackListedTokens = new Repository<BlackListToken>(dbContext);
+            boundingBoxes = new Repository<BoundingBox>(dbContext);
+            folders = new Repository<Folder>(dbContext);
+            notes = new Repository<Note>(dbContext);
+            noteCategories = new Repository<NoteCategory>(dbContext);
+            noteFiles = new Repository<NoteFile>(dbContext);
+            noteLines = new Repository<NoteLine>(dbContext);
+            noteWordErrors = new Repository<NoteWordError>(dbContext);
+            uploadedModels = new Repository<UploadedModel>(dbContext);
+            userActions = new Repository<UserAction>(dbContext);
+            userLogs = new Repository<UserLog>(dbContext);
+            shared = new Repository<Shared>(dbContext);
+            shareMode = new Repository<ShareMode>(dbContext);
         }
-    }
 
-    public IRepository<Role> Roles
-    {
-        get
-        {
-            return roles ??
-                (roles = new Repository<Role>(dbContext));
-        }
-    }
-    public IRepository<BlackListToken> BlackListedTokens
-    {
-        get
-        {
-            return blackListedTokens ??
-                (blackListedTokens = new Repository<BlackListToken>(dbContext));
-        }
-    }
+        public IRepository<User> Users => users;
 
-    public IRepository<BoundingBox> BoundingBoxes
-    {
-        get
-        {
-            return boundingBoxes ??
-                (boundingBoxes = new Repository<BoundingBox>(dbContext));
-        }
-    }
-    public IRepository<Folder> Folders
-    {
-        get
-        {
-            return folders ??
-                (folders = new Repository<Folder>(dbContext));
-        }
-    }
+        public IRepository<Role> Roles => roles;
+        public IRepository<BlackListToken> BlackListedTokens => blackListedTokens;
 
-    public IRepository<Note> Notes
-    {
-        get
-        {
-            return notes ??
-                (notes = new Repository<Note>(dbContext));
-        }
-    }
+        public IRepository<BoundingBox> BoundingBoxes => boundingBoxes;
+        public IRepository<Folder> Folders => folders;
 
-    public IRepository<NoteCategory> NoteCategories
-    {
-        get
-        {
-            return noteCategories ??
-                (noteCategories = new Repository<NoteCategory>(dbContext));
-        }
-    }
-    public IRepository<NoteFile> NoteFiles
-    {
-        get
-        {
-            return noteFiles ??
-                (noteFiles = new Repository<NoteFile>(dbContext));
-        }
-    }
+        public IRepository<Note> Notes => notes;
 
-    public IRepository<NoteLine> NoteLines
-    {
-        get
-        {
-            return noteLines ??
-                (noteLines = new Repository<NoteLine>(dbContext));
-        }
-    }
+        public IRepository<NoteCategory> NoteCategories => noteCategories;
+        public IRepository<NoteFile> NoteFiles => noteFiles;
 
-    public IRepository<NoteWordError> NoteWordErrors
-    {
-        get
-        {
-            return noteWordErrors ??
-                (noteWordErrors = new Repository<NoteWordError>(dbContext));
-        }
-    }
+        public IRepository<NoteLine> NoteLines => noteLines;
 
-    public IRepository<UploadedModel> UploadedModels
-    {
-        get
-        {
-            return uploadedModels ??
-                (uploadedModels = new Repository<UploadedModel>(dbContext));
-        }
-    }
+        public IRepository<NoteWordError> NoteWordErrors => noteWordErrors;
 
-    public IRepository<UserAction> UserActions
-    {
-        get
-        {
-            return userActions ??
-                (userActions = new Repository<UserAction>(dbContext));
-        }
-    }
+        public IRepository<UploadedModel> UploadedModels => uploadedModels;
 
-    public IRepository<UserLog> UserLogs
-    {
-        get
-        {
-            return userLogs ??
-                (userLogs = new Repository<UserLog>(dbContext));
-        }
-    }
+        public IRepository<UserAction> UserActions => userActions;
 
-    public IRepository<Shared> Shared
-    {
-        get
-        {
-            return shared ??
-                (shared = new Repository<Shared>(dbContext));
-        }
-    }
+        public IRepository<UserLog> UserLogs => userLogs;
 
-    public IRepository<ShareMode> ShareMode
-    {
-        get
-        {
-            return shareMode ??
-                (shareMode = new Repository<ShareMode>(dbContext));
-        }
-    }
+        public IRepository<Shared> Shared => shared;
 
-    public void Commit()
-    {
-        dbContext.SaveChanges();
+        public IRepository<ShareMode> ShareMode => shareMode;
+
+        public void Commit()
+        {
+            dbContext.SaveChanges();
+        }
     }
 }

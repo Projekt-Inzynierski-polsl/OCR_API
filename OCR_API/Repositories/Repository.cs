@@ -39,12 +39,8 @@ namespace OCR_API.Repositories
 
         public TEntity GetById(int id)
         {
-            TEntity entity = Entity.Find(id);
-            if (entity is null)
-            {
-                throw new NotFoundException("That entity doesn't exist.");
-            }
-            return entity;
+            TEntity? entity = Entity.Find(id);
+            return entity is null ? throw new NotFoundException("That entity doesn't exist.") : entity;
         }
 
         public List<TEntity> GetAll()

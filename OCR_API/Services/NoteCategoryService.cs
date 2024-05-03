@@ -19,7 +19,7 @@ namespace OCR_API.Services
         NoteCategoryDto GetById(int categoryId);
         int AddNewCategory(ActionNoteCategoryDto actionNoteCategoryDto);
         void DeleteCategory(int categoryId);
-        void UpdateCategory(int categoryId, ActionNoteCategoryDto acctionNoteCategoryDto);
+        void UpdateCategory(int categoryId, ActionNoteCategoryDto actionNoteCategoryDto);
 
     }
     public class NoteCategoryService : INoteCategoryService

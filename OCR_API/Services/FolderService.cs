@@ -21,9 +21,9 @@ namespace OCR_API.Services
     {
         IUnitOfWork UnitOfWork { get; }
         PageResults<FolderDto> GetAll(GetAllQuery queryParameters);
-        FolderDto GetById(int id, PasswordDto? passwordDto = null);
+        FolderDto GetById(int folderId, PasswordDto? passwordDto = null);
         int CreateFolder(AddFolderDto folderToAdd);
-        void DeleteFolder(int folderId, PasswordDto passwordDto = null);
+        void DeleteFolder(int folderId, PasswordDto? passwordDto = null);
         void UpdateFolder(int folderId, UpdateFolderDto updateFolderDto);
         void LockFolder(int folderId, ConfirmedPasswordDto confirmedPasswordDto);
         void UnlockFolder(int folderId, PasswordDto passwordDto);
@@ -53,11 +53,11 @@ namespace OCR_API.Services
             var userId = userContextService.GetUserId;
             var spec = new UserFoldersWithNotesSpecification(userId, queryParameters.SearchPhrase);
             var foldersQuery = UnitOfWork.Folders.GetBySpecification(spec);
-            var result = queryParametersService.PreparePaginationResults<FolderDto, Folder>(queryParameters, foldersQuery, mapper); ;
+            var result = queryParametersService.PreparePaginationResults<FolderDto, Folder>(queryParameters, foldersQuery, mapper);
 
             return result;
         }
-        public FolderDto GetById(int folderId, PasswordDto passwordDto = null)
+        public FolderDto GetById(int folderId, PasswordDto? passwordDto = null)
         {
             var userId = userContextService.GetUserId;
             Folder folder = GetFolderIfBelongsToUser(userId, folderId);
@@ -89,7 +89,7 @@ namespace OCR_API.Services
             return newFolderId;
         }
 
-        public void DeleteFolder(int folderId, PasswordDto passwordDto = null)
+        public void DeleteFolder(int folderId, PasswordDto? passwordDto = null)
         {
             var userId = userContextService.GetUserId;
             Folder folderToRemove = GetFolderIfBelongsToUser(userId, folderId);

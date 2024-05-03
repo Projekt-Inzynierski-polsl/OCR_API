@@ -27,10 +27,10 @@ namespace UnitTests
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
         private readonly IValidator<ActionNoteCategoryDto> actionNoteCategoryValidator;
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
         private readonly UserActionLogger logger;
-        private PaginationService paginationService;
-        private IUserContextService userContextService;
+        private readonly PaginationService paginationService;
+        private readonly IUserContextService userContextService;
 
         public NoteCategoryServiceTests()
         {
@@ -38,10 +38,10 @@ namespace UnitTests
             userPasswordHasher = new PasswordHasher<User>();
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            actionNoteCategoryValidator = new ActionNoteCategoryDtoValidator(unitOfWork);
+            userContextService = Helper.CreateMockIUserContextService();
+            actionNoteCategoryValidator = new ActionNoteCategoryDtoValidator(unitOfWork, userContextService);
             logger = new UserActionLogger(unitOfWork);
             paginationService = new();
-            userContextService = Helper.CreateMockIUserContextService();
             service = new NoteCategoryService(unitOfWork, mapper, logger, paginationService, userContextService);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger, userContextService);
         }
@@ -53,14 +53,14 @@ namespace UnitTests
             foreach (var name in user1CategoryNames)
             {
                 var addCategoryDto = new ActionNoteCategoryDto() { Name = name };
-                var category = service.AddNewCategory( addCategoryDto);
+                service.AddNewCategory( addCategoryDto);
             }
 
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
             accountService.RegisterAccount(registerDto);
             var addCategoryDto2 = new ActionNoteCategoryDto() { Name = "test" };
             Helper.ChangeIdInIUserContextService(userContextService, 2);
-            var category2 = service.AddNewCategory(addCategoryDto2);
+            service.AddNewCategory(addCategoryDto2);
             var parameters = new GetAllQuery() { PageNumber = 1, PageSize = 100 };
             Helper.ChangeIdInIUserContextService(userContextService, 1);
             var user1Categories = service.GetAllByUser(parameters);
@@ -196,8 +196,8 @@ namespace UnitTests
             Helper.RegisterAccount(accountService);
             var categoryDto1 = new ActionNoteCategoryDto { Name = "TestCategory1" };
             var categoryDto2 = new ActionNoteCategoryDto { Name = "TestCategory2" };
-            int categoryId1 = service.AddNewCategory(categoryDto1);
-            int categoryId2 = service.AddNewCategory(categoryDto2);
+            service.AddNewCategory(categoryDto1);
+            service.AddNewCategory(categoryDto2);
 
             var updatedCategoryDto2 = new ActionNoteCategoryDto { Name = "TestCategory1" };
             var validationResult = actionNoteCategoryValidator.Validate(updatedCategoryDto2);

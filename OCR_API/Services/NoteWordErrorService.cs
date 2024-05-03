@@ -28,17 +28,15 @@ namespace OCR_API.Services
     {
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
-        private readonly JwtTokenHelper jwtTokenHelper;
         private readonly UserActionLogger logger;
         private readonly IUserContextService userContextService;
-        private string OCR_ERRORS_DIRECTORY_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ocr_errors");
+        private readonly string OCR_ERRORS_DIRECTORY_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ocr_errors");
 
-        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, JwtTokenHelper jwtTokenHelper, UserActionLogger logger,
+        public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
             IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
-            this.jwtTokenHelper = jwtTokenHelper;
             this.logger = logger;
             this.userContextService = userContextService;
         }
@@ -74,26 +72,18 @@ namespace OCR_API.Services
         {
             TruncateTableTransaction<NoteWordError> truncateTableTransaction = new(UnitOfWork.NoteWordErrors);
             truncateTableTransaction.Execute();
-            try
+            string[] files = Directory.GetFiles(OCR_ERRORS_DIRECTORY_PATH);
+
+            foreach (string file in files)
             {
-                string[] files = Directory.GetFiles(OCR_ERRORS_DIRECTORY_PATH);
-
-                foreach (string file in files)
-                {
-                    File.Delete(file);
-                }
-
-                string[] directories = Directory.GetDirectories(OCR_ERRORS_DIRECTORY_PATH);
-
-                foreach (string directory in directories)
-                {
-                    Directory.Delete(directory, true);
-                }
-
+                File.Delete(file);
             }
-            catch
+
+            string[] directories = Directory.GetDirectories(OCR_ERRORS_DIRECTORY_PATH);
+
+            foreach (string directory in directories)
             {
-                throw new Exception("Napotkano błąd podczas usuwania plików.");
+                Directory.Delete(directory, true);
             }
 
             UnitOfWork.Commit();
@@ -121,10 +111,8 @@ namespace OCR_API.Services
                 }
 
                 var csvEntry = archive.CreateEntry("NoteWordErrors.csv");
-                using (var writer = new StreamWriter(csvEntry.Open()))
-                {
-                    writer.Write(csvContent.ToString());
-                }
+                using var writer = new StreamWriter(csvEntry.Open());
+                writer.Write(csvContent.ToString());
             }
 
             memoryStream.Seek(0, SeekOrigin.Begin);
@@ -138,7 +126,7 @@ namespace OCR_API.Services
             foreach (var file in Directory.GetFiles(folderPath))
             {
                 var fileName = Path.GetFileName(file);
-                var fileEntry = folderEntry.Archive.CreateEntryFromFile(file, fileName);
+                folderEntry.Archive.CreateEntryFromFile(file, fileName);
             }
 
             foreach (var subDirectory in Directory.GetDirectories(folderPath))

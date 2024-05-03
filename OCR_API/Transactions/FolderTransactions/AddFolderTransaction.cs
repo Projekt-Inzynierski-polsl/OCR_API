@@ -11,12 +11,12 @@ namespace OCR_API.Transactions.FolderTransactions
         private readonly IPasswordHasher<Folder> passwordHasher;
         private readonly int userId;
         private readonly string name;
-        private readonly string iconPath;
-        private readonly string password;
+        private readonly string? iconPath;
+        private readonly string? password;
         public Folder Folder { get; private set; }
 
 
-        public AddFolderTransaction(IRepository<Folder> repository, IPasswordHasher<Folder> passwordHasher, int userId, string name, string iconPath = null, string password = null)
+        public AddFolderTransaction(IRepository<Folder> repository, IPasswordHasher<Folder> passwordHasher, int userId, string name, string? iconPath = null, string? password = null)
         {
             this.repository = repository;
             this.passwordHasher = passwordHasher;

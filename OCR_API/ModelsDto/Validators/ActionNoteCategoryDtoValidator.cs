@@ -6,19 +6,19 @@ namespace OCR_API.ModelsDto.Validators
 {
     public class ActionNoteCategoryDtoValidator : AbstractValidator<ActionNoteCategoryDto>
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork UnitOfWork;
 
         public ActionNoteCategoryDtoValidator(IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
-            this.unitOfWork = unitOfWork;
+            UnitOfWork = unitOfWork;
 
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotNull().When(x => x.Name != null)
                 .Custom((value, context) =>
                 {
-                    var userEntity = unitOfWork.NoteCategories.GetAllByUser(userContextService.GetUserId);
-                    bool nameInUse = userEntity.Any(u => u.Name == value);
+                    var userEntity = UnitOfWork.NoteCategories.GetAllByUser(userContextService.GetUserId);
+                    bool nameInUse = userEntity.Exists(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");

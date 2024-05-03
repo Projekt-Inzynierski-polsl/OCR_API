@@ -23,10 +23,10 @@ namespace UnitTests
         private readonly FolderService folderService;
         private readonly IValidator<AddNoteDto> addNoteValidator;
         private readonly IValidator<UpdateNoteDto> updateNoteValidator;
-        private IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork unitOfWork;
         private readonly UserActionLogger logger;
-        private PaginationService paginationService;
-        private IUserContextService userContextService;
+        private readonly PaginationService paginationService;
+        private readonly IUserContextService userContextService;
         public NoteServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -34,11 +34,11 @@ namespace UnitTests
             folderPasswordHasher = new PasswordHasher<Folder>();
             mapper = Helper.GetRequiredService<IMapper>();
             jwtTokenHelper = new JwtTokenHelper();
-            addNoteValidator = new AddNoteDtoValidator(unitOfWork);
-            updateNoteValidator = new UpdateNoteDtoValidator(unitOfWork);
+            userContextService = Helper.CreateMockIUserContextService();
+            addNoteValidator = new AddNoteDtoValidator(unitOfWork, userContextService);
+            updateNoteValidator = new UpdateNoteDtoValidator(unitOfWork, userContextService);
             logger = new UserActionLogger(unitOfWork);
             paginationService = new();
-            userContextService = Helper.CreateMockIUserContextService();
             service = new NoteService(unitOfWork, mapper, logger, paginationService, userContextService);
             folderService = new FolderService(unitOfWork, folderPasswordHasher, mapper, logger, paginationService, userContextService);
             accountService = new AccountService(unitOfWork, userPasswordHasher, mapper, jwtTokenHelper, logger, userContextService);
@@ -327,8 +327,6 @@ namespace UnitTests
             string updatedNoteName = "UpdatedNote";
             bool updatedIsPrivateValue = false;
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
-            LoginUserDto loginUserDto = new LoginUserDto() { Email = "testUser2@dto.pl", Password = "TestPassword" };
-            string token2 = accountService.TryLoginUserAndGenerateJwt(loginUserDto);
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test" });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
@@ -462,7 +460,7 @@ namespace UnitTests
 
             NoteDto noteAfterUpdate = service.GetById(noteId);
             Assert.IsNotNull(noteAfterUpdate);
-            Assert.AreEqual(categoriesIds.Length, noteAfterUpdate.Categories.Count());
+            Assert.AreEqual(categoriesIds.Length, noteAfterUpdate.Categories.Count);
         }
 
         [TestMethod]
@@ -487,7 +485,7 @@ namespace UnitTests
 
             NoteDto noteAfterUpdate = service.GetById(noteId);
             Assert.IsNotNull(noteAfterUpdate);
-            Assert.AreEqual(0, noteAfterUpdate.Categories.Count());
+            Assert.AreEqual(0, noteAfterUpdate.Categories.Count);
         }
 
         [TestMethod]

@@ -22,7 +22,7 @@ namespace OCR_API.Services
         IUnitOfWork UnitOfWork { get; }
         string RegisterAccount(RegisterUserDto registerUserDto);
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
-        bool VerifyUserLogPasses(string email, string password, out User user);
+        bool VerifyUserLogPasses(string email, string password, out User? user);
         string GetJwtTokenIfValid(string jwtToken);
         void Logout(string jwtToken);
     }
@@ -64,10 +64,10 @@ namespace OCR_API.Services
 
         public string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto)
         {
-            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User user))
+            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User? user))
             {
-                var token = jwtTokenHelper.CreateJwtToken(user);
-                logger.Log(EUserAction.Login, user.Id, DateTime.UtcNow);
+                var token = jwtTokenHelper.CreateJwtToken(user!);
+                logger.Log(EUserAction.Login, user!.Id, DateTime.UtcNow);
                 return token;
             }
             else
@@ -76,7 +76,7 @@ namespace OCR_API.Services
             }
         }
 
-        public bool VerifyUserLogPasses(string email, string password, out User user)
+        public bool VerifyUserLogPasses(string email, string password, out User? user)
         {
             var spec = new UserByEmailWithRoleSpecification(email);
             user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
@@ -99,7 +99,7 @@ namespace OCR_API.Services
             }
             var userId = userContextService.GetUserId;
             var spec = new UserByIdWithRoleSpecification(userId);
-            var user = UnitOfWork.Users.GetBySpecification(spec).FirstOrDefault();
+            var user = UnitOfWork.Users.GetBySpecification(spec).First();
             string token = jwtTokenHelper.CreateJwtToken(user);
             logger.Log(EUserAction.RefreshToken, userId, DateTime.UtcNow);
             return token;

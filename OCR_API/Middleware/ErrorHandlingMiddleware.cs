@@ -1,5 +1,4 @@
-﻿
-using OCR_API.Entities;
+﻿using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Repositories;
 using OCR_API.Services;
@@ -10,7 +9,6 @@ namespace OCR_API.Middleware
     {
         private readonly ILogger<ErrorHandlingMiddleware> logger;
         private readonly IUnitOfWork unitOfWork;
-        private readonly IUserContextService userContextService;
 
         public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IUnitOfWork unitOfWork)
         {
@@ -22,12 +20,10 @@ namespace OCR_API.Middleware
             try
             {       
                 var jwtToken = context.Request.Headers["Authorization"].ToString()?.Split(" ").LastOrDefault();
-                if (!string.IsNullOrEmpty(jwtToken))
+                if (!string.IsNullOrEmpty(jwtToken) && 
+                    unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
                 {
-                    if (unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
-                    {
-                        throw new ForbidException("Unauthorized: Token is blacklisted.");
-                    }
+                    throw new ForbidException("Unauthorized: Token is blacklisted.");
                 }
 
                 await next.Invoke(context);

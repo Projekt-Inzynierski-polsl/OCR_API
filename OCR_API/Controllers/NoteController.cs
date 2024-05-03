@@ -79,7 +79,7 @@ namespace OCR_API.Controllers
         public ActionResult ExportPdfById(int noteId)
         {
             string link = noteService.ExportPdfById(noteId);
-            var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
+            var baseUri = $"{Request.Scheme}://{Request.Host}";
             var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
             return Ok(fileUrl);
         }
@@ -88,7 +88,7 @@ namespace OCR_API.Controllers
         public ActionResult ExportDocxById(int noteId)
         {
             string link = noteService.ExportDocxById(noteId);
-            var baseUri = $"{Request.Scheme}://{Request.Host}"; ;
+            var baseUri = $"{Request.Scheme}://{Request.Host}";
             var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
             return Ok(fileUrl);
         }

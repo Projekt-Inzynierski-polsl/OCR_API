@@ -40,7 +40,7 @@ namespace OCR_API.Controllers
         }
 
         [HttpDelete("{folderId}")]
-        public ActionResult DeleteFolder(int folderId, [FromBody] PasswordDto passwordDto = null)
+        public ActionResult DeleteFolder(int folderId, [FromBody] PasswordDto? passwordDto = null)
         {
             folderService.DeleteFolder(folderId, passwordDto);
             return NoContent();

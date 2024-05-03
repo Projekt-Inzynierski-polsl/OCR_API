@@ -30,9 +30,9 @@ namespace UnitTests
         private readonly IValidator<RegisterUserDto> registerValidator;
         private readonly IMapper mapper;
         private readonly JwtTokenHelper jwtTokenHelper;
-        private IUnitOfWork unitOfWork;
-        private UserActionLogger logger;
-        private IUserContextService userContextService;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly UserActionLogger logger;
+        private readonly IUserContextService userContextService;
 
         public AccountServiceTests()
         {
@@ -104,7 +104,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "testUser@dto.pl";
             string password = "TestPassword";
-            bool result = service.VerifyUserLogPasses(email, password, out User user);
+            bool result = service.VerifyUserLogPasses(email, password, out _);
             Assert.IsTrue(result);
         }
 
@@ -115,7 +115,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "test@dto.pl";
             string password = "TestPassword";
-            bool result = service.VerifyUserLogPasses(email, password, out User user);
+            bool result = service.VerifyUserLogPasses(email, password, out _);
             Assert.IsFalse(result);
         }
 
@@ -126,7 +126,7 @@ namespace UnitTests
             service.RegisterAccount(registerDto);
             string email = "testUser@dto.pl";
             string password = "Test";
-            bool result = service.VerifyUserLogPasses(email, password, out User user);
+            bool result = service.VerifyUserLogPasses(email, password, out _);
             Assert.IsFalse(result);
         }
 

@@ -5,18 +5,18 @@ namespace OCR_API.ModelsDto.Validators
 {
     public class AddNoteDtoValidator : AbstractValidator<AddNoteDto>
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork UnitOfWork;
 
         public AddNoteDtoValidator(IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
-            this.unitOfWork = unitOfWork;
+            UnitOfWork = unitOfWork;
 
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    var userEntity = unitOfWork.Notes.GetAllByUser(userContextService.GetUserId);
-                    bool nameInUse = userEntity.Any(u => u.Name == value);
+                    var userEntity = UnitOfWork.Notes.GetAllByUser(userContextService.GetUserId);
+                    bool nameInUse = userEntity.Exists(u => u.Name == value);
                     if (nameInUse)
                     {
                         context.AddFailure("Name", "That name is taken.");
@@ -31,8 +31,8 @@ namespace OCR_API.ModelsDto.Validators
                  {
                      if(value != null)
                      {
-                         var userEntity = unitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
-                         bool folderExist = userEntity.Any(u => u.Id == value);
+                         var userEntity = UnitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
+                         bool folderExist = userEntity.Exists(u => u.Id == value);
                          if (!folderExist)
                          {
                              context.AddFailure("FolderId", "That folder doesn't exist.");
@@ -44,8 +44,8 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                  .Custom((value, context) =>
                  {
-                     var userEntity = unitOfWork.NoteFiles.GetAllByUser(userContextService.GetUserId);
-                     bool fileExist = userEntity.Any(u => u.Id == value);
+                     var userEntity = UnitOfWork.NoteFiles.GetAllByUser(userContextService.GetUserId);
+                     bool fileExist = userEntity.Exists(u => u.Id == value);
                      if (!fileExist)
                      {
                          context.AddFailure("NoteFileId", "That file doesn't exist.");

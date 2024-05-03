@@ -81,9 +81,9 @@ var userScope = app.Services.CreateScope();
 var userSeeder = userScope.ServiceProvider.GetRequiredService<Seeder>();
 userSeeder.Seed();
 
-
-app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseAuthentication();
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseHttpsRedirection();
 
 //if (app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using OCR_API.Services;
 
 namespace OCR_API.ModelsDto.Validators
 {
@@ -6,7 +7,7 @@ namespace OCR_API.ModelsDto.Validators
     {
         private readonly IUnitOfWork unitOfWork;
 
-        public AddFolderDtoValidator(IUnitOfWork unitOfWork)
+        public AddFolderDtoValidator(IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
             this.unitOfWork = unitOfWork;
 
@@ -14,7 +15,7 @@ namespace OCR_API.ModelsDto.Validators
                 .NotEmpty()
                 .Custom((value, context) =>
                 {
-                    var userEntity = unitOfWork.Folders.GetAllByUser(unitOfWork.UserId);
+                    var userEntity = unitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
                     bool nameInUse = userEntity.Any(u => u.Name == value);
                     if (nameInUse)
                     {

@@ -5,7 +5,6 @@ using OCR_API.Repositories;
 
 public interface IUnitOfWork
 {
-    int UserId { get; set; }
     IRepository<BlackListToken> BlackListedTokens { get; }
     IRepository<BoundingBox> BoundingBoxes { get; }
     IRepository<Folder> Folders { get; }
@@ -29,7 +28,6 @@ public class UnitOfWork : IUnitOfWork
 
     private readonly SystemDbContext dbContext;
 
-    public int UserId { get; set; }
     private Repository<BlackListToken> blackListedTokens;
     private Repository<BoundingBox> boundingBoxes;
     private Repository<Folder> folders;

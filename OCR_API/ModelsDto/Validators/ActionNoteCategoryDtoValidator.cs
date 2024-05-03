@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
+using OCR_API.Services;
 
 namespace OCR_API.ModelsDto.Validators
 {
@@ -7,7 +8,7 @@ namespace OCR_API.ModelsDto.Validators
     {
         private readonly IUnitOfWork unitOfWork;
 
-        public ActionNoteCategoryDtoValidator(IUnitOfWork unitOfWork)
+        public ActionNoteCategoryDtoValidator(IUnitOfWork unitOfWork, IUserContextService userContextService)
         {
             this.unitOfWork = unitOfWork;
 
@@ -16,7 +17,7 @@ namespace OCR_API.ModelsDto.Validators
                 .NotNull().When(x => x.Name != null)
                 .Custom((value, context) =>
                 {
-                    var userEntity = unitOfWork.NoteCategories.GetAllByUser(unitOfWork.UserId);
+                    var userEntity = unitOfWork.NoteCategories.GetAllByUser(userContextService.GetUserId);
                     bool nameInUse = userEntity.Any(u => u.Name == value);
                     if (nameInUse)
                     {

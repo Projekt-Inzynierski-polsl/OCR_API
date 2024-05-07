@@ -23,11 +23,6 @@ namespace OCR_API.Database.Configurations
                 .WithMany(r => r.Lines)
                 .HasForeignKey(d => d.BoundingBoxId)
                 .HasConstraintName("note_lines_ibfk_1");
-
-            builder.HasMany(d => d.Words)
-                .WithOne(r => r.NoteLine)
-                .HasForeignKey(d => d.LineId)
-                .HasConstraintName("note_word_errors_1");
         }
     }
 }

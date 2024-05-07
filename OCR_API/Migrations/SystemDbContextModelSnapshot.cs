@@ -120,7 +120,6 @@ namespace OCR_API.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("IconPath")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("icon_path");
 
@@ -271,38 +270,6 @@ namespace OCR_API.Migrations
                     b.HasIndex(new[] { "BoundingBoxId" }, "note_lines_ibfk_1");
 
                     b.ToTable("note_lines", (string)null);
-                });
-
-            modelBuilder.Entity("OCR_API.Entities.NoteLineWord", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Coordinates")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("json")
-                        .HasColumnName("coordinates")
-                        .HasDefaultValueSql("'{}'");
-
-                    b.Property<int>("LineId")
-                        .HasColumnType("int")
-                        .HasColumnName("line_id");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex(new[] { "LineId" }, "note_line_words_ibfk_1");
-
-                    b.ToTable("note_line_words", (string)null);
                 });
 
             modelBuilder.Entity("OCR_API.Entities.NoteWordError", b =>
@@ -641,18 +608,6 @@ namespace OCR_API.Migrations
                     b.Navigation("BoundingBox");
                 });
 
-            modelBuilder.Entity("OCR_API.Entities.NoteLineWord", b =>
-                {
-                    b.HasOne("OCR_API.Entities.NoteLine", "NoteLine")
-                        .WithMany("Words")
-                        .HasForeignKey("LineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("note_line_words_ibfk_1");
-
-                    b.Navigation("NoteLine");
-                });
-
             modelBuilder.Entity("OCR_API.Entities.NoteWordError", b =>
                 {
                     b.HasOne("OCR_API.Entities.ErrorCutFile", "File")
@@ -782,11 +737,6 @@ namespace OCR_API.Migrations
 
                     b.Navigation("Note")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("OCR_API.Entities.NoteLine", b =>
-                {
-                    b.Navigation("Words");
                 });
 
             modelBuilder.Entity("OCR_API.Entities.Role", b =>

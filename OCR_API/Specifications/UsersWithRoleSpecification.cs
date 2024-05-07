@@ -15,7 +15,7 @@ namespace OCR_API.Specifications
 
         public override Expression<Func<User, bool>> ToExpression()
         {
-            return f => (searchPhrase == null || f.Nickname.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase));
+            return f => searchPhrase == null || f.Nickname.ToLower().Contains(searchPhrase.ToLower());
         }
 
         public override IQueryable<User> IncludeEntities(IQueryable<User> queryable)

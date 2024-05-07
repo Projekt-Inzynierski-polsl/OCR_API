@@ -16,7 +16,7 @@ namespace OCR_API.Specifications
 
         public override Expression<Func<NoteCategory, bool>> ToExpression()
         {
-            return f => f.UserId == userId && (searchPhrase == null || f.Name.Contains(searchPhrase, StringComparison.CurrentCultureIgnoreCase));
+            return f => f.UserId == userId && (searchPhrase == null || f.Name.ToLower().Contains(searchPhrase.ToLower()));
         }
     }
 }

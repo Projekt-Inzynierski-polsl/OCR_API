@@ -8,21 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+    
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4.0.0
         with: 
-          dotner-version: 8.0.x
+          dotnet-version: 8.0.x
+    
       - name: Restore dependencies
         run: dotnet restore
+    
       - name: Build
         run: dotnet build --no-restore
+    
       - name: Publish
-        run: dotnet publish ./OCR_API/OCR_API.csproj -c Release -o ${{ env.DOTNET_ROOT }}
-      - name: upload artifact
+        run: dotnet publish ./OCR_API/OCR_API.csproj -c Release -o ${{ github.workspace }}/api
+    
+      - name: Upload artifact
         uses: actions/upload-artifact@v4.3.3
         with:
           name: api-artifact
-          path: ${{ env.DOTNET_ROOT }}/api
+          path: ${{ github.workspace }}/api
         
   deploy-dev:
      runs-on: ubuntu-latest

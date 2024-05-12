@@ -44,7 +44,7 @@ jobs:
         id: deploy-to-azure
         uses: Azure/webapps-deploy@v3.0.1
         with:
-          app-name: 'ocr-api-dev'
+          app-name: 'api-ocr-dev'
           publish-profile: ${{ secrets.PUBLISH_PROFILE_DEV }}
 
       

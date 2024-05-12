@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<Folder> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.ToTable("folders");
             builder.HasIndex(e => e.UserId, "folder_ibfk_1");
 

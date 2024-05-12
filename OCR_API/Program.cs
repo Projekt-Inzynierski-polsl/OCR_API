@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
@@ -20,11 +21,17 @@ using OCR_API.Repositories;
 using OCR_API.Seeders;
 using OCR_API.Services;
 using System.Text;
+using DotNetEnv;
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
-var authenticationSettings = new AuthenticationSettings();
-builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+var authenticationSettings = new AuthenticationSettings() { 
+    JwtKey = Environment.GetEnvironmentVariable("JwtKey"),
+    JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays")),
+    JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer")
+};
+
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddAuthentication(option =>
@@ -49,8 +56,24 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<SystemDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    string connectionString;
+    switch (environment)
+    {
+        case "Development":
+            connectionString = Environment.GetEnvironmentVariable("DevConnection");
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            break;
+        case "Production":
+            connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+            options.UseSqlServer(connectionString);
+            break;
+
+        default:
+            connectionString = Environment.GetEnvironmentVariable("DebugConnection");
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            break;
+    };
 }, ServiceLifetime.Transient);
 
 

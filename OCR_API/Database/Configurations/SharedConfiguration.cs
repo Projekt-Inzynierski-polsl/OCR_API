@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<Shared> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.HasIndex(e => e.UserId, "shared_objects_ibfk_1");
             builder.HasIndex(e => e.FolderId, "shared_objects_ibfk_2");
             builder.HasIndex(e => e.NoteId, "shared_objects_ibfk_3");
@@ -37,7 +37,8 @@ namespace OCR_API.Database.Configurations
             builder.HasOne(f => f.Note)
                 .WithMany(u => u.SharedObjects)
                 .HasForeignKey(f => f.NoteId)
-                .HasConstraintName("shared_objects_ibfk_3");
+                .HasConstraintName("shared_objects_ibfk_3")
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(f => f.Mode)
                 .WithMany(u => u.SharedObjects)

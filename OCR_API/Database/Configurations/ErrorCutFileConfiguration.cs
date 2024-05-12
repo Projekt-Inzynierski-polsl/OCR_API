@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<ErrorCutFile> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.ToTable("error_cut_files");
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();

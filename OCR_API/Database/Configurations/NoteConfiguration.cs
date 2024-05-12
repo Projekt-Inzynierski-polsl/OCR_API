@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<Note> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.ToTable("notes");
             builder.HasIndex(e => e.UserId, "notes_ibfk_1");
             builder.HasIndex(e => e.FolderId, "notes_ibfk_2");
@@ -30,13 +30,14 @@ namespace OCR_API.Database.Configurations
             builder.HasOne(d => d.Folder)
                 .WithMany(r => r.Notes)
                 .HasForeignKey(d => d.FolderId)
-                .HasConstraintName("notes_ibfk_2");
+                .HasConstraintName("notes_ibfk_2")
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(d => d.NoteFile)
                 .WithOne(r => r.Note)
                 .HasForeignKey<Note>(d => d.NoteFileId)
                 .HasConstraintName("notes_ibfk_3")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasMany(n => n.Categories)
                 .WithMany(c => c.Notes)

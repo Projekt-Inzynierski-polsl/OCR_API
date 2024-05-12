@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<UserAction> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
 
             builder.ToTable("user_actions");
 

@@ -47,7 +47,7 @@ namespace OCR_API.Seeders
 
                     foreach (var action in userActions)
                     {
-                        if((int)action > 0) unitOfWork.UserActions.Add(new UserAction() { Id = (int)action, Name = action.ToString() });
+                        if((int)action > 0) unitOfWork.UserActions.Add(new UserAction() { Name = action.ToString() });
                     }
                     unitOfWork.Commit();
 

@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     { 
         public void Configure(EntityTypeBuilder<NoteLine> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.ToTable("note_lines");
             builder.HasIndex(e => e.BoundingBoxId, "note_lines_ibfk_1");
 
@@ -16,9 +16,9 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.BoundingBoxId).HasColumnName("bounding_box_id").IsRequired();
             builder.Property(e => e.Content).HasColumnName("content").IsRequired();
             builder.Property(e => e.Coordinates)
-               .HasDefaultValueSql("'{}'")
-               .HasColumnType("json")
-               .HasColumnName("coordinates");
+                   .HasColumnType("nvarchar(max)")
+                   .HasColumnName("coordinates")
+                   .HasDefaultValue("{}");
 
             builder.HasOne(d => d.BoundingBox)
                 .WithMany(r => r.Lines)

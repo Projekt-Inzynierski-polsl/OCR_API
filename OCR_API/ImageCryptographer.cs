@@ -10,12 +10,10 @@ namespace OCR_API
         private readonly CryptographySettings cryptographySettings;
         public ImageCryptographer()
         {
-            IConfiguration Configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-            cryptographySettings = new CryptographySettings();
-            Configuration.GetSection("ImageCryptography").Bind(cryptographySettings);
+            cryptographySettings = new CryptographySettings()
+            {
+                EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey"),
+            };
         }
         public async Task<(byte[], byte[])> EncryptImageAsync(Image image)
         {

@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<NoteWordError> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.ToTable("note_word_errors");
             builder.HasIndex(e => e.FileId, "note_word_errors_ibfk_1");
             builder.HasIndex(e => e.UserId, "note_word_errors_ibfk_2");

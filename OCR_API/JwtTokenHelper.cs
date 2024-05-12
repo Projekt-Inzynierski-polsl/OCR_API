@@ -12,12 +12,12 @@ namespace OCR_API
         private readonly AuthenticationSettings authenticationSettings;
         public JwtTokenHelper()
         {
-            IConfiguration Configuration = new ConfigurationBuilder()
-           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-           .Build();
-            authenticationSettings = new AuthenticationSettings();
-            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+            authenticationSettings = new AuthenticationSettings()
+            {
+                JwtKey = Environment.GetEnvironmentVariable("JwtKey"),
+                JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays")),
+                JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer")
+            };
         }
 
         public JwtSecurityToken ReadToken(string jwtToken)

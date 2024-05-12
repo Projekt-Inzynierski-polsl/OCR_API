@@ -9,7 +9,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
 
             builder.ToTable("users");
             builder.HasIndex(e => e.RoleId, "user_ibfk_1");

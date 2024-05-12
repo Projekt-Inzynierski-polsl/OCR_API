@@ -12,3 +12,4 @@
 /OCR_API/obj/*
 /UnitTests/bin/*
 /UnitTests/obj/*
+*.env*

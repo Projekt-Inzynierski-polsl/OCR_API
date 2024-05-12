@@ -8,7 +8,7 @@ namespace OCR_API.Database.Configurations
     {
         public void Configure(EntityTypeBuilder<BlackListToken> builder)
         {
-            builder.HasKey(e => e.Id).HasName("PRIMARY");
+            builder.HasKey(e => e.Id);
             builder.HasIndex(e => e.UserId, "black_listed_tokens_ibfk_1");
 
             builder.ToTable("black_listed_tokens");

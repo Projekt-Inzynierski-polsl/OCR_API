@@ -1,8 +1,9 @@
-﻿namespace OCR_API.Entities
+﻿using OCR_API.Entities.Inherits;
+
+namespace OCR_API.Entities
 {
-    public class NoteWordError : IHasUserId
+    public class NoteWordError : Entity, IHasUserId
     {
-        public int Id { get; set; }
         public int FileId { get; set; }
         public int UserId { get; set; }
         public string CorrectContent { get; set; }

@@ -21,22 +21,22 @@ namespace OCR_API.Controllers
         [HttpGet("")]
         public ActionResult GetAllUserNotes([FromQuery] GetAllQuery queryParameters)
         {
-            var folders = noteService.GetAllByUser(queryParameters);
-            return Ok(folders);
+            var notes = noteService.GetAllByUser(queryParameters);
+            return Ok(notes);
         }
 
         [HttpGet("{noteId}")]
         public ActionResult GetNoteById(int noteId)
         {
-            var folder = noteService.GetById(noteId);
-            return Ok(folder);
+            var note = noteService.GetById(noteId);
+            return Ok(note);
         }
 
         [HttpGet("lastEdited")]
         public ActionResult GetLastEditedNotes([FromQuery] int amount = 3)
         {
-            var folder = noteService.GetLastEdited(amount);
-            return Ok(folder);
+            var note = noteService.GetLastEdited(amount);
+            return Ok(note);
         }
 
         [HttpPost]

@@ -1,10 +1,7 @@
-﻿using System.Drawing;
-
-namespace OCR_API.Entities
+﻿namespace OCR_API.Entities
 {
-    public class BoundingBox
+    public class BoundingBox : Entity
     {
-        public int Id { get; set; }
         public int NoteFileId { get; set; }
         public string Coordinates { get; set; }
         public virtual NoteFile NoteFile { get; set; }

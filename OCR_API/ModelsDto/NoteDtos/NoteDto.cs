@@ -1,4 +1,6 @@
 ﻿using OCR_API.Entities;
+using OCR_API.ModelsDto.NoteCategoriesDtos;
+using OCR_API.ModelsDto.NoteFileDtos;
 
 namespace OCR_API.ModelsDto
 {
@@ -10,7 +12,6 @@ namespace OCR_API.ModelsDto
         public string Name { get; set; }
         public string Content { get; set; }
         public bool IsPrivate { get; set; }
-        public virtual NoteFile NoteFile { get; set; }
-        public virtual ICollection<NoteCategory> Categories { get; set; } = new List<NoteCategory>();
+        public virtual ICollection<NoteCategoryDto> Categories { get; set; } = new List<NoteCategoryDto>();
     }
 }

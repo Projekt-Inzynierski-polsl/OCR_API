@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace OCR_API.Services
 {
@@ -6,22 +7,26 @@ namespace OCR_API.Services
     {
         int GetUserId { get; }
         ClaimsPrincipal User { get; set; }
+        public Task<string?> GetJwtToken { get; }
     }
 
     public class UserContextService : IUserContextService
     {
         private readonly IHttpContextAccessor httpContextAccessor;
+        private ClaimsPrincipal user;
 
         public UserContextService(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
+            user = httpContextAccessor.HttpContext?.User;
         }
         public int GetUserId => int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
         public ClaimsPrincipal User
         {
-            get => httpContextAccessor.HttpContext?.User;
-            set => User = value;
+            get => user;
+            set => user = value;
         }
+        public Task<string?> GetJwtToken => httpContextAccessor.HttpContext?.GetTokenAsync("Bearer", "access_token");
     }
 }

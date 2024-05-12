@@ -1,8 +1,9 @@
-﻿namespace OCR_API.Entities
+﻿
+
+namespace OCR_API.Entities
 {
-    public class UserAction
+    public class UserAction : Entity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
 
         public virtual ICollection<UserLog> Logs { get; set; } = new List<UserLog>();

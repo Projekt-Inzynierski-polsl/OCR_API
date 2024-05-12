@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
@@ -53,7 +54,7 @@ namespace OCR_API.Services
         public NoteCategoryDto GetById(int categoryId)
         {
             var userId = userContextService.GetUserId;
-            NoteCategory noteCategory = GetNoteCategoryIfBelongsToUser(userId, categoryId);
+            NoteCategory noteCategory = UnitOfWork.NoteCategories.GetByIdAndUserId(categoryId, userId);
             var noteCategoryDto = mapper.Map<NoteCategoryDto>(noteCategory);
 
             return noteCategoryDto;
@@ -74,7 +75,7 @@ namespace OCR_API.Services
         public void DeleteCategory(int categoryId)
         {
             var userId = userContextService.GetUserId;
-            NoteCategory noteCategoryToRemove = GetNoteCategoryIfBelongsToUser(userId, categoryId);
+            NoteCategory noteCategoryToRemove = UnitOfWork.NoteCategories.GetByIdAndUserId(categoryId, userId);
             DeleteEntityTransaction<NoteCategory> deleteNoteCategoryTransaction = new(UnitOfWork.NoteCategories, noteCategoryToRemove.Id);
             deleteNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
@@ -84,25 +85,11 @@ namespace OCR_API.Services
         public void UpdateCategory(int categoryId, ActionNoteCategoryDto actionNoteCategoryDto)
         {
             var userId = userContextService.GetUserId;
-            NoteCategory noteCategoryToUpdate = GetNoteCategoryIfBelongsToUser(userId, categoryId);
+            NoteCategory noteCategoryToUpdate = UnitOfWork.NoteCategories.GetByIdAndUserId(categoryId, userId);
             UpdateNoteCategoryTransaction updateNoteCategoryTransaction = new(noteCategoryToUpdate, actionNoteCategoryDto.Name, actionNoteCategoryDto.HexColor);
             updateNoteCategoryTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.UpdateCategory, userId, DateTime.UtcNow, categoryId);
-        }
-
-        private NoteCategory GetNoteCategoryIfBelongsToUser(int userId, int noteId)
-        {
-            var noteCategory = UnitOfWork.NoteCategories.GetById(noteId);
-            if (noteCategory is null)
-            {
-                throw new NotFoundException("That entity doesn't exist.");
-            }
-            if (noteCategory.UserId != userId)
-            {
-                throw new ForbidException("Cannot operate someone else's note.");
-            }
-            return noteCategory;
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using OCR_API.Authorization;
+using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
 {
-    public class Folder : IHasUserId, IResourceOperationAccess
+    public class Folder : Entity, IHasUserId, IResourceOperationAccess
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; }
         public string? IconPath { get; set; }

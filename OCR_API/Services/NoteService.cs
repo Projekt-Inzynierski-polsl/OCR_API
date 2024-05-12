@@ -87,6 +87,12 @@ namespace OCR_API.Services
         public int CreateNote(AddNoteDto addNoteDto)
         {
             var userId = userContextService.GetUserId;
+            NoteFile noteFile = UnitOfWork.NoteFiles.GetById(addNoteDto.NoteFileId);
+            if(noteFile.UserId != userId) 
+            {
+                throw new BadRequestException("Cannot access to this file.");
+            }
+
             Note noteToAdd = mapper.Map<Note>(addNoteDto); 
             AddNoteTransaction addNoteTransaction = new(UnitOfWork, userId, noteToAdd);
             addNoteTransaction.Execute();

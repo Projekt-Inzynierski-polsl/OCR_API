@@ -1,8 +1,9 @@
-﻿using OCR_API.Repositories;
+﻿using OCR_API.Entities;
+using OCR_API.Repositories;
 
 namespace OCR_API.Transactions
 {
-    public class TruncateTableTransaction<TEntity> : ITransaction where TEntity : class
+    public class TruncateTableTransaction<TEntity> : ITransaction where TEntity : Entity
     {
         private readonly IRepository<TEntity> repository;
 

@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using OCR_API.Authorization;
+using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
 {
-    public class Note : IHasUserId, IResourceOperationAccess
+    public class Note : Entity, IHasUserId, IResourceOperationAccess
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
+        public string Name { get; set; }
         public int? FolderId { get; set; } = null;
         public int NoteFileId { get; set; }
-        public string Name { get; set; }
         public string Content { get; set; }
         public bool IsPrivate { get; set; }
 

@@ -46,6 +46,13 @@ namespace OCR_API.Controllers
             return Ok(error);
         }
 
+        [HttpPost]
+        public async Task<ActionResult> ReportErrorAsync([FromBody] AddErrorDto addErrorDto)
+        {
+            await noteWordErrorService.AddErrorAsync(addErrorDto);
+            return Created();
+        }
+
         [HttpDelete("{errorId}")]
         [Authorize(Roles = "Admin")]
         public ActionResult DeleteById(int errorId)

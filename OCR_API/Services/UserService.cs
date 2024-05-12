@@ -30,17 +30,17 @@ namespace OCR_API.Services
         private readonly IPasswordHasher<User> passwordHasher;
         private readonly IMapper mapper;
         private readonly UserActionLogger logger;
-        private readonly IPaginationService queryParametersService;
+        private readonly IPaginationService paginationService;
         private readonly IUserContextService userContextService;
 
         public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, 
-            UserActionLogger logger, IPaginationService queryParametersService, IUserContextService userContextService)
+            UserActionLogger logger, IPaginationService paginationService, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
             this.passwordHasher = passwordHasher;
             this.mapper = mapper;
             this.logger = logger;
-            this.queryParametersService = queryParametersService;
+            this.paginationService = paginationService;
             this.userContextService = userContextService;
         }
 
@@ -48,7 +48,7 @@ namespace OCR_API.Services
         {
             var spec = new UsersWithRoleSpecification(queryParameters.SearchPhrase);
             var usersQuery = UnitOfWork.Users.GetBySpecification(spec);
-            var result = queryParametersService.PreparePaginationResults<UserDto, User>(queryParameters, usersQuery, mapper);
+            var result = paginationService.PreparePaginationResults<UserDto, User>(queryParameters, usersQuery, mapper);
 
             return result;
 

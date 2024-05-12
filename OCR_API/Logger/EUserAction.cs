@@ -29,7 +29,9 @@
         ShareNote,
         ShareFolder,
         UnshareNote,
-        UnshareFolder
+        UnshareFolder,
+        UploadedFile,
+        CryptographyFile
 
     }
 }

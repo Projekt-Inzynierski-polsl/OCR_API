@@ -8,6 +8,7 @@ namespace OCR_API
     {
         IRepository<BlackListToken> BlackListedTokens { get; }
         IRepository<BoundingBox> BoundingBoxes { get; }
+        IRepository<ErrorCutFile> ErrorCutFiles { get; }
         IRepository<Folder> Folders { get; }
         IRepository<Note> Notes { get; }
         IRepository<NoteCategory> NoteCategories { get; }
@@ -31,6 +32,7 @@ namespace OCR_API
 
         private readonly Repository<BlackListToken> blackListedTokens;
         private readonly Repository<BoundingBox> boundingBoxes;
+        private readonly Repository<ErrorCutFile> errorCutFiles;
         private readonly Repository<Folder> folders;
         private readonly Repository<Note> notes;
         private readonly Repository<NoteCategory> noteCategories;
@@ -52,6 +54,7 @@ namespace OCR_API
             roles = new Repository<Role>(dbContext);
             blackListedTokens = new Repository<BlackListToken>(dbContext);
             boundingBoxes = new Repository<BoundingBox>(dbContext);
+            errorCutFiles = new Repository<ErrorCutFile>(dbContext);
             folders = new Repository<Folder>(dbContext);
             notes = new Repository<Note>(dbContext);
             noteCategories = new Repository<NoteCategory>(dbContext);
@@ -71,6 +74,7 @@ namespace OCR_API
         public IRepository<BlackListToken> BlackListedTokens => blackListedTokens;
 
         public IRepository<BoundingBox> BoundingBoxes => boundingBoxes;
+        public IRepository<ErrorCutFile> ErrorCutFiles => errorCutFiles;
         public IRepository<Folder> Folders => folders;
 
         public IRepository<Note> Notes => notes;

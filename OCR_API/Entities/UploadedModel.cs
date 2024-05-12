@@ -1,8 +1,9 @@
-﻿namespace OCR_API.Entities
+﻿
+
+namespace OCR_API.Entities
 {
-    public class UploadedModel
+    public class UploadedModel : Entity
     {
-        public int Id { get; set; }
         public string Path { get; set; }
         public int UserId { get; set; }
         public DateTime UploadTime { get; set; }

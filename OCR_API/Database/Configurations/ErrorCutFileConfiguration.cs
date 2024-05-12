@@ -13,6 +13,7 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.Path).HasColumnName("path").IsRequired();
+            builder.Property(e => e.HashedKey).HasColumnName("hashed_key").HasDefaultValueSql(null);
 
             builder.HasMany(d => d.Errors)
                 .WithOne(r => r.File)

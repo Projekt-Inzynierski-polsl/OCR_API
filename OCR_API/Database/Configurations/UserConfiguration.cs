@@ -71,6 +71,11 @@ namespace OCR_API.Database.Configurations
                 .WithOne(u => u.User)
                 .HasForeignKey(user => user.UserId)
                 .HasConstraintName("shared_objects_ibfk_1");
+
+            builder.HasMany(f => f.NoteFiles)
+                .WithOne(u => u.User)
+                .HasForeignKey(user => user.UserId)
+                .HasConstraintName("note_files_ibfk_1");
         }
     }
 }

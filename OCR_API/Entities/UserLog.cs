@@ -1,8 +1,11 @@
-﻿namespace OCR_API.Entities
+﻿
+
+using OCR_API.Entities.Inherits;
+
+namespace OCR_API.Entities
 {
-    public class UserLog : IHasUserId
+    public class UserLog : Entity, IHasUserId
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
         public int ActionId { get; set; }
         public int? ObjectId { get; set; } = null;

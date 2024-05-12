@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OCR_API.Entities.Inherits;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
 
 namespace OCR_API.Entities
 {
-    public class User
+    public class User : Entity
     {
-        public int Id { get; set; }
         public string Email { get; set; }
         public string Nickname { get; set; }
         public string PasswordHash { get; set; }
-
         public int RoleId { get; set; }
 
         public virtual Role Role { get; set; }
@@ -20,5 +22,6 @@ namespace OCR_API.Entities
         public virtual ICollection<BlackListToken> BlackListedTokens { get; set; } = new List<BlackListToken>();
         public virtual ICollection<NoteWordError> Errors { get; set; } = new List<NoteWordError>();
         public virtual ICollection<Shared> SharedObjects { get; set; } = new List<Shared>();
+        public virtual ICollection<NoteFile> NoteFiles { get; set; } = new List<NoteFile>();
     }
 }

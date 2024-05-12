@@ -1,4 +1,4 @@
-﻿namespace OCR_API.Entities
+﻿namespace OCR_API.Entities.Inherits
 {
     public interface IHasUserId
     {

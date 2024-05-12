@@ -1,8 +1,9 @@
-﻿namespace OCR_API.Entities
+﻿
+
+namespace OCR_API.Entities
 {
-    public class ShareMode
+    public class ShareMode : Entity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public IEnumerable<Shared> SharedObjects { get; set; }
     }

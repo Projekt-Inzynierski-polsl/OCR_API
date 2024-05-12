@@ -257,6 +257,11 @@ namespace OCR_API.Migrations
                         .HasColumnType("int")
                         .HasColumnName("bounding_box_id");
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content");
+
                     b.Property<string>("Coordinates")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

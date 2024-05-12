@@ -3,7 +3,7 @@ using OCR_API.Repositories;
 
 namespace OCR_API.Transactions
 {
-    public class DeleteEntityTransaction<TEntity> : ITransaction where TEntity : class
+    public class DeleteEntityTransaction<TEntity> : ITransaction where TEntity : Entity
     {
         private readonly IRepository<TEntity> repository;
         private readonly int id;

@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
+using OCR_API.Entities.Inherits;
 using OCR_API.Exceptions;
 using OCR_API.Specifications;
 
 namespace OCR_API.Repositories
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
     {
         private readonly SystemDbContext dbContext;
 
@@ -43,6 +44,25 @@ namespace OCR_API.Repositories
             return entity is null ? throw new NotFoundException("That entity doesn't exist.") : entity;
         }
 
+        public TEntity GetByIdAndUserId(int id, int userId)
+        {
+            TEntity? entity = Entity.AsQueryable()
+                .Where(e => e.Id == id)
+                .FirstOrDefault();
+
+            if (entity is null)
+            {
+                throw new NotFoundException("That entity doesn't exist.");
+            }
+
+            if ((entity as IHasUserId)?.UserId != userId)
+            {
+                throw new ForbidException("Cannot access to this entity.");
+            }
+
+            return entity;
+        }
+
         public List<TEntity> GetAll()
         {
             return Entity.ToList();
@@ -52,7 +72,6 @@ namespace OCR_API.Repositories
         {
             if (typeof(TEntity).GetInterfaces().Contains(typeof(IHasUserId)))
             {
-                // Jeśli tak, wykonaj zapytanie z filtrowaniem UserId
                 return Entity.AsQueryable()
                     .Cast<IHasUserId>()
                     .Where(e => e.UserId == userId)

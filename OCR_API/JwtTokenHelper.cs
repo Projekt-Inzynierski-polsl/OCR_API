@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using DotNetEnv;
+using Microsoft.IdentityModel.Tokens;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,17 +10,6 @@ namespace OCR_API
 {
     public class JwtTokenHelper
     {
-        private readonly AuthenticationSettings authenticationSettings;
-        public JwtTokenHelper()
-        {
-            authenticationSettings = new AuthenticationSettings()
-            {
-                JwtKey = Environment.GetEnvironmentVariable("JwtKey"),
-                JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays")),
-                JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer")
-            };
-        }
-
         public JwtSecurityToken ReadToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -37,11 +27,11 @@ namespace OCR_API
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddDays(authenticationSettings.JwtExpireDays);
+            var expires = DateTime.UtcNow.AddDays(AuthenticationSettings.JwtExpireDays);
 
-            var token = new JwtSecurityToken(authenticationSettings.JwtIssuer, authenticationSettings.JwtIssuer, claims, expires: expires, signingCredentials: credentials);
+            var token = new JwtSecurityToken(AuthenticationSettings.JwtIssuer, AuthenticationSettings.JwtIssuer, claims, expires: expires, signingCredentials: credentials);
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);

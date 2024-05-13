@@ -1,8 +1,8 @@
 ﻿namespace OCR_API
 {
-    public class CryptographySettings
+    public static class CryptographySettings
     {
-        public string EncryptionKey { get; set; }
+        public static string EncryptionKey { get; set; }
 
     }
 }

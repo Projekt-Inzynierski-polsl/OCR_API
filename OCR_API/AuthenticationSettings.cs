@@ -1,9 +1,9 @@
 ﻿namespace OCR_API
 {
-    public class AuthenticationSettings
+    public static class AuthenticationSettings
     {
-        public string JwtKey { get; set; }
-        public int JwtExpireDays { get; set; }
-        public string JwtIssuer { get; set; }
+        public static string JwtKey { get; set; }
+        public static int JwtExpireDays { get; set; }
+        public static string JwtIssuer { get; set; }
     }
 }

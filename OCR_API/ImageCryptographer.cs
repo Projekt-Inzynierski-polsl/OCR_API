@@ -7,17 +7,9 @@ namespace OCR_API
 {
     public class ImageCryptographer
     {
-        private readonly CryptographySettings cryptographySettings;
-        public ImageCryptographer()
-        {
-            cryptographySettings = new CryptographySettings()
-            {
-                EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey"),
-            };
-        }
         public async Task<(byte[], byte[])> EncryptImageAsync(Image image)
         {
-            string encryptionKey = cryptographySettings.EncryptionKey;
+            string encryptionKey = CryptographySettings.EncryptionKey;
 
             using (Aes aes = Aes.Create())
             {
@@ -56,7 +48,7 @@ namespace OCR_API
 
         public async Task<byte[]> DecryptImageAsync(byte[] encryptedImage, byte[] hashedImageEncryptionKey)
         {
-            string encryptionKey = cryptographySettings.EncryptionKey;
+            string encryptionKey = CryptographySettings.EncryptionKey;
 
             byte[] decryptedImage;
             using (Aes aes = Aes.Create())

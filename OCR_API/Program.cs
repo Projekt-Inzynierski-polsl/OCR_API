@@ -26,13 +26,10 @@ using DotNetEnv;
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
-var authenticationSettings = new AuthenticationSettings() { 
-    JwtKey = Environment.GetEnvironmentVariable("JwtKey"),
-    JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays")),
-    JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer")
-};
-
-builder.Services.AddSingleton(authenticationSettings);
+AuthenticationSettings.JwtKey = Environment.GetEnvironmentVariable("JwtKey");
+AuthenticationSettings.JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays"));
+AuthenticationSettings.JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer");
+CryptographySettings.EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey");
 
 builder.Services.AddAuthentication(option =>
     {
@@ -45,9 +42,9 @@ builder.Services.AddAuthentication(option =>
         cfg.SaveToken = true;
         cfg.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidIssuer = authenticationSettings.JwtIssuer,
-            ValidAudience = authenticationSettings.JwtIssuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+            ValidIssuer = AuthenticationSettings.JwtIssuer,
+            ValidAudience = AuthenticationSettings.JwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthenticationSettings.JwtKey))
         };
     });
 

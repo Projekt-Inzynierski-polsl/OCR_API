@@ -20,13 +20,13 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult Get([FromQuery]string type = "None", [FromQuery] long startTimestamp = 0, [FromQuery] long endTimestamp = 0, [FromQuery] int userId = 0)
+        public ActionResult Get([FromQuery] GetAllQuery queryParameters, [FromQuery]string type = "None", [FromQuery] long startTimestamp = 0, [FromQuery] long endTimestamp = 0, [FromQuery] int userId = 0)
         {
             if (endTimestamp == 0)
             {
                 endTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             }
-            var actions = userLogService.Get(type, startTimestamp, endTimestamp, userId);
+            var actions = userLogService.Get(queryParameters, type, startTimestamp, endTimestamp, userId);
             return Ok(actions);
         }
 

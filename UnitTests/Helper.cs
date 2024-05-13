@@ -18,18 +18,21 @@ using OCR_API.Registrars;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using System.Security.Claims;
+using DotNetEnv;
+using System.Diagnostics;
 
 namespace UnitTests
 {
     internal class Helper
     {
-        private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .Build();
 
         private static IServiceProvider Provider()
         {
+            Env.Load("../../../../OCR_API/.env");
+
+            AuthenticationSettings.JwtKey = Environment.GetEnvironmentVariable("JwtKey");
+            AuthenticationSettings.JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays"));
+            AuthenticationSettings.JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer");
             var services = new ServiceCollection();
 
             services.AddDbContext<SystemDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));

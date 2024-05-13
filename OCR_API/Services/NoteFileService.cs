@@ -88,7 +88,7 @@ namespace OCR_API.Services
                 var imageContent = new StreamContent(imageFile.OpenReadStream());
                 formData.Add(imageContent, "image", imageFile.FileName);
 
-                formData.Add(new StringContent(uploadFileDto.SerializedBoundingBoxes, Encoding.UTF8, "application/json"), "json");
+                formData.Add(new StringContent(JsonConvert.SerializeObject(uploadFileDto.BoundingBoxes), Encoding.UTF8, "application/json"), "json");
                 formData.Add(new StringContent(userContextService.GetJwtToken.Result, Encoding.UTF8, "application/json"), "token");
 
                 var response = await httpClient.PostAsync(OCR_MODEL_URL + OCR_MODEL_UPLOAD_FILE_ENDPOINT, formData);

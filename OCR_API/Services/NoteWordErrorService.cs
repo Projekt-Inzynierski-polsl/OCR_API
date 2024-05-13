@@ -26,8 +26,8 @@ namespace OCR_API.Services
     public interface INoteWordErrorService
     {
         public IUnitOfWork UnitOfWork { get; }
-        IEnumerable<NoteWordErrorDto> GetAll();
-        IEnumerable<NoteWordErrorDto> GetAllForUser(int userId);
+        PageResults<NoteWordErrorDto> GetAll(GetAllQuery queryParameters);
+        PageResults<NoteWordErrorDto> GetAllForUser(int userId, GetAllQuery queryParameters);
         NoteWordErrorDto GetById(int errorId);
         Task AddErrorAsync(AddErrorDto addErrorDto);
         void DeleteById(int errorId);
@@ -42,28 +42,32 @@ namespace OCR_API.Services
         private readonly UserActionLogger logger;
         private readonly IUserContextService userContextService;
         private readonly ImageCryptographer imageCryptographer;
+        private readonly IPaginationService queryParametersService;
         private const string OCR_ERRORS_DIRECTORY_PATH = "uploaded_files/errors";
         private const string FILE_EXTENSION = ".png";
 
         public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
-            IUserContextService userContextService, ImageCryptographer imageCryptographer)
+            IUserContextService userContextService, ImageCryptographer imageCryptographer, IPaginationService queryParametersService)
         {
             UnitOfWork = unitOfWork;
             this.mapper = mapper;
             this.logger = logger;
             this.userContextService = userContextService;
             this.imageCryptographer = imageCryptographer;
+            this.queryParametersService = queryParametersService;
         }
 
-        public IEnumerable<NoteWordErrorDto> GetAll()
+        public PageResults<NoteWordErrorDto> GetAll(GetAllQuery queryParameters)
         {
-            var errors = UnitOfWork.NoteWordErrors.GetAll().Select(f => mapper.Map<NoteWordErrorDto>(f)).ToList();
-            return errors;
+            var errors = UnitOfWork.NoteWordErrors.GetAll().AsQueryable();
+            var result = queryParametersService.PreparePaginationResults<NoteWordErrorDto, NoteWordError>(queryParameters, errors, mapper);
+            return result;
         }
-        public IEnumerable<NoteWordErrorDto> GetAllForUser(int userId)
+        public PageResults<NoteWordErrorDto> GetAllForUser(int userId, GetAllQuery queryParameters)
         {
-            var error = UnitOfWork.NoteWordErrors.GetAllByUser(userId).Select(f => mapper.Map<NoteWordErrorDto>(f)).ToList();
-            return error;
+            var errors = UnitOfWork.NoteWordErrors.GetAllByUser(userId).AsQueryable();
+            var result = queryParametersService.PreparePaginationResults<NoteWordErrorDto, NoteWordError>(queryParameters, errors, mapper);
+            return result;
         }
         public NoteWordErrorDto GetById(int errorId)
         {

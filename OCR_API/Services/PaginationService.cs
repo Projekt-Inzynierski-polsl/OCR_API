@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.EMMA;
 using OCR_API.ModelsDto;
 
 namespace OCR_API.Services
@@ -11,12 +12,24 @@ namespace OCR_API.Services
     {
         public PageResults<T> PreparePaginationResults<T, T2>(GetAllQuery queryParameters, IQueryable<T2> query, IMapper mapper)
         {
-            int resultsToSkip = queryParameters.PageSize * (queryParameters.PageNumber - 1);
-            int resultCount = query.Count();
-            var resultQuery = query.Skip(resultsToSkip).Take(queryParameters.PageSize);
-            var resultDto = resultQuery.Select(f => mapper.Map<T>(f)).ToList();
+            int resultCount;
+            List<T> resultDto;
+            PageResults<T> result;
+            if(queryParameters == null || queryParameters.PageNumber == 0 || queryParameters.PageSize == 0)
+            {
+                resultCount = query.Count();
+                resultDto = query.Select(f => mapper.Map<T>(f)).ToList();
+                result = new PageResults<T>(resultDto, resultCount, resultCount, 1);
+            }
+            else
+            {
+                int resultsToSkip = queryParameters.PageSize * (queryParameters.PageNumber - 1);
+                resultCount = query.Count();
+                var resultQuery = query.Skip(resultsToSkip).Take(queryParameters.PageSize);
+                resultDto = resultQuery.Select(f => mapper.Map<T>(f)).ToList();
+                result = new PageResults<T>(resultDto, resultCount, queryParameters.PageSize, queryParameters.PageNumber);
+            }
 
-            var result = new PageResults<T>(resultDto, resultCount, queryParameters.PageSize, queryParameters.PageNumber);
 
             return result;
         }

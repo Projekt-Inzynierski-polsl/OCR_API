@@ -22,18 +22,18 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery] GetAllQuery queryParameters)
         {
-            var errors = noteWordErrorService.GetAll();
+            var errors = noteWordErrorService.GetAll(queryParameters);
 
             return Ok(errors);
         }
 
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAll(int userId)
+        public ActionResult GetAll(int userId, [FromQuery] GetAllQuery queryParameters)
         {
-            var errors = noteWordErrorService.GetAllForUser(userId);
+            var errors = noteWordErrorService.GetAllForUser(userId, queryParameters);
 
             return Ok(errors);
         }

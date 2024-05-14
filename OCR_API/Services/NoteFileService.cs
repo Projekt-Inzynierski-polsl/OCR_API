@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Newtonsoft.Json;
 using OCR_API.Entities;
+using OCR_API.Enums;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
@@ -26,8 +27,9 @@ namespace OCR_API.Services
     {
         private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
         private const string FILE_EXTENSION = ".png";
-        private const string OCR_MODEL_URL = "http://localhost:8053";
-        private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_file";
+        private string OCR_MODEL_URL = EnvironmentSettings.Environment == EEnvironment.Debug ?
+            "http://localhost:8053" : "http://model-ocr-api:8053";
+        private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
         private readonly UserActionLogger logger;
@@ -88,7 +90,7 @@ namespace OCR_API.Services
                 var imageContent = new StreamContent(imageFile.OpenReadStream());
                 formData.Add(imageContent, "image", imageFile.FileName);
 
-                formData.Add(new StringContent(JsonConvert.SerializeObject(uploadFileDto.BoundingBoxes), Encoding.UTF8, "application/json"), "json");
+                formData.Add(new StringContent(uploadFileDto.BoundingBoxes, Encoding.UTF8, "application/json"), "json");
                 formData.Add(new StringContent(userContextService.GetJwtToken.Result, Encoding.UTF8, "application/json"), "token");
 
                 var response = await httpClient.PostAsync(OCR_MODEL_URL + OCR_MODEL_UPLOAD_FILE_ENDPOINT, formData);

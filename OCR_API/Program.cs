@@ -22,6 +22,7 @@ using OCR_API.Seeders;
 using OCR_API.Services;
 using System.Text;
 using DotNetEnv;
+using OCR_API.Enums;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,7 @@ AuthenticationSettings.JwtKey = Environment.GetEnvironmentVariable("JwtKey");
 AuthenticationSettings.JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays"));
 AuthenticationSettings.JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer");
 CryptographySettings.EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey");
+EnvironmentSettings.Environment = Enum.Parse<EEnvironment>(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
 
 builder.Services.AddAuthentication(option =>
     {
@@ -53,19 +55,17 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<SystemDbContext>(options =>
 {
-    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     string connectionString;
-    switch (environment)
+    switch (EnvironmentSettings.Environment)
     {
-        case "Development":
+        case EEnvironment.Development:
             connectionString = Environment.GetEnvironmentVariable("DevConnection");
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             break;
-        case "Production":
+        case EEnvironment.Production:
             connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
             options.UseSqlServer(connectionString);
             break;
-
         default:
             connectionString = Environment.GetEnvironmentVariable("DebugConnection");
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));

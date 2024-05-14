@@ -30,7 +30,6 @@ var builder = WebApplication.CreateBuilder(args);
 AuthenticationSettings.JwtKey = Environment.GetEnvironmentVariable("JwtKey");
 AuthenticationSettings.JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays"));
 AuthenticationSettings.JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer");
-CryptographySettings.EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey");
 EnvironmentSettings.Environment = Enum.Parse<EEnvironment>(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
 
 builder.Services.AddAuthentication(option =>

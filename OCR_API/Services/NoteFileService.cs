@@ -25,7 +25,7 @@ namespace OCR_API.Services
     }
     public class NoteFileService : INoteFileService
     {
-        private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
+        private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files\\notes";
         private const string FILE_EXTENSION = ".png";
         private string OCR_MODEL_URL = EnvironmentSettings.Environment == EEnvironment.Debug ?
             "http://localhost:8053" : "http://model-ocr-api:5000";
@@ -136,7 +136,7 @@ namespace OCR_API.Services
                 .Select(boundingBoxDto => mapper.Map<BoundingBox>(boundingBoxDto))
                 .ToList();
             NoteFile fileToUpload = new() { BoundingBoxes = boundingBoxes, UserId = userId };
-            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileToUpload);
+            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileToUpload, FILE_EXTENSION);
             uploadNoteFileTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.UploadedFile, userId, DateTime.UtcNow, uploadNoteFileTransaction.FileToUpload.Id);
@@ -148,6 +148,10 @@ namespace OCR_API.Services
             var image = imageCryptographer.ConvertIFormFileToImage(fileImage);
             var encryptedImageWitKey = await imageCryptographer.EncryptImageAsync(image);
             string filePath = Path.Combine(UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileId.ToString() + FILE_EXTENSION);
+            if(!Directory.Exists(UPLOADED_NOTE_FILE_DICTIONARY_PATH))
+            {
+                Directory.CreateDirectory(UPLOADED_NOTE_FILE_DICTIONARY_PATH);
+            }
             await File.WriteAllBytesAsync(filePath, encryptedImageWitKey.Item1);
 
             string hashedKeyString = BitConverter.ToString(encryptedImageWitKey.Item2).Replace("-", "");

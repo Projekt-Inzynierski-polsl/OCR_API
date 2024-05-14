@@ -2,7 +2,10 @@
 {
     public class NoteLineDto
     {
-        public Coords Coordinates { get; set; }
+        public int LeftX { get; set; }
+        public int LeftY { get; set; }
+        public int RightX { get; set; }
+        public int RightY { get; set; }
         public string Content { get; set; }
     }
 }

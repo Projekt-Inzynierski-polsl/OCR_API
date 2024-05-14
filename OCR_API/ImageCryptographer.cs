@@ -7,54 +7,54 @@ namespace OCR_API
 {
     public class ImageCryptographer
     {
-        public async Task<(byte[], byte[])> EncryptImageAsync(Image image)
-        {
-            string encryptionKey = CryptographySettings.EncryptionKey;
+       public async Task<(byte[], byte[])> EncryptImageAsync(Image image)
+       {
+            byte[] imageEncryptionKey;
+            byte[] hashedImageEncryptionKey;
 
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
+                aes.GenerateKey();
+                imageEncryptionKey = aes.Key;
+
                 aes.IV = new byte[aes.BlockSize / 8];
 
-                aes.GenerateKey();
-                byte[] imageEncryptionKey = aes.Key;
-
-                byte[] encryptedImage;
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     image.SaveAsPng(memoryStream);
 
                     memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Read))
+                    using (MemoryStream encryptedMemoryStream = new MemoryStream())
                     {
-                        using (MemoryStream encryptedMemoryStream = new MemoryStream())
+                        using (CryptoStream cryptoStream = new CryptoStream(encryptedMemoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                         {
-                            await cryptoStream.CopyToAsync(encryptedMemoryStream);
-                            encryptedImage = encryptedMemoryStream.ToArray();
+                            await memoryStream.CopyToAsync(cryptoStream);
+                            cryptoStream.FlushFinalBlock();
                         }
+                        return (encryptedMemoryStream.ToArray(), imageEncryptionKey);
                     }
                 }
-
-                byte[] hashedImageEncryptionKey;
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    hashedImageEncryptionKey = sha256.ComputeHash(imageEncryptionKey);
-                }
-
-                return (encryptedImage, hashedImageEncryptionKey);
             }
-        }
-
+       }
         public async Task<byte[]> DecryptImageAsync(byte[] encryptedImage, byte[] hashedImageEncryptionKey)
         {
-            string encryptionKey = CryptographySettings.EncryptionKey;
-
             byte[] decryptedImage;
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
                 aes.IV = new byte[aes.BlockSize / 8];
+
+                using (MemoryStream memoryStream = new MemoryStream(encryptedImage))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                    {
+                        using (MemoryStream decryptedStream = new MemoryStream())
+                        {
+                            await cryptoStream.CopyToAsync(decryptedStream);
+                            decryptedImage = decryptedStream.ToArray();
+                        }
+                    }
+                }
 
                 byte[] decryptedImageEncryptionKey;
                 using (SHA256 sha256 = SHA256.Create())
@@ -63,16 +63,6 @@ namespace OCR_API
                     if (!decryptedImageEncryptionKey.SequenceEqual(hashedImageEncryptionKey))
                     {
                         throw new Exception("Invalid encryption key.");
-                    }
-                }
-
-                using (MemoryStream memoryStream = new MemoryStream(encryptedImage))
-                using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
-                {
-                    using (MemoryStream decryptedStream = new MemoryStream())
-                    {
-                        await cryptoStream.CopyToAsync(decryptedStream);
-                        decryptedImage = decryptedStream.ToArray();
                     }
                 }
             }

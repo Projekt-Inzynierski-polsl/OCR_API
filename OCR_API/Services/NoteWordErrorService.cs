@@ -101,9 +101,9 @@ namespace OCR_API.Services
             {
                 var image = Image.Load<Rgba32>(imageStream);
 
-                int width = addErrorDto.Coordinates.x2 - addErrorDto.Coordinates.x1;
-                int height = addErrorDto.Coordinates.y2 - addErrorDto.Coordinates.y1;
-                var cutArea = new Rectangle(addErrorDto.Coordinates.x1, addErrorDto.Coordinates.y1, width, height);
+                int width = addErrorDto.RightX - addErrorDto.LeftX;
+                int height = addErrorDto.RightY - addErrorDto.LeftY;
+                var cutArea = new Rectangle(addErrorDto.LeftX, addErrorDto.LeftY, width, height);
 
                 image.Mutate(x => x.Crop(cutArea));
                 var uploadedFile = SaveFileInDatabase();
@@ -113,7 +113,7 @@ namespace OCR_API.Services
 
         private ErrorCutFile SaveFileInDatabase()
         {
-            UploadErrorFileTransaction uploadErrorFileTransaction = new UploadErrorFileTransaction(UnitOfWork.ErrorCutFiles, OCR_ERRORS_DIRECTORY_PATH);
+            UploadErrorFileTransaction uploadErrorFileTransaction = new UploadErrorFileTransaction(UnitOfWork.ErrorCutFiles, OCR_ERRORS_DIRECTORY_PATH, FILE_EXTENSION);
             uploadErrorFileTransaction.Execute();
             UnitOfWork.Commit();
             return uploadErrorFileTransaction.FileToUpload;

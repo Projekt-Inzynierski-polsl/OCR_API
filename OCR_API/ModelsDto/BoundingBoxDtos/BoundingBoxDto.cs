@@ -4,7 +4,10 @@ namespace OCR_API.ModelsDto.BoundingBoxDtos
 {
     public class BoundingBoxDto
     {
-        public Coords Coordinates { get; set; }
+        public int LeftX { get; set; }
+        public int LeftY { get; set; }
+        public int RightX { get; set; }
+        public int RightY { get; set; }
         public List<NoteLineDto> Lines { get; set; }
     }
 }

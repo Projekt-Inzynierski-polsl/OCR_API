@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
+using OCR_API.ModelsDto;
 
 namespace OCR_API.Database.Configurations
 {
@@ -14,9 +15,10 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.NoteFileId).HasColumnName("file_id").IsRequired();
-            builder.Property(e => e.Coordinates)
-                   .HasColumnName("coordinates")
-                   .HasDefaultValue("{}");
+            builder.Property(e => e.LeftX).HasColumnName("left_x").IsRequired();
+            builder.Property(e => e.LeftY).HasColumnName("left_y").IsRequired();
+            builder.Property(e => e.RightX).HasColumnName("right_x").IsRequired();
+            builder.Property(e => e.RightY).HasColumnName("right_y").IsRequired();
 
             builder.HasOne(d => d.NoteFile)
                 .WithMany(r => r.BoundingBoxes)

@@ -12,22 +12,18 @@ namespace OCR_API.MappingProfiles
     {
         public NoteFileMappingProfile()
         {
-            CreateMap<NoteFile, NoteFileDto>()
-                .ForMember(dest => dest.BoundingBoxes, opt => opt.MapFrom(src => src.BoundingBoxes
-                .Select(b => new BoundingBoxDto
-                {
-                    Coordinates = JsonConvert.DeserializeObject<Coords>(b.Coordinates),
-                    Lines = b.Lines
-                .Select(l => new NoteLineDto { Content = l.Content, Coordinates = JsonConvert.DeserializeObject<Coords>(l.Coordinates) }).ToList()
-                })));
 
-            CreateMap<NoteFileDto, NoteFile>();
+            CreateMap<NoteFile, NoteFileDto>()
+                .ForMember(dest => dest.BoundingBoxes, opt => opt.MapFrom(src => src.BoundingBoxes));
+
 
             CreateMap<BoundingBoxDto, BoundingBox>();
-            CreateMap<BoundingBox, BoundingBoxDto>();
+            CreateMap<BoundingBox, BoundingBoxDto>()
+                .ForMember(dest => dest.Lines, opt => opt.MapFrom(src => src.Lines));
 
             CreateMap<NoteLine, NoteLineDto>();
             CreateMap<NoteLineDto, NoteLine>();
         }
+   
     }
 }

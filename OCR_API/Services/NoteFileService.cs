@@ -28,7 +28,7 @@ namespace OCR_API.Services
         private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
         private const string FILE_EXTENSION = ".png";
         private string OCR_MODEL_URL = EnvironmentSettings.Environment == EEnvironment.Debug ?
-            "http://localhost:8053" : "http://model-ocr-api:8053";
+            "http://localhost:8053" : "http://model-ocr-api:5000";
         private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
@@ -97,7 +97,7 @@ namespace OCR_API.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseContent = await response.Content.ReadAsStringAsync();
+                    string responseContent = await response.Content.ReadAsStringAsync();
                     var boundingBoxesList = JsonConvert.DeserializeObject<List<BoundingBoxDto>>(responseContent);
                     return boundingBoxesList;
                 }

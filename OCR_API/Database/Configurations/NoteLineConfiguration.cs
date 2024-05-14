@@ -16,7 +16,6 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.BoundingBoxId).HasColumnName("bounding_box_id").IsRequired();
             builder.Property(e => e.Content).HasColumnName("content").IsRequired();
             builder.Property(e => e.Coordinates)
-                   .HasColumnType("nvarchar(max)")
                    .HasColumnName("coordinates")
                    .HasDefaultValue("{}");
 

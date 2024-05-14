@@ -77,8 +77,13 @@ namespace OCR_API.Services
         {
             var userId = userContextService.GetUserId;
             EUserAction[] lastEditedActions = new[] { EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories };
-            var noteIds = UnitOfWork.UserLogs.Entity.Where(f => f.UserId == userId && lastEditedActions.Contains((EUserAction)f.ActionId)).TakeLast(amount).Select(f => f.ObjectId);
-            var notes = UnitOfWork.Notes.Entity.Where(f => noteIds.Contains(f.Id));
+            var actionIds = lastEditedActions.Select(a => (int)a);
+            var noteIds = UnitOfWork.UserLogs.Entity.ToList()
+                .Where(f => f.UserId == userId && actionIds.Contains(f.Id))
+                .TakeLast(amount)
+                .Select(f => f.ObjectId).ToArray();
+
+            var notes = UnitOfWork.Notes.Entity.ToList().Where(f => noteIds.Contains(f.Id)).ToList();
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
 
             return notesDto;

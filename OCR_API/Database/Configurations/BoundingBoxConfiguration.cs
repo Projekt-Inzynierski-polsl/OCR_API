@@ -15,7 +15,6 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.NoteFileId).HasColumnName("file_id").IsRequired();
             builder.Property(e => e.Coordinates)
-                   .HasColumnType("nvarchar(max)")
                    .HasColumnName("coordinates")
                    .HasDefaultValue("{}");
 

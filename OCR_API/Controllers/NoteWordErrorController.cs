@@ -49,8 +49,8 @@ namespace OCR_API.Controllers
         [HttpPost]
         public async Task<ActionResult> ReportErrorAsync([FromBody] AddErrorDto addErrorDto)
         {
-            await noteWordErrorService.AddErrorAsync(addErrorDto);
-            return Created();
+            var error = await noteWordErrorService.AddErrorAsync(addErrorDto);
+            return Created($"api/ocrError/{error.Id}", error);
         }
 
         [HttpDelete("{errorId}")]
@@ -76,6 +76,14 @@ namespace OCR_API.Controllers
             MemoryStream memoryStream = noteWordErrorService.DownloadErrors();
             return File(memoryStream, "application/zip", "errors.zip");
 
+        }
+
+        [HttpPut("{errorId}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AcceptError(int errorId)
+        {
+            noteWordErrorService.AcceptError(errorId);
+            return Ok();
         }
 
     }

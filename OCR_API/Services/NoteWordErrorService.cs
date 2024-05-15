@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
@@ -10,6 +11,7 @@ using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteFileTransactions;
+using OCR_API.Transactions.NoteWordErrorTransactions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -29,10 +31,11 @@ namespace OCR_API.Services
         PageResults<NoteWordErrorDto> GetAll(GetAllQuery queryParameters);
         PageResults<NoteWordErrorDto> GetAllForUser(int userId, GetAllQuery queryParameters);
         NoteWordErrorDto GetById(int errorId);
-        Task AddErrorAsync(AddErrorDto addErrorDto);
+        Task<NoteWordErrorDto> AddErrorAsync(AddErrorDto addErrorDto);
         void DeleteById(int errorId);
         void DeleteAll();
         MemoryStream DownloadErrors();
+        void AcceptError(int errorId);
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -77,7 +80,7 @@ namespace OCR_API.Services
             return errorDto;
         }
 
-        public async Task AddErrorAsync(AddErrorDto addErrorDto)
+        public async Task<NoteWordErrorDto> AddErrorAsync(AddErrorDto addErrorDto)
         {
             var userId = userContextService.GetUserId;
             NoteFile dbFile = UnitOfWork.NoteFiles.GetById(addErrorDto.FileId);
@@ -107,8 +110,23 @@ namespace OCR_API.Services
 
                 image.Mutate(x => x.Crop(cutArea));
                 var uploadedFile = SaveFileInDatabase();
+                var uplaodedError = SaveErrorInDatabase(addErrorDto, uploadedFile.Id, userId);
                 await SaveFileOnServer(image, uploadedFile.Id);
+
+                return mapper.Map<NoteWordErrorDto>(uplaodedError);
             }
+        }
+
+        private NoteWordError SaveErrorInDatabase(AddErrorDto addErrorDto, int fileId, int userId)
+        {
+            NoteWordError errorToAdd = mapper.Map<NoteWordError>(addErrorDto);
+            errorToAdd.FileId = fileId;
+            errorToAdd.UserId = userId;
+            AddErrorTransaction addErrorTransaction = new AddErrorTransaction(UnitOfWork.NoteWordErrors, errorToAdd);
+            addErrorTransaction.Execute();
+            UnitOfWork.Commit();
+            logger.Log(EUserAction.ReportError, userId, DateTime.UtcNow, addErrorTransaction.ErrorToAdd.Id);
+            return addErrorTransaction.ErrorToAdd;
         }
 
         private ErrorCutFile SaveFileInDatabase()
@@ -226,6 +244,15 @@ namespace OCR_API.Services
                 var subDirectoryEntry = folderEntry.Archive.CreateEntry(subDirectoryName + "/");
                 await AddDecryptedImagesToZip(subDirectory, subDirectoryEntry);
             }
+        }
+
+        public void AcceptError(int errorId)
+        {
+            var userId = userContextService.GetUserId;
+            var error = UnitOfWork.NoteWordErrors.GetById(errorId);
+            AcceptErrorTransaction acceptErrorTransaction = new(error);
+            UnitOfWork.Commit();
+            logger.Log(EUserAction.AcceptError, userId, DateTime.UtcNow, errorId);
         }
     }
    

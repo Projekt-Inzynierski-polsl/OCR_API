@@ -16,8 +16,10 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.FileId).HasColumnName("file_id").IsRequired();
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
+            builder.Property(e => e.WrongContent).HasColumnName("wrong_content");
             builder.Property(e => e.CorrectContent).HasColumnName("correct_content");
-        
+            builder.Property(e => e.IsAccepted).HasColumnName("is_accepted");
+
             builder.HasOne(d => d.File)
                 .WithMany(r => r.Errors)
                 .HasForeignKey(d => d.FileId)

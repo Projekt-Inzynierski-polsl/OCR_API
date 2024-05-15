@@ -43,7 +43,7 @@ namespace OCR_API.Services
                 DateTime startDateTime = ConvertTimestampToDateTime(startTimestamp);
                 DateTime endDateTime = ConvertTimestampToDateTime(endTimestamp);
                 var spec = new UserLogByTypeAndDateSpecification(action, startDateTime, endDateTime, userId);
-                var actions = UnitOfWork.UserLogs.GetBySpecification(spec);
+                var actions = UnitOfWork.UserLogs.GetBySpecification(spec).OrderBy(f => f.LogTime);
                 var result = paginationService.PreparePaginationResults<UserLogDto, UserLog>(queryParameters, actions, mapper);
                 return result;
             }

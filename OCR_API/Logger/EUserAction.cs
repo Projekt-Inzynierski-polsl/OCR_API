@@ -31,7 +31,8 @@
         UnshareNote,
         UnshareFolder,
         UploadedFile,
-        CryptographyFile
+        CryptographyFile,
+        AcceptError
 
     }
 }

@@ -92,6 +92,7 @@ namespace OCR_API.Services
 
                 formData.Add(new StringContent(uploadFileDto.BoundingBoxes, Encoding.UTF8, "application/json"), "json");
                 formData.Add(new StringContent(userContextService.GetJwtToken.Result, Encoding.UTF8, "application/json"), "token");
+                formData.Add(new StringContent(EnvironmentSettings.Environment.ToString(), Encoding.UTF8, "application/json"), "environment");
 
                 var response = await httpClient.PostAsync(OCR_MODEL_URL + OCR_MODEL_UPLOAD_FILE_ENDPOINT, formData);
 
@@ -103,7 +104,7 @@ namespace OCR_API.Services
                 }
                 else
                 {
-                    throw new BadRequestException("Model returned unsuccessful code.");
+                    throw new BadRequestException($"Model returned unsuccessful code. {EnvironmentSettings.Environment}");
                 }
             }
         }

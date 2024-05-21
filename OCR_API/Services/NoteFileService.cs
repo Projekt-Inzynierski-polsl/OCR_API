@@ -28,7 +28,7 @@ namespace OCR_API.Services
         private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files\\notes";
         private const string FILE_EXTENSION = ".png";
         private string OCR_MODEL_URL = EnvironmentSettings.ModelEnvironment == EEnvironment.Development ?
-            "http://localhost:8053" : "http://model-ocr-api:5000";
+            "http://localhost:5000" : "http://model-ocr-api:5000";
         private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;

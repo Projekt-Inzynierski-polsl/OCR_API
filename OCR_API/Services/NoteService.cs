@@ -216,12 +216,14 @@ namespace OCR_API.Services
                 MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
                 mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
                 Body body = mainPart.Document.AppendChild(new Body());
+                var para = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+                Run run = para.AppendChild(new Run());
+                run.AppendChild(new Text(note.Name));
                 string[] paragraphs = noteContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
                 foreach (string paragraphText in paragraphs)
                 {
-                    // Dodaj nowy paragraf
-                    var para = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
-                    Run run = para.AppendChild(new Run());
+                    para = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+                    run = para.AppendChild(new Run());
                     run.AppendChild(new Text(paragraphText));
                 }
 
@@ -253,6 +255,7 @@ namespace OCR_API.Services
                 PdfWriter.GetInstance(document, new FileStream(fullFilePath, FileMode.Create));
 
                 document.Open();
+                document.Add(new iTextSharp.text.Paragraph(note.Name));
                 document.Add(new iTextSharp.text.Paragraph(noteContent));
                 document.Close();
             }

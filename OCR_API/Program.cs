@@ -30,6 +30,7 @@ var builder = WebApplication.CreateBuilder(args);
 AuthenticationSettings.JwtKey = Environment.GetEnvironmentVariable("JwtKey");
 AuthenticationSettings.JwtExpireDays = int.Parse(Environment.GetEnvironmentVariable("JwtExpireDays"));
 AuthenticationSettings.JwtIssuer = Environment.GetEnvironmentVariable("JwtIssuer");
+AuthenticationSettings.EncryptionKey = Environment.GetEnvironmentVariable("EncryptionKey");
 EnvironmentSettings.Environment = Enum.Parse<EEnvironment>(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
 EnvironmentSettings.ModelEnvironment = Enum.Parse<EEnvironment>(Environment.GetEnvironmentVariable("MODEL_OCR_API_ENVIRONMENT"));
 

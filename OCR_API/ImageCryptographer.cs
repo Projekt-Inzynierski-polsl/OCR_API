@@ -10,7 +10,6 @@ namespace OCR_API
         public async Task<(byte[], byte[])> EncryptImageAsync(Image image)
         {
             byte[] imageEncryptionKey;
-            byte[] hashedImageEncryptionKey;
 
             using (Aes aes = Aes.Create())
             {
@@ -30,36 +29,32 @@ namespace OCR_API
                         using (CryptoStream cryptoStream = new CryptoStream(encryptedMemoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                         {
                             await memoryStream.CopyToAsync(cryptoStream);
-                            cryptoStream.FlushFinalBlock();
                         }
 
-                        using (SHA256 sha256 = SHA256.Create())
-                        {
-                            hashedImageEncryptionKey = sha256.ComputeHash(imageEncryptionKey);
-                        }
-
-                        return (encryptedMemoryStream.ToArray(), hashedImageEncryptionKey);
+                        return (encryptedMemoryStream.ToArray(), imageEncryptionKey);
                     }
                 }
             }
         }
-        public async Task<byte[]> DecryptImageAsync(byte[] encryptedImage, byte[] hashedImageEncryptionKey)
+
+        public async Task<byte[]> DecryptImageAsync(byte[] encryptedImage, byte[] encryptionKey)
         {
-            if (hashedImageEncryptionKey.Length != 32)
+            if (encryptionKey.Length != 32)
             {
-                throw new ArgumentException("Invalid encryption key length. Key must be 256 bits (32 bytes) long.");
+                throw new ArgumentException("Invalid hashed encryption key length. Key must be 256 bits (32 bytes) long.");
             }
 
             byte[] decryptedImage;
-            byte[] imageEncryptionKey;
 
             using (Aes aes = Aes.Create())
             {
+                aes.Key = encryptionKey;
+
                 using (MemoryStream memoryStream = new MemoryStream(encryptedImage))
                 {
-                    byte[] iv = new byte[aes.BlockSize / 8];
-                    memoryStream.Read(iv, 0, iv.Length);
-                    aes.IV = iv;
+                    byte[] iv = new byte[aes.BlockSize / 8]; // Inicjalizujesz tablicę na IV
+                    memoryStream.Read(iv, 0, iv.Length); // Odczytaj IV z zaszyfrowanego obrazu
+                    aes.IV = iv; // Ustaw IV w obiekcie AES
 
                     using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
                     {
@@ -70,27 +65,16 @@ namespace OCR_API
                         }
                     }
                 }
-
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] computedHashedImageEncryptionKey = sha256.ComputeHash(aes.Key);
-                    if (!computedHashedImageEncryptionKey.SequenceEqual(hashedImageEncryptionKey))
-                    {
-                        throw new Exception("Invalid encryption key.");
-                    }
-                }
             }
 
             return decryptedImage;
         }
-
 
         public Image ConvertIFormFileToImage(IFormFile formFile)
         {
             using (var imageStream = formFile.OpenReadStream())
             {
                 var image = Image.Load(imageStream);
-
                 return image;
             }
         }

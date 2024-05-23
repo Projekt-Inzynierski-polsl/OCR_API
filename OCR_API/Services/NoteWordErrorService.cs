@@ -46,7 +46,7 @@ namespace OCR_API.Services
         private readonly IUserContextService userContextService;
         private readonly ImageCryptographer imageCryptographer;
         private readonly IPaginationService queryParametersService;
-        private const string OCR_ERRORS_DIRECTORY_PATH = "uploaded_files/errors";
+        private const string OCR_ERRORS_DIRECTORY_PATH = "uploaded_files\\errors";
         private const string FILE_EXTENSION = ".png";
 
         public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
@@ -89,12 +89,10 @@ namespace OCR_API.Services
                 throw new BadRequestException("Cannot access to this file.");
             }
 
-            var hashedKeyString = dbFile.HashedKey;
-            hashedKeyString = hashedKeyString.Replace("-", "");
-            byte[] hashedKeyBytes = Enumerable.Range(0, hashedKeyString.Length)
-                                   .Where(x => x % 2 == 0)
-                                   .Select(x => Convert.ToByte(hashedKeyString.Substring(x, 2), 16))
-                                   .ToArray();
+            var hashedKeyString = dbFile.HashedKey.Trim().Replace("-", "");
+            byte[] hashedKeyBytes = Enumerable.Range(0, hashedKeyString.Length / 2)
+                .Select(x => Convert.ToByte(hashedKeyString.Substring(x * 2, 2), 16))
+                .ToArray();
 
 
             var encryptedImage = File.ReadAllBytes(dbFile.Path);
@@ -140,6 +138,10 @@ namespace OCR_API.Services
         private async Task SaveFileOnServer(Image image, int fileId)
         {
             var encryptedImageWitKey = await imageCryptographer.EncryptImageAsync(image);
+            if(!Directory.Exists(OCR_ERRORS_DIRECTORY_PATH))
+            {
+                Directory.CreateDirectory(OCR_ERRORS_DIRECTORY_PATH);
+            }
             string filePath = Path.Combine(OCR_ERRORS_DIRECTORY_PATH, fileId.ToString() + FILE_EXTENSION);
             await File.WriteAllBytesAsync(filePath, encryptedImageWitKey.Item1);
 

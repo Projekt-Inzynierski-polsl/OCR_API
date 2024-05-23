@@ -23,6 +23,11 @@ namespace OCR_API.MappingProfiles
 
             CreateMap<NoteLine, NoteLineDto>();
             CreateMap<NoteLineDto, NoteLine>();
+
+            CreateMap<NoteWordError, NoteWordErrorDto>();
+            CreateMap<NoteWordErrorDto, NoteWordError>();
+            CreateMap<AddErrorDto, NoteWordError>();
+            CreateMap<NoteWordError, AddErrorDto>();
         }
    
     }

@@ -8,6 +8,7 @@ namespace OCR_API.ModelsDto
         public string Name { get; set; }
         public string IconPath { get; set; }
         public bool HasPassword { get; set; }
-        public virtual ICollection<Note> Notes { get; set; } = new List<Note>();
+        public virtual ICollection<NoteDto> Notes { get; set; } = new List<NoteDto>();
+        public virtual ICollection<SharedDto> SharedObjects { get; set; } = new List<SharedDto>();
     }
 }

@@ -25,8 +25,8 @@ namespace OCR_API.Services
     }
     public class NoteFileService : INoteFileService
     {
-        private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files\\notes";
-        private const string FILE_EXTENSION = ".png";
+        private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
+        private string[] ALLOWED_FILE_EXTENSIONS = [".png", ".jpg"];
         private string OCR_MODEL_URL = EnvironmentSettings.ModelEnvironment == EEnvironment.Development ?
             "http://localhost:8053" : "http://model-ocr-api:5000";
         private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
@@ -116,12 +116,12 @@ namespace OCR_API.Services
                 var fileName = Path.GetFileName(image.FileName);
 
                 var fileExtension = Path.GetExtension(fileName);
-                if (fileExtension != FILE_EXTENSION)
+                if (!ALLOWED_FILE_EXTENSIONS.Contains(fileExtension))
                 {
                     throw new BadRequestException("Wrong file extension");
                 }
-                var uploadedFile = SaveFileInDatabase(boundingBoxes);
-                await SaveFileOnServer(image, uploadedFile.Id);
+                var uploadedFile = SaveFileInDatabase(boundingBoxes, fileExtension);
+                await SaveFileOnServer(image, uploadedFile.Id, fileExtension);
                 return uploadedFile;
             }
             else
@@ -130,25 +130,25 @@ namespace OCR_API.Services
             }
         }
 
-        private NoteFile SaveFileInDatabase(List<BoundingBoxDto> boundingBoxesDto)
+        private NoteFile SaveFileInDatabase(List<BoundingBoxDto> boundingBoxesDto, string fileExtension)
         {
             var userId = userContextService.GetUserId;
             List<BoundingBox> boundingBoxes = boundingBoxesDto
                 .Select(boundingBoxDto => mapper.Map<BoundingBox>(boundingBoxDto))
                 .ToList();
             NoteFile fileToUpload = new() { BoundingBoxes = boundingBoxes, UserId = userId };
-            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileToUpload, FILE_EXTENSION);
+            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileToUpload, fileExtension);
             uploadNoteFileTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.UploadedFile, userId, DateTime.UtcNow, uploadNoteFileTransaction.FileToUpload.Id);
             return uploadNoteFileTransaction.FileToUpload;
         }
 
-        private async Task SaveFileOnServer(IFormFile fileImage, int fileId)
+        private async Task SaveFileOnServer(IFormFile fileImage, int fileId, string fileExtension)
         {
             var image = imageCryptographer.ConvertIFormFileToImage(fileImage);
             var encryptedImageWitKey = await imageCryptographer.EncryptImageAsync(image);
-            string filePath = Path.Combine(UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileId.ToString() + FILE_EXTENSION);
+            string filePath = Path.Combine(UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileId.ToString() + fileExtension);
             if(!Directory.Exists(UPLOADED_NOTE_FILE_DICTIONARY_PATH))
             {
                 Directory.CreateDirectory(UPLOADED_NOTE_FILE_DICTIONARY_PATH);

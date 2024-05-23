@@ -19,9 +19,18 @@ namespace OCR_API.Transactions.UserTransactions
         public void Execute()
         {
             User userToUpdate = repository.GetById(userId);
-            userToUpdate.Email = updatedUser.Email;
-            userToUpdate.Nickname = updatedUser.Nickname;
-            userToUpdate.RoleId = updatedUser.RoleId;
+            if(updatedUser.Email is not null)
+            {
+                userToUpdate.Email = updatedUser.Email;
+            }
+            if (updatedUser.Nickname is not null)
+            {
+                userToUpdate.Nickname = updatedUser.Nickname;
+            }
+            if (updatedUser.RoleId != default)
+            {
+                userToUpdate.RoleId = updatedUser.RoleId;
+            }
             if(updatedUser.PasswordHash != null)
             {
                 userToUpdate.PasswordHash = updatedUser.PasswordHash;

@@ -34,15 +34,6 @@ namespace OCR_API.ModelsDto.Validators
                     }
                 });
 
-            RuleFor(x => x.Password)
-                .Custom((value, context) =>
-                {
-                    if (value != null && value.Length<6)
-                    {
-                        context.AddFailure("Password", "Wrong password");
-                    }
-                });
-
             RuleFor(x => x.RoleId)
                 .Custom((value, context) =>
                 {

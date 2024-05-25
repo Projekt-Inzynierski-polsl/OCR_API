@@ -1,6 +1,6 @@
 ﻿using OCR_API.Enums;
 
-namespace OCR_API.ModelsDto
+namespace OCR_API.ModelsDto.SharedDtos
 {
     public class SharedObjectDto
     {

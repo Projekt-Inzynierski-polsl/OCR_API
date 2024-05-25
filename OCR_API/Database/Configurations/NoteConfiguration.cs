@@ -20,7 +20,6 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.NoteFileId).HasColumnName("file_id").IsRequired();
             builder.Property(e => e.Name).HasColumnName("name").IsRequired();
             builder.Property(e => e.Content).HasColumnName("content");
-            builder.Property(e => e.IsPrivate).HasColumnName("is_private");
 
             builder.HasOne(d => d.User)
                 .WithMany(r => r.Notes)

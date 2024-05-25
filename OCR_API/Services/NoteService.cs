@@ -83,7 +83,7 @@ namespace OCR_API.Services
                 .TakeLast(amount)
                 .Select(f => f.ObjectId).ToArray();
 
-            var notes = UnitOfWork.Notes.Entity.ToList().Where(f => noteIds.Contains(f.Id)).ToList();
+            var notes = UnitOfWork.Notes.Entity.AsEnumerable().Where(f => noteIds.Contains(f.Id)).ToList();
             var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
 
             return notesDto;
@@ -132,7 +132,7 @@ namespace OCR_API.Services
 
             if (ResourceOperationAccess.CanEdit(noteToUpdate, userId))
             {
-                UpdateNoteTransaction updateNoteTransaction = new(noteToUpdate, updateNoteDto.Name, updateNoteDto.Content, updateNoteDto.IsPrivate);
+                UpdateNoteTransaction updateNoteTransaction = new(noteToUpdate, updateNoteDto.Name, updateNoteDto.Content);
                 updateNoteTransaction.Execute();
                 UnitOfWork.Commit();
                 logger.Log(EUserAction.UpdateNote, userId, DateTime.UtcNow, noteId);

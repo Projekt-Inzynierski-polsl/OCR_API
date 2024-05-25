@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OCR_API.ModelsDto;
+using OCR_API.ModelsDto.SharedDtos;
 using OCR_API.Services;
 
 namespace OCR_API.Controllers
@@ -30,6 +30,20 @@ namespace OCR_API.Controllers
         {
             var notes = sharedService.GetAllNotesByUserId();
             return Ok(notes);
+        }
+
+        [HttpGet("folder/{folderId}")]
+        public ActionResult GetInformationAboutSharedFolder(int folderId)
+        {
+            var shares = sharedService.GetInformationAboutSharedFolder(folderId);
+            return Ok(shares);
+        }
+
+        [HttpGet("note/{noteId}")]
+        public ActionResult GetInformationAboutSharedNote(int noteId)
+        {
+            var shares = sharedService.GetInformationAboutSharedNote(noteId);
+            return Ok(shares);
         }
 
         [HttpPost("folder")]

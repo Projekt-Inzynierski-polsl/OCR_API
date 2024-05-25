@@ -8,7 +8,6 @@ namespace OCR_API.ModelsDto
         public int NoteFileId { get; set; }
         public string Name { get; set; }
         public string Content { get; set; } = string.Empty;
-        public bool IsPrivate { get; set; } = false;
 
         public int[] CategoriesIds { get; set; }
     }

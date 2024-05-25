@@ -11,7 +11,6 @@ namespace OCR_API.Entities
         public int? FolderId { get; set; } = null;
         public int NoteFileId { get; set; }
         public string Content { get; set; }
-        public bool IsPrivate { get; set; }
 
         public virtual User User { get; set; }
         public virtual Folder? Folder { get; set; } = null;

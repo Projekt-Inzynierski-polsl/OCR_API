@@ -4,20 +4,23 @@ using OCR_API.Entities;
 using OCR_API.Enums;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
-using OCR_API.ModelsDto;
+using OCR_API.ModelsDto.SharedDtos;
 using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.FolderTransactions;
 using OCR_API.Transactions.SharedTransactions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace OCR_API.Services
 {
     public interface ISharedService
     {
         IUnitOfWork UnitOfWork { get; }
-        IEnumerable<FolderDto> GetAllFoldersByUserId();
-        IEnumerable<NoteDto> GetAllNotesByUserId();
+        IEnumerable<SharedDto> GetAllFoldersByUserId();
+        IEnumerable<SharedDto> GetAllNotesByUserId();
+        IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedFolder(int folderId);
+        IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedNote(int noteId);
         void ShareFolder(SharedObjectDto sharedObjectDto);
         void ShareNote(SharedObjectDto sharedObjectDto);
         void UnshareFolder(SharedObjectDto sharedObjectDto);
@@ -42,26 +45,50 @@ namespace OCR_API.Services
             this.userContextService = userContextService;
         }
 
-        public IEnumerable<FolderDto> GetAllFoldersByUserId()
+        public IEnumerable<SharedDto> GetAllFoldersByUserId()
         {
             var userId = userContextService.GetUserId;
 
             var spec = new SharedFoldersWithNotesSpecification(userId);
-            var folders = UnitOfWork.Shared.GetBySpecification(spec);
-            var foldersDto = folders.Select(f => mapper.Map<FolderDto>(f)).ToList();
+            var shares = UnitOfWork.Shared.GetBySpecification(spec);
+            var sharesDto = shares.Select(mapper.Map<SharedDto>).ToList();
 
-            return foldersDto;
+            return sharesDto;
         }
 
-        public IEnumerable<NoteDto> GetAllNotesByUserId()
+        public IEnumerable<SharedDto> GetAllNotesByUserId()
         {
             var userId = userContextService.GetUserId;
 
             var spec = new SharedNotesWithFileAndCategoriesSpecification(userId);
-            var notes = UnitOfWork.Shared.GetBySpecification(spec);
-            var notesDto = notes.Select(f => mapper.Map<NoteDto>(f)).ToList();
+            var shares = UnitOfWork.Shared.GetBySpecification(spec);
+            var sharesDto = shares.Select(mapper.Map<SharedDto>).ToList();
 
-            return notesDto;
+            return sharesDto;
+        }
+
+        public IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedFolder(int folderId)
+        {
+            var userId = userContextService.GetUserId;
+            var folder = GetFolderIfBelongsToUser(userId, folderId);
+
+            var spec = new SharesByFolderIdSpecification(folderId);
+            var shares = UnitOfWork.Shared.GetBySpecification(spec);
+
+            var sharesInformationDto = shares.Select(f => new SharedObjectInformationDto() { ObjectId = folderId, ShareToEmail = f.User.Email, Mode = (EShareMode)f.Mode.Id }).ToList();
+            return sharesInformationDto;
+        }
+
+        public IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedNote(int noteId)
+        {
+            var userId = userContextService.GetUserId;
+            var note = GetNoteIfBelongsToUser(userId, noteId);
+
+            var spec = new SharesByNoteIdSpecification(noteId);
+            var shares = UnitOfWork.Shared.GetBySpecification(spec);
+
+            var sharesInformationDto = shares.Select(f => new SharedObjectInformationDto() { ObjectId = noteId, ShareToEmail = f.User.Email, Mode = (EShareMode)f.Mode.Id }).ToList();
+            return sharesInformationDto;
         }
 
         public void ShareFolder(SharedObjectDto sharedObjectDto)
@@ -80,6 +107,11 @@ namespace OCR_API.Services
                     throw new BadRequestException("Invalid password.");
                 }
             }
+            bool isAlreadyShared = UnitOfWork.Shared.GetAllByUser((int)shareUserId).Any(f => f.FolderId == sharedObjectDto.ObjectId) || UnitOfWork.Shared.GetAll().Any(f => f.FolderId == sharedObjectDto.ObjectId && f.UserId is null);
+            if (isAlreadyShared)
+            {
+                throw new BadRequestException("That object is already shared.");
+            }
             ShareTransaction shareFolderTransaction = new ShareFolderTransaction(UnitOfWork.Shared, shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
             shareFolderTransaction.Execute();
             UnitOfWork.Commit();
@@ -90,6 +122,11 @@ namespace OCR_API.Services
         {
             GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Note Note = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
+            bool isAlreadyShared = UnitOfWork.Shared.GetAllByUser((int)shareUserId).Any(f => f.NoteId == sharedObjectDto.ObjectId) || UnitOfWork.Shared.GetAll().Any(f => f.NoteId == sharedObjectDto.ObjectId && f.UserId is null);
+            if (isAlreadyShared)
+            {
+                throw new BadRequestException("That object is already shared.");
+            }
             ShareTransaction shareNoteTransaction = new ShareNoteTransaction(UnitOfWork.Shared, shareUserId, sharedObjectDto.ObjectId, sharedObjectDto.ShareMode);
             shareNoteTransaction.Execute();
             UnitOfWork.Commit();

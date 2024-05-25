@@ -76,10 +76,10 @@ namespace OCR_API.Services
         public IEnumerable<NoteDto> GetLastEdited(int amount)
         {
             var userId = userContextService.GetUserId;
-            EUserAction[] lastEditedActions = new[] { EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories };
+            EUserAction[] lastEditedActions = [EUserAction.CreateNote, EUserAction.UpdateNote, EUserAction.ChangeNoteFolder, EUserAction.UpdateNoteCategories];
             var actionIds = lastEditedActions.Select(a => (int)a);
             var noteIds = UnitOfWork.UserLogs.Entity.ToList()
-                .Where(f => f.UserId == userId && actionIds.Contains(f.Id))
+                .Where(f => f.UserId == userId && actionIds.Contains(f.ActionId))
                 .TakeLast(amount)
                 .Select(f => f.ObjectId).ToArray();
 

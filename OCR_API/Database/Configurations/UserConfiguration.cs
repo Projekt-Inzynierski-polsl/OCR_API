@@ -70,12 +70,14 @@ namespace OCR_API.Database.Configurations
             builder.HasMany(f => f.SharedObjects)
                 .WithOne(u => u.User)
                 .HasForeignKey(user => user.UserId)
-                .HasConstraintName("shared_objects_ibfk_1");
+                .HasConstraintName("shared_objects_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(f => f.NoteFiles)
                 .WithOne(u => u.User)
                 .HasForeignKey(user => user.UserId)
-                .HasConstraintName("note_files_ibfk_1");
+                .HasConstraintName("note_files_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

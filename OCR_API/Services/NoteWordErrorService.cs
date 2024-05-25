@@ -253,6 +253,7 @@ namespace OCR_API.Services
             var userId = userContextService.GetUserId;
             var error = UnitOfWork.NoteWordErrors.GetById(errorId);
             AcceptErrorTransaction acceptErrorTransaction = new(error);
+            acceptErrorTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.AcceptError, userId, DateTime.UtcNow, errorId);
         }

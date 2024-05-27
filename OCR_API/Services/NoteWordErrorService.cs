@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
@@ -19,8 +20,6 @@ using SixLabors.ImageSharp.Processing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using static iTextSharp.text.pdf.codec.TiffWriter;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OCR_API.Services
 {
@@ -36,6 +35,7 @@ namespace OCR_API.Services
         void DeleteAll();
         MemoryStream DownloadErrors();
         void AcceptError(int errorId);
+        Task<byte[]> GetFileById(int errorId);
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -256,6 +256,23 @@ namespace OCR_API.Services
             acceptErrorTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.AcceptError, userId, DateTime.UtcNow, errorId);
+        }
+
+        public async Task<byte[]> GetFileById(int errorId)
+        {
+            NoteWordError error = UnitOfWork.NoteWordErrors.GetById(errorId);
+            int fileId = error.FileId;
+            ErrorCutFile errorFile = UnitOfWork.ErrorCutFiles.GetById(fileId);
+            var hashedKeyString = errorFile.HashedKey;
+            hashedKeyString = hashedKeyString.Replace("-", "");
+            byte[] hashedKeyBytes = Enumerable.Range(0, hashedKeyString.Length)
+                                 .Where(x => x % 2 == 0)
+                                 .Select(x => Convert.ToByte(hashedKeyString.Substring(x, 2), 16))
+                                 .ToArray();
+            var encryptedImage = File.ReadAllBytes(errorFile.Path);
+            var decryptedImage = await imageCryptographer.DecryptImageAsync(encryptedImage, hashedKeyBytes);
+
+            return decryptedImage;
         }
     }
    

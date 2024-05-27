@@ -46,6 +46,14 @@ namespace OCR_API.Controllers
             return Ok(error);
         }
 
+        [HttpGet("{errorId}/file")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> GetFileById(int errorId)
+        {
+            var file = await noteWordErrorService.GetFileById(errorId);
+            return Ok(file);
+        }
+
         [HttpPost]
         public async Task<ActionResult> ReportErrorAsync([FromBody] AddErrorDto addErrorDto)
         {

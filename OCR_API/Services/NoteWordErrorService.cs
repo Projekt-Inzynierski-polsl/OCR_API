@@ -14,12 +14,19 @@ using OCR_API.Transactions;
 using OCR_API.Transactions.NoteFileTransactions;
 using OCR_API.Transactions.NoteWordErrorTransactions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.IO;
+using iTextSharp.text.pdf.qrcode;
+using System.Collections;
+using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace OCR_API.Services
 {
@@ -35,7 +42,7 @@ namespace OCR_API.Services
         void DeleteAll();
         MemoryStream DownloadErrors();
         void AcceptError(int errorId);
-        Task<byte[]> GetFileById(int errorId);
+        Task<string> GetFileById(int errorId);
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -258,7 +265,7 @@ namespace OCR_API.Services
             logger.Log(EUserAction.AcceptError, userId, DateTime.UtcNow, errorId);
         }
 
-        public async Task<byte[]> GetFileById(int errorId)
+        public async Task<string> GetFileById(int errorId)
         {
             NoteWordError error = UnitOfWork.NoteWordErrors.GetById(errorId);
             int fileId = error.FileId;
@@ -271,8 +278,16 @@ namespace OCR_API.Services
                                  .ToArray();
             var encryptedImage = File.ReadAllBytes(errorFile.Path);
             var decryptedImage = await imageCryptographer.DecryptImageAsync(encryptedImage, hashedKeyBytes);
+            var directoryPath = "./wwwroot";
+            using (MemoryStream ms = new MemoryStream(decryptedImage))
+            {
+                using (Image<Rgba32> image = Image.Load<Rgba32>(ms))
+                {
+                    image.Save($"{directoryPath}/{fileId}.png", new PngEncoder());
+                }
+            }
 
-            return decryptedImage;
+            return $"/{fileId}.docx";
         }
     }
    

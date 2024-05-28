@@ -107,7 +107,8 @@ namespace OCR_API.Services
                     throw new BadRequestException("Invalid password.");
                 }
             }
-            bool isAlreadyShared = UnitOfWork.Shared.GetAllByUser((int)shareUserId).Any(f => f.FolderId == sharedObjectDto.ObjectId) || UnitOfWork.Shared.GetAll().Any(f => f.FolderId == sharedObjectDto.ObjectId && f.UserId is null);
+            bool isAlreadyShared = (shareUserId != null && UnitOfWork.Shared.GetAllByUser(shareUserId.Value).Any(f => f.FolderId == sharedObjectDto.ObjectId)) 
+                || UnitOfWork.Shared.GetAll().Any(f => f.FolderId == sharedObjectDto.ObjectId && f.UserId is null);
             if (isAlreadyShared)
             {
                 throw new BadRequestException("That object is already shared.");
@@ -122,7 +123,8 @@ namespace OCR_API.Services
         {
             GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Note Note = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
-            bool isAlreadyShared = UnitOfWork.Shared.GetAllByUser((int)shareUserId).Any(f => f.NoteId == sharedObjectDto.ObjectId) || UnitOfWork.Shared.GetAll().Any(f => f.NoteId == sharedObjectDto.ObjectId && f.UserId is null);
+            bool isAlreadyShared = (shareUserId != null && UnitOfWork.Shared.GetAllByUser(shareUserId.Value).Any(f => f.NoteId == sharedObjectDto.ObjectId))
+                || UnitOfWork.Shared.GetAll().Any(f => f.NoteId == sharedObjectDto.ObjectId && f.UserId is null);
             if (isAlreadyShared)
             {
                 throw new BadRequestException("That object is already shared.");
@@ -212,7 +214,12 @@ namespace OCR_API.Services
                 throw new BadRequestException("Wrong share mode.");
             }
             userId = userContextService.GetUserId;
-            shareUserId = string.IsNullOrEmpty(sharedObjectDto.Email) ? null : UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
+            if (string.IsNullOrEmpty(sharedObjectDto.Email))
+            {
+                shareUserId = null;
+                return;
+            }
+            shareUserId = UnitOfWork.Users.Entity.FirstOrDefault(u => u.Email == sharedObjectDto.Email)?.Id;
             if (shareUserId == null && !string.IsNullOrEmpty(sharedObjectDto.Email))
             {
                 throw new BadRequestException("That user doesn't exist.");

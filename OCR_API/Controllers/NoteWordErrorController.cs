@@ -50,10 +50,13 @@ namespace OCR_API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> GetFileById(int errorId)
         {
-            string link = await noteWordErrorService.GetFileById(errorId);
-            var baseUri = $"{Request.Scheme}://{Request.Host}";
-            var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
-            return Ok(fileUrl);
+            byte[] fileData = await noteWordErrorService.GetFileById(errorId);
+            if (fileData == null || fileData.Length == 0)
+            {
+                return NotFound();
+            }
+
+            return File(fileData, "image/png");
         }
 
         [HttpPost]

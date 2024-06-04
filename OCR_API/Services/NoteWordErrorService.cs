@@ -42,7 +42,7 @@ namespace OCR_API.Services
         void DeleteAll();
         MemoryStream DownloadErrors();
         void AcceptError(int errorId);
-        Task<string> GetFileById(int errorId);
+        Task<byte[]> GetFileById(int errorId);
     }
 
     public class NoteWordErrorService : INoteWordErrorService
@@ -269,7 +269,7 @@ namespace OCR_API.Services
             logger.Log(EUserAction.AcceptError, userId, DateTime.UtcNow, errorId);
         }
 
-        public async Task<string> GetFileById(int errorId)
+        public async Task<byte[]> GetFileById(int errorId)
         {
             NoteWordError error = UnitOfWork.NoteWordErrors.GetById(errorId);
             int fileId = error.FileId;
@@ -277,21 +277,13 @@ namespace OCR_API.Services
             var hashedKeyString = errorFile.HashedKey;
             hashedKeyString = hashedKeyString.Replace("-", "");
             byte[] hashedKeyBytes = Enumerable.Range(0, hashedKeyString.Length)
-                                 .Where(x => x % 2 == 0)
-                                 .Select(x => Convert.ToByte(hashedKeyString.Substring(x, 2), 16))
-                                 .ToArray();
-            var encryptedImage = File.ReadAllBytes(errorFile.Path);
+                                     .Where(x => x % 2 == 0)
+                                     .Select(x => Convert.ToByte(hashedKeyString.Substring(x, 2), 16))
+                                     .ToArray();
+            var encryptedImage = await File.ReadAllBytesAsync(errorFile.Path);
             var decryptedImage = await imageCryptographer.DecryptImageAsync(encryptedImage, hashedKeyBytes);
-            var directoryPath = "./wwwroot";
-            using (MemoryStream ms = new MemoryStream(decryptedImage))
-            {
-                using (Image<Rgba32> image = Image.Load<Rgba32>(ms))
-                {
-                    image.Save($"{directoryPath}/{fileId}.png", new PngEncoder());
-                }
-            }
 
-            return $"/{fileId}.docx";
+            return decryptedImage;
         }
     }
    

@@ -53,7 +53,7 @@ namespace OCR_API.Services
         private readonly IUserContextService userContextService;
         private readonly ImageCryptographer imageCryptographer;
         private readonly IPaginationService queryParametersService;
-        private const string OCR_ERRORS_DIRECTORY_PATH = "uploaded_files\\errors";
+        private const string OCR_ERRORS_DIRECTORY_PATH = "uploaded_files/errors";
         private const string FILE_EXTENSION = ".png";
 
         public NoteWordErrorService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,

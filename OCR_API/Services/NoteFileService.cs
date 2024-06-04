@@ -136,7 +136,7 @@ namespace OCR_API.Services
             List<BoundingBox> boundingBoxes = boundingBoxesDto
                 .Select(boundingBoxDto => mapper.Map<BoundingBox>(boundingBoxDto))
                 .ToList();
-            NoteFile fileToUpload = new() { BoundingBoxes = boundingBoxes, UserId = userId };
+            NoteFile fileToUpload = new() { BoundingBoxes = boundingBoxes, UserId = userId, Path = "" };
             UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, fileToUpload);
             uploadNoteFileTransaction.Execute();
             UnitOfWork.Commit();

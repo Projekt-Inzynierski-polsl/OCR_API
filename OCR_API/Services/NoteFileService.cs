@@ -137,8 +137,12 @@ namespace OCR_API.Services
                 .Select(boundingBoxDto => mapper.Map<BoundingBox>(boundingBoxDto))
                 .ToList();
             NoteFile fileToUpload = new() { BoundingBoxes = boundingBoxes, UserId = userId };
-            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileToUpload, fileExtension);
+            UploadNoteFileTransaction uploadNoteFileTransaction = new UploadNoteFileTransaction(UnitOfWork.NoteFiles, fileToUpload);
             uploadNoteFileTransaction.Execute();
+            UnitOfWork.Commit();
+            var file = UnitOfWork.NoteFiles.GetById(uploadNoteFileTransaction.FileToUpload.Id);
+            string filePath = Path.Combine(UPLOADED_NOTE_FILE_DICTIONARY_PATH, uploadNoteFileTransaction.FileToUpload.Id.ToString() + fileExtension);
+            file.Path = filePath;
             UnitOfWork.Commit();
             logger.Log(EUserAction.UploadedFile, userId, DateTime.UtcNow, uploadNoteFileTransaction.FileToUpload.Id);
             return uploadNoteFileTransaction.FileToUpload;

@@ -136,10 +136,14 @@ namespace OCR_API.Services
 
         private ErrorCutFile SaveFileInDatabase()
         {
-            UploadErrorFileTransaction uploadErrorFileTransaction = new UploadErrorFileTransaction(UnitOfWork.ErrorCutFiles, OCR_ERRORS_DIRECTORY_PATH, FILE_EXTENSION);
+            UploadErrorFileTransaction uploadErrorFileTransaction = new UploadErrorFileTransaction(UnitOfWork.ErrorCutFiles);
             uploadErrorFileTransaction.Execute();
             UnitOfWork.Commit();
-            return uploadErrorFileTransaction.FileToUpload;
+            var file = UnitOfWork.ErrorCutFiles.GetById(uploadErrorFileTransaction.FileToUpload.Id);
+            string filePath = Path.Combine(OCR_ERRORS_DIRECTORY_PATH, uploadErrorFileTransaction.FileToUpload.Id.ToString() + FILE_EXTENSION);
+            file.Path = filePath;
+            UnitOfWork.Commit();
+            return file;
         }
 
         private async Task SaveFileOnServer(Image image, int fileId)

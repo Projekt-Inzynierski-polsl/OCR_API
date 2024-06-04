@@ -145,7 +145,7 @@ namespace OCR_API.Services
             file.Path = filePath;
             UnitOfWork.Commit();
             logger.Log(EUserAction.UploadedFile, userId, DateTime.UtcNow, uploadNoteFileTransaction.FileToUpload.Id);
-            return uploadNoteFileTransaction.FileToUpload;
+            return file;
         }
 
         private async Task SaveFileOnServer(IFormFile fileImage, int fileId, string fileExtension)

@@ -6,23 +6,16 @@ namespace OCR_API.Transactions.NoteWordErrorTransactions
     public class UploadErrorFileTransaction : ITransaction
     {
         private readonly IRepository<ErrorCutFile> repository;
-        private readonly string path;
-        private readonly string fileExtension;
         public ErrorCutFile FileToUpload;
 
-        public UploadErrorFileTransaction(IRepository<ErrorCutFile> repository, string path, string fileExtension)
+        public UploadErrorFileTransaction(IRepository<ErrorCutFile> repository)
         {
             this.repository = repository;
-            this.path = path;
-            this.fileExtension = fileExtension;
         }
 
         public void Execute()
         {
-            FileToUpload = new ErrorCutFile();
-            int nextId = repository.Entity.Count() + 1;
-            string filePath = Path.Combine(path, nextId.ToString() + fileExtension);
-            FileToUpload.Path = filePath;
+            FileToUpload = new ErrorCutFile() { Path = "" };
             repository.Add(FileToUpload);
         }
     }

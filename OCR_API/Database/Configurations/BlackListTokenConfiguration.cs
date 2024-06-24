@@ -15,6 +15,7 @@ namespace OCR_API.Database.Configurations
 
             builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
             builder.Property(e => e.Token).HasColumnName("token").IsRequired();
+            builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 
             builder.HasOne(d => d.User)
               .WithMany(r => r.BlackListedTokens)

@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OCR_API.Services;
 using OCR_API.ModelsDto;
-using Microsoft.AspNetCore.Authentication;
+using OCR_API.Services;
 
 namespace OCR_API.Controllers
 {
@@ -20,14 +19,13 @@ namespace OCR_API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAll([FromQuery]GetAllQuery queryParameters)
+        public ActionResult GetAll([FromQuery] GetAllQuery queryParameters)
         {
             var users = userService.GetAll(queryParameters);
             return Ok(users);
         }
 
         [HttpGet("{userId}")]
-
         public ActionResult GetById(int userId)
         {
             var user = userService.GetById(userId);
@@ -35,13 +33,11 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet("logged")]
-
         public ActionResult GetLoggedUserAsync()
         {
             var user = userService.GetLoggedUser();
             return Ok(user);
         }
-
 
         [HttpPut("{userId}")]
         [Authorize(Roles = "Admin")]

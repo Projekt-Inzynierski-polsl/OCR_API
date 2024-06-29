@@ -14,17 +14,17 @@ namespace OCR_API.Transactions.NoteCategoriesTransactions
             this.newName = newName;
             this.newColor = newColor;
         }
+
         public void Execute()
         {
-            if(newName is not null)
+            if (newName is not null)
             {
                 noteCategoryToUpdate.Name = newName;
             }
-            if(newColor is not null)
+            if (newColor is not null)
             {
                 noteCategoryToUpdate.HexColor = newColor;
             }
-
         }
     }
 }

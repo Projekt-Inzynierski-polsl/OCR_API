@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
@@ -20,7 +19,7 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAllByUser([FromQuery]GetAllQuery queryParameters)
+        public ActionResult GetAllByUser([FromQuery] GetAllQuery queryParameters)
         {
             var categories = noteCategoriesService.GetAllByUser(queryParameters);
             return Ok(categories);

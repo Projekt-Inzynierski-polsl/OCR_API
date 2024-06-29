@@ -1,6 +1,5 @@
 ﻿using OCR_API.Entities;
 using OCR_API.Repositories;
-using System.Transactions;
 
 namespace OCR_API.Transactions.UserTransactions
 {

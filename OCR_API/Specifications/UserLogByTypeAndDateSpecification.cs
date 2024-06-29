@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OCR_API.Entities;
+﻿using OCR_API.Entities;
 using OCR_API.Logger;
 using System.Linq.Expressions;
 

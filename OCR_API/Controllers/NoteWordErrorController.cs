@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
-using System.Text;
 
 namespace OCR_API.Controllers
 {
-
     [Route("api/ocrError")]
     [ApiController]
     [Authorize]
@@ -88,7 +85,6 @@ namespace OCR_API.Controllers
         {
             MemoryStream memoryStream = noteWordErrorService.DownloadErrors();
             return File(memoryStream, "application/zip", "errors.zip");
-
         }
 
         [HttpPut("{errorId}")]
@@ -98,6 +94,5 @@ namespace OCR_API.Controllers
             noteWordErrorService.AcceptError(errorId);
             return Ok();
         }
-
     }
 }

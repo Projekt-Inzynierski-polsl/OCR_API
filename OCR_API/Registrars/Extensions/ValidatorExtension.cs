@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using OCR_API.Repositories;
 using System.Reflection;
 
 namespace OCR_API.Registrars.Extensions

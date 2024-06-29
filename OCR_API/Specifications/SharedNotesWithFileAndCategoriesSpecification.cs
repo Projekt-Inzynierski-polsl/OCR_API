@@ -23,5 +23,4 @@ namespace OCR_API.Specifications
             return queryable.Include(f => f.Note).ThenInclude(f => f.Categories);
         }
     }
-
 }

@@ -13,7 +13,6 @@ namespace OCR_API.ModelsDto.Validators
 
             RuleFor(x => x.ObjectId)
                 .NotEmpty();
-
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
@@ -18,7 +18,6 @@ namespace OCR_API.Database.Configurations
                 .WithOne(u => u.Mode)
                 .HasForeignKey(user => user.ModeId)
                 .HasConstraintName("shared_objects_ibfk_4");
-
         }
     }
 }

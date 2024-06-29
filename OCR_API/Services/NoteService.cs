@@ -1,23 +1,17 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OCR_API.Authorization;
 using OCR_API.Entities;
-using OCR_API.Enums;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteTransactions;
-using System.Linq;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Wordprocessing;
-using OCR_API.Authorization;
 
 namespace OCR_API.Services
 {
@@ -26,16 +20,26 @@ namespace OCR_API.Services
         IUnitOfWork UnitOfWork { get; }
 
         PageResults<NoteDto> GetAllByUser(GetAllQuery queryParameters);
+
         NoteDto GetById(int noteId);
+
         IEnumerable<NoteDto> GetLastEdited(int amount);
+
         int CreateNote(AddNoteDto addNoteDto);
+
         void DeleteNote(int noteId);
+
         void UpdateNote(int noteId, UpdateNoteDto updateNoteDto);
+
         void ChangeNoteFolder(int noteId, ChangeNoteFolderDto changeNoteFolderDto);
+
         void UpdateNoteCategories(int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto);
+
         string ExportPdfById(int noteId);
+
         string ExportDocxById(int noteId);
     }
+
     public class NoteService : INoteService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -44,7 +48,7 @@ namespace OCR_API.Services
         private readonly IPaginationService queryParametersService;
         private readonly IUserContextService userContextService;
 
-        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, IPaginationService queryParametersService, 
+        public NoteService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, IPaginationService queryParametersService,
             IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
@@ -93,12 +97,12 @@ namespace OCR_API.Services
         {
             var userId = userContextService.GetUserId;
             NoteFile noteFile = UnitOfWork.NoteFiles.GetById(addNoteDto.NoteFileId);
-            if(noteFile.UserId != userId) 
+            if (noteFile.UserId != userId)
             {
                 throw new BadRequestException("Cannot access to this file.");
             }
 
-            Note noteToAdd = mapper.Map<Note>(addNoteDto); 
+            Note noteToAdd = mapper.Map<Note>(addNoteDto);
             AddNoteTransaction addNoteTransaction = new(UnitOfWork, userId, noteToAdd);
             addNoteTransaction.Execute();
             UnitOfWork.Commit();

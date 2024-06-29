@@ -1,47 +1,40 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
-using OCR_API.ModelsDto.BoundingBoxDtos;
-using OCR_API.ModelsDto.NoteFileDtos;
-using OCR_API.ModelsDto.UploadedModelDtos;
-using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteFileTransactions;
 using OCR_API.Transactions.NoteWordErrorTransactions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.IO.Compression;
-using System.Security.Cryptography;
 using System.Text;
-using System.Drawing.Imaging;
-using System.Drawing;
-using System.IO;
-using iTextSharp.text.pdf.qrcode;
-using System.Collections;
 using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace OCR_API.Services
 {
-
     public interface INoteWordErrorService
     {
         public IUnitOfWork UnitOfWork { get; }
+
         PageResults<NoteWordErrorDto> GetAll(GetAllQuery queryParameters);
+
         PageResults<NoteWordErrorDto> GetAllForUser(int userId, GetAllQuery queryParameters);
+
         NoteWordErrorDto GetById(int errorId);
+
         Task<NoteWordErrorDto> AddErrorAsync(AddErrorDto addErrorDto);
+
         void DeleteById(int errorId);
+
         void DeleteAll();
+
         MemoryStream DownloadErrors();
+
         void AcceptError(int errorId);
+
         Task<byte[]> GetFileById(int errorId);
     }
 
@@ -73,12 +66,14 @@ namespace OCR_API.Services
             var result = queryParametersService.PreparePaginationResults<NoteWordErrorDto, NoteWordError>(queryParameters, errors, mapper);
             return result;
         }
+
         public PageResults<NoteWordErrorDto> GetAllForUser(int userId, GetAllQuery queryParameters)
         {
             var errors = UnitOfWork.NoteWordErrors.GetAllByUser(userId).AsQueryable();
             var result = queryParametersService.PreparePaginationResults<NoteWordErrorDto, NoteWordError>(queryParameters, errors, mapper);
             return result;
         }
+
         public NoteWordErrorDto GetById(int errorId)
         {
             var error = UnitOfWork.NoteWordErrors.GetById(errorId);
@@ -100,7 +95,6 @@ namespace OCR_API.Services
             byte[] hashedKeyBytes = Enumerable.Range(0, hashedKeyString.Length / 2)
                 .Select(x => Convert.ToByte(hashedKeyString.Substring(x * 2, 2), 16))
                 .ToArray();
-
 
             var encryptedImage = File.ReadAllBytes(dbFile.Path);
             var decryptedImage = await imageCryptographer.DecryptImageAsync(encryptedImage, hashedKeyBytes);
@@ -149,7 +143,7 @@ namespace OCR_API.Services
         private async Task SaveFileOnServer(Image image, int fileId)
         {
             var encryptedImageWitKey = await imageCryptographer.EncryptImageAsync(image);
-            if(!Directory.Exists(OCR_ERRORS_DIRECTORY_PATH))
+            if (!Directory.Exists(OCR_ERRORS_DIRECTORY_PATH))
             {
                 Directory.CreateDirectory(OCR_ERRORS_DIRECTORY_PATH);
             }
@@ -286,5 +280,4 @@ namespace OCR_API.Services
             return decryptedImage;
         }
     }
-   
 }

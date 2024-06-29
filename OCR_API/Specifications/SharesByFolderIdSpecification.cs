@@ -20,7 +20,7 @@ namespace OCR_API.Specifications
 
         public override IQueryable<Shared> IncludeEntities(IQueryable<Shared> queryable)
         {
-            return queryable.Include(f=> f.Mode).Include(f => f.User);
+            return queryable.Include(f => f.Mode).Include(f => f.User);
         }
     }
 }

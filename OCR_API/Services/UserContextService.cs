@@ -20,6 +20,7 @@ namespace OCR_API.Services
             this.httpContextAccessor = httpContextAccessor;
             user = httpContextAccessor.HttpContext?.User;
         }
+
         public int GetUserId => int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
         public ClaimsPrincipal User
@@ -27,6 +28,7 @@ namespace OCR_API.Services
             get => user;
             set => user = value;
         }
+
         public Task<string?> GetJwtToken => httpContextAccessor.HttpContext?.GetTokenAsync("Bearer", "access_token");
     }
 }

@@ -25,7 +25,7 @@ namespace OCR_API.Specifications
             var foldersWithNotes = queryable
                 .Where(f => f.PasswordHash == null)
                 .Include(f => f.Notes)
-                .ToList(); 
+                .ToList();
 
             var foldersWithoutNotes = queryable
                 .Where(f => f.PasswordHash != null)

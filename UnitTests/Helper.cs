@@ -1,31 +1,20 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using DotNetEnv;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using OCR_API;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
-using OCR_API.MappingProfiles;
-using OCR_API.Middleware;
 using OCR_API.ModelsDto;
-using OCR_API.ModelsDto.Validators;
-using OCR_API.Repositories;
-using OCR_API.Seeders;
-using OCR_API.Services;
-using OCR_API;
-using Microsoft.EntityFrameworkCore;
-using OCR_API.Logger;
 using OCR_API.Registrars;
-using Microsoft.AspNetCore.Http;
-using Moq;
+using OCR_API.Services;
 using System.Security.Claims;
-using DotNetEnv;
-using System.Diagnostics;
 
 namespace UnitTests
 {
     internal class Helper
     {
-
         private static IServiceProvider Provider()
         {
             Env.Load("../../../../OCR_API/.env");
@@ -81,7 +70,6 @@ namespace UnitTests
 
         public static void ChangeIdInIUserContextService(IUserContextService userContextService, int userId)
         {
-
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
             {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())

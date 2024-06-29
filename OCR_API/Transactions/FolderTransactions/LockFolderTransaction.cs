@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OCR_API.Entities;
-using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.FolderTransactions
 {

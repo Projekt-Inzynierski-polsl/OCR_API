@@ -4,7 +4,6 @@
     {
         public ForbidException(string message) : base(message)
         {
-
         }
     }
 }

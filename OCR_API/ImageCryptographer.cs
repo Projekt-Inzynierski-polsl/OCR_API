@@ -1,7 +1,5 @@
 ﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace OCR_API
 {

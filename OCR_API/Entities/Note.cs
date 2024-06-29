@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using OCR_API.Authorization;
+﻿using OCR_API.Authorization;
 using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
@@ -17,6 +16,5 @@ namespace OCR_API.Entities
         public virtual NoteFile NoteFile { get; set; }
         public virtual ICollection<NoteCategory> Categories { get; set; } = new List<NoteCategory>();
         public virtual ICollection<Shared> SharedObjects { get; set; } = new List<Shared>();
-
     }
 }

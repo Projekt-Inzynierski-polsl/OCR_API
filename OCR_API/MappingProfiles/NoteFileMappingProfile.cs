@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Newtonsoft.Json;
 using OCR_API.Entities;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.BoundingBoxDtos;
@@ -12,10 +11,8 @@ namespace OCR_API.MappingProfiles
     {
         public NoteFileMappingProfile()
         {
-
             CreateMap<NoteFile, NoteFileDto>()
                 .ForMember(dest => dest.BoundingBoxes, opt => opt.MapFrom(src => src.BoundingBoxes));
-
 
             CreateMap<BoundingBoxDto, BoundingBox>();
             CreateMap<BoundingBox, BoundingBoxDto>()
@@ -29,6 +26,5 @@ namespace OCR_API.MappingProfiles
             CreateMap<AddErrorDto, NoteWordError>();
             CreateMap<NoteWordError, AddErrorDto>();
         }
-   
     }
 }

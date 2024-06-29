@@ -1,7 +1,5 @@
-﻿using DotNetEnv;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using OCR_API.Entities;
-using OCR_API.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,7 +14,6 @@ namespace OCR_API
             var token = tokenHandler.ReadJwtToken(jwtToken);
             return token;
         }
-
 
         public string CreateJwtToken(User user)
         {

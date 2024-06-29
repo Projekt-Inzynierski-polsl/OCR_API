@@ -1,5 +1,4 @@
-﻿using OCR_API.Entities;
-using OCR_API.ModelsDto.SharedDtos;
+﻿using OCR_API.ModelsDto.SharedDtos;
 
 namespace OCR_API.ModelsDto
 {

@@ -1,28 +1,16 @@
-using FluentValidation;
+using DotNetEnv;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using OCR_API;
 using OCR_API.DbContexts;
-using OCR_API.Entities;
-using OCR_API.Logger;
-using OCR_API.MappingProfiles;
-using OCR_API.Middleware;
-using OCR_API.ModelsDto;
-using OCR_API.ModelsDto.NoteCategoriesDtos;
-using OCR_API.ModelsDto.Validators;
-using OCR_API.Registrars;
-using OCR_API.Repositories;
-using OCR_API.Seeders;
-using OCR_API.Services;
-using System.Text;
-using DotNetEnv;
 using OCR_API.Enums;
+using OCR_API.Middleware;
+using OCR_API.Registrars;
+using OCR_API.Seeders;
+using System.Text;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +40,7 @@ builder.Services.AddAuthentication(option =>
     });
 
 builder.Services.AddControllers().AddFluentValidation();
-builder.Services.AddFluentValidationAutoValidation(); 
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<SystemDbContext>(options =>
 {
@@ -63,10 +51,12 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
             connectionString = Environment.GetEnvironmentVariable("DevConnection");
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             break;
+
         case EEnvironment.Production:
             connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
             options.UseSqlServer(connectionString);
             break;
+
         default:
             connectionString = Environment.GetEnvironmentVariable("DebugConnection");
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
@@ -74,11 +64,8 @@ builder.Services.AddDbContext<SystemDbContext>(options =>
     };
 }, ServiceLifetime.Transient);
 
-
-
 Registar registar = new Registar();
 registar.ConfigureServices(builder.Services);
-
 
 builder.Host.UseNLog();
 
@@ -137,12 +124,12 @@ app.UseHttpsRedirection();
 
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
-    });
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+});
 //}
 
 app.UseStaticFiles();

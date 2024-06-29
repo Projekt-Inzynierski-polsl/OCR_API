@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.Logger;
-using System.Security.Cryptography;
 
 namespace OCR_API.Seeders
 {
@@ -17,17 +15,18 @@ namespace OCR_API.Seeders
             this.dbContext = dbContext;
             this.unitOfWork = unitOfWork;
         }
+
         public void Seed()
         {
             if (dbContext.Database.CanConnect())
             {
                 var pendingMigrations = dbContext.Database.GetPendingMigrations();
-                if(pendingMigrations != null && pendingMigrations.Any())
+                if (pendingMigrations != null && pendingMigrations.Any())
                 {
                     dbContext.Database.Migrate();
                 }
 
-                if(!unitOfWork.Roles.Entity.Any())
+                if (!unitOfWork.Roles.Entity.Any())
                 {
                     var roles = GetRoles();
                     unitOfWork.Roles.Entity.AddRange(roles);
@@ -47,10 +46,9 @@ namespace OCR_API.Seeders
 
                     foreach (var action in userActions)
                     {
-                        if((int)action > 0) unitOfWork.UserActions.Add(new UserAction() { Name = action.ToString() });
+                        if ((int)action > 0) unitOfWork.UserActions.Add(new UserAction() { Name = action.ToString() });
                     }
                     unitOfWork.Commit();
-
                 }
             }
         }

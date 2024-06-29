@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using OCR_API.Authorization;
+﻿using Microsoft.AspNetCore.Identity;
 using OCR_API.Entities;
-using OCR_API.Entities.Inherits;
 using OCR_API.Logger;
 using OCR_API.Middleware;
 using OCR_API.Seeders;

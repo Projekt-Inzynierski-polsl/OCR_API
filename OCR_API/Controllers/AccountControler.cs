@@ -1,8 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
 
@@ -37,7 +35,7 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet("token")]
-        public async Task<ActionResult> IsTokenValidAsync() 
+        public async Task<ActionResult> IsTokenValidAsync()
         {
             var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
             string token = accountService.GetJwtTokenIfValid(accessToken);

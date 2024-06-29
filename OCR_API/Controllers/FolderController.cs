@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
@@ -19,7 +18,7 @@ namespace OCR_API.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAllUserFolders([FromQuery]GetAllQuery queryParameters)
+        public ActionResult GetAllUserFolders([FromQuery] GetAllQuery queryParameters)
         {
             var folders = folderService.GetAll(queryParameters);
             return Ok(folders);

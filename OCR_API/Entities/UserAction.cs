@@ -1,6 +1,4 @@
-﻿
-
-namespace OCR_API.Entities
+﻿namespace OCR_API.Entities
 {
     public class UserAction : Entity
     {

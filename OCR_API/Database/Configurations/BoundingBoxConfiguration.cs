@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
-using OCR_API.ModelsDto;
 
 namespace OCR_API.Database.Configurations
 {

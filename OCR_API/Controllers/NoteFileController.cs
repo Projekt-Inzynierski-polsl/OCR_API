@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OCR_API.Entities;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteFileDtos;
 using OCR_API.Services;
@@ -40,6 +38,5 @@ namespace OCR_API.Controllers
             var file = await noteFileService.UploadFileAsync(uploadFileDto);
             return Created($"api/user/noteFile/{file.Id}", file);
         }
-
     }
 }

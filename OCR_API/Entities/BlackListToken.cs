@@ -1,6 +1,4 @@
-﻿
-
-using OCR_API.Entities.Inherits;
+﻿using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
 {

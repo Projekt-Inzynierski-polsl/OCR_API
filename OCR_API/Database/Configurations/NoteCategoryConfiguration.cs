@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
@@ -17,17 +17,14 @@ namespace OCR_API.Database.Configurations
             builder.Property(e => e.HexColor).HasColumnName("hex_color").HasDefaultValueSql(null);
             builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 
-
             builder.HasOne(d => d.User)
                 .WithMany(r => r.NoteCategories)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("note_category_list_ibfk_1");
-            
+
             builder.HasMany(n => n.Notes)
                 .WithMany(c => c.Categories)
                 .UsingEntity(j => j.ToTable("note_category_map"));
-
-
         }
     }
 }

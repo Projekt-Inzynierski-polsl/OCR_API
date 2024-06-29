@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OCR_API.Entities;
-using OCR_API.ModelsDto;
 using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.FolderTransactions
@@ -14,7 +13,6 @@ namespace OCR_API.Transactions.FolderTransactions
         private readonly string? iconPath;
         private readonly string? password;
         public Folder Folder { get; private set; }
-
 
         public AddFolderTransaction(IRepository<Folder> repository, IPasswordHasher<Folder> passwordHasher, int userId, string name, string? iconPath = null, string? password = null)
         {

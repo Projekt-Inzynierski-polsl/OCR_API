@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using OCR_API.Entities;
-using OCR_API.Repositories;
 
 namespace OCR_API.ModelsDto.Validators
 {
@@ -14,7 +12,6 @@ namespace OCR_API.ModelsDto.Validators
 
             RuleFor(x => x.Password)
                 .NotEmpty();
-
         }
     }
 }

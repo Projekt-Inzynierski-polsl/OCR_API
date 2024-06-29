@@ -1,5 +1,4 @@
 ﻿using OCR_API.Entities;
-using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.FolderTransactions
 {
@@ -15,12 +14,14 @@ namespace OCR_API.Transactions.FolderTransactions
             this.newName = newName;
             this.newIconPath = newIconPath;
         }
+
         public void Execute()
-        { 
-            if(newName is not null){
+        {
+            if (newName is not null)
+            {
                 folderToUpdate.Name = newName;
             }
-            if(newIconPath is not null)
+            if (newIconPath is not null)
             {
                 folderToUpdate.IconPath = newIconPath;
             }

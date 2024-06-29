@@ -6,10 +6,8 @@ namespace OCR_API.ModelsDto.Validators
     {
         public PasswordDtoValidator()
         {
-
             RuleFor(x => x.Password)
                 .NotEmpty();
-
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OCR_API.Entities;
+﻿using OCR_API.Entities;
 
 namespace OCR_API.Transactions.FolderTransactions
 {
@@ -7,11 +6,9 @@ namespace OCR_API.Transactions.FolderTransactions
     {
         private readonly Folder folderToUnlock;
 
-
         public UnlockFolderTransaction(Folder folderToUnlock)
         {
             this.folderToUnlock = folderToUnlock;
-
         }
 
         public void Execute()

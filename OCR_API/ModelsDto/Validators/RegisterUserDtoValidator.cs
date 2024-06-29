@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using OCR_API.Entities;
-using OCR_API.Repositories;
 
 namespace OCR_API.ModelsDto.Validators
 {
@@ -18,7 +16,7 @@ namespace OCR_API.ModelsDto.Validators
                 .Custom((value, context) =>
                 {
                     bool emailInUse = unitOfWork.Users.Entity.Any(u => u.Email == value);
-                    if(emailInUse)
+                    if (emailInUse)
                     {
                         context.AddFailure("Email", "That email is taken.");
                     }
@@ -38,12 +36,11 @@ namespace OCR_API.ModelsDto.Validators
             RuleFor(x => x.RoleId)
                 .Equal(2);
 
-
             RuleFor(x => x.Password)
                 .MinimumLength(6);
 
             RuleFor(x => x.ConfirmedPassword)
-                .Equal(e =>  e.Password);
+                .Equal(e => e.Password);
         }
     }
 }

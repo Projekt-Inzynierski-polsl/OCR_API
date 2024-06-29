@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace OCR_API.Specifications
 {
-    public class NotesWithFileAndCategoriesSpecification :Specification<Note>
+    public class NotesWithFileAndCategoriesSpecification : Specification<Note>
     {
         private readonly int userId;
         private readonly string searchPhrase;
@@ -25,5 +25,4 @@ namespace OCR_API.Specifications
             return queryable.Include(f => f.NoteFile).Include(f => f.Categories);
         }
     }
-
 }

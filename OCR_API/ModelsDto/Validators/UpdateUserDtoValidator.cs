@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
-using OCR_API.Entities;
-using OCR_API.Repositories;
 
 namespace OCR_API.ModelsDto.Validators
 {
     public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {
         private readonly IUnitOfWork unitOfWork;
+
         public UpdateUserDtoValidator(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;

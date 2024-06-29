@@ -14,13 +14,14 @@ namespace OCR_API.Transactions.NoteTransactions
             this.newName = newName;
             this.newContent = newContent;
         }
+
         public void Execute()
         {
-            if(newName is not null)
+            if (newName is not null)
             {
                 noteToUpdate.Name = newName;
             }
-            if(newContent is not null)
+            if (newContent is not null)
             {
                 noteToUpdate.Content = newContent;
             }

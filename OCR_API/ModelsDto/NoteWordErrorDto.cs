@@ -1,6 +1,4 @@
-﻿using OCR_API.Entities;
-
-namespace OCR_API.ModelsDto
+﻿namespace OCR_API.ModelsDto
 {
     public class NoteWordErrorDto
     {

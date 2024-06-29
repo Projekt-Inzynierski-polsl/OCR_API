@@ -24,4 +24,3 @@ namespace OCR_API.Specifications
         }
     }
 }
-

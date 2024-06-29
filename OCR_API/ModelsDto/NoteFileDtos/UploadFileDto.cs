@@ -1,7 +1,4 @@
-﻿using OCR_API.Entities;
-using OCR_API.ModelsDto.BoundingBoxDtos;
-
-namespace OCR_API.ModelsDto.NoteFileDtos
+﻿namespace OCR_API.ModelsDto.NoteFileDtos
 {
     public class UploadFileDto
     {

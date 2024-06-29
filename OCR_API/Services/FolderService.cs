@@ -1,33 +1,35 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using NLog.Filters;
 using OCR_API.Authorization;
 using OCR_API.Entities;
-using OCR_API.Enums;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
-using OCR_API.Repositories;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.FolderTransactions;
-using OCR_API.Transactions.UserTransactions;
 
 namespace OCR_API.Services
 {
     public interface IFolderService
     {
         IUnitOfWork UnitOfWork { get; }
+
         PageResults<FolderDto> GetAll(GetAllQuery queryParameters);
+
         FolderDto GetById(int folderId, PasswordDto? passwordDto = null);
+
         int CreateFolder(AddFolderDto folderToAdd);
+
         void DeleteFolder(int folderId, PasswordDto? passwordDto = null);
+
         void UpdateFolder(int folderId, UpdateFolderDto updateFolderDto);
+
         void LockFolder(int folderId, ConfirmedPasswordDto confirmedPasswordDto);
+
         void UnlockFolder(int folderId, PasswordDto passwordDto);
     }
+
     public class FolderService : IFolderService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -37,7 +39,7 @@ namespace OCR_API.Services
         private readonly IPaginationService queryParametersService;
         private readonly IUserContextService userContextService;
 
-        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, UserActionLogger logger, 
+        public FolderService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, UserActionLogger logger,
             IPaginationService queryParametersService, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
@@ -57,13 +59,14 @@ namespace OCR_API.Services
 
             return result;
         }
+
         public FolderDto GetById(int folderId, PasswordDto? passwordDto = null)
         {
             var userId = userContextService.GetUserId;
             Folder folder = GetFolderIfBelongsToUser(userId, folderId);
             if (folder.PasswordHash is not null)
             {
-                if(passwordDto is null)
+                if (passwordDto is null)
                 {
                     throw new BadRequestException("Folder is locked.");
                 }
@@ -177,11 +180,11 @@ namespace OCR_API.Services
                 throw new BadRequestException("The folder is already unlocked.");
             }
             var result = passwordHasher.VerifyHashedPassword(folderToUnlock, folderToUnlock.PasswordHash, passwordDto.Password);
-            if(result != PasswordVerificationResult.Success)
+            if (result != PasswordVerificationResult.Success)
             {
                 throw new BadRequestException("Invalid password.");
             }
-            if(ResourceOperationAccess.CanEdit(folderToUnlock, userId))
+            if (ResourceOperationAccess.CanEdit(folderToUnlock, userId))
             {
                 UnlockFolderTransaction unlockFolderTransaction = new(folderToUnlock);
                 unlockFolderTransaction.Execute();
@@ -192,7 +195,6 @@ namespace OCR_API.Services
             {
                 throw new ForbidException("Cannot operate someone else's folder.");
             }
-
         }
 
         private Folder GetFolderIfBelongsToUser(int userId, int folderId)

@@ -1,15 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using OCR_API.Entities;
-using OCR_API.ModelsDto;
-using OCR_API.Services;
 using OCR_API;
-using OCR_API.ModelsDto.Validators;
-using Newtonsoft.Json.Linq;
+using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
+using OCR_API.ModelsDto;
+using OCR_API.ModelsDto.Validators;
+using OCR_API.Services;
 
 namespace UnitTests
 {
@@ -83,8 +81,8 @@ namespace UnitTests
             Assert.AreEqual(1, folder.UserId);
             var result = folderPasswordHasher.VerifyHashedPassword(folder, folder.PasswordHash!, password);
             Assert.AreEqual(PasswordVerificationResult.Success, result);
-
         }
+
         [TestMethod]
         public void AddFolder_WithWrongConfirmedPassword_ValidationFails()
         {
@@ -97,6 +95,7 @@ namespace UnitTests
             var validationResult = addFolderValidator.Validate(addFolderDto);
             Assert.IsFalse(validationResult.IsValid);
         }
+
         [TestMethod]
         public void AddFolder_WithWrongPassword_ValidationFails()
         {
@@ -108,6 +107,7 @@ namespace UnitTests
             var validationResult = addFolderValidator.Validate(addFolderDto);
             Assert.IsFalse(validationResult.IsValid);
         }
+
         [TestMethod]
         public void AddFolder_WithoutName_ValidationFails()
         {
@@ -118,6 +118,7 @@ namespace UnitTests
             var validationResult = addFolderValidator.Validate(addFolderDto);
             Assert.IsFalse(validationResult.IsValid);
         }
+
         [TestMethod]
         public void AddFolder_WithTakenName_ValidationFails()
         {
@@ -133,6 +134,7 @@ namespace UnitTests
             var validationResult2 = addFolderValidator.Validate(addFolderDto2);
             Assert.IsFalse(validationResult2.IsValid);
         }
+
         [TestMethod]
         public void GetAll__ReturnsFoldersDto()
         {
@@ -236,13 +238,14 @@ namespace UnitTests
             Helper.ChangeIdInIUserContextService(userContextService, 2);
             Assert.ThrowsException<ForbidException>(() => service.GetById(1, passwordDto));
         }
+
         [TestMethod]
         public void DeleteFolder_WithoutPassword_WithCorrectIdAndPassword_SuccessfullyDeleted()
         {
             Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             service.CreateFolder(addFolderDto);
             FolderDto folder = service.GetById(1);
             Assert.IsNotNull(folder);
@@ -252,6 +255,7 @@ namespace UnitTests
             Assert.IsNotNull(folders);
             Assert.AreEqual(0, folders.Items.Count);
         }
+
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndPassword_SuccessfullyDeleted()
         {
@@ -271,6 +275,7 @@ namespace UnitTests
             Assert.IsNotNull(folders);
             Assert.AreEqual(0, folders.Items.Count);
         }
+
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndWrongPassword_ThrowsException()
         {
@@ -285,6 +290,7 @@ namespace UnitTests
 
             Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(1, passwordDto));
         }
+
         [TestMethod]
         public void DeleteFolder_WithPassword_WithCorrectIdAndWithoutPassword_ThrowsException()
         {
@@ -297,6 +303,7 @@ namespace UnitTests
 
             Assert.ThrowsException<BadRequestException>(() => service.DeleteFolder(1));
         }
+
         [TestMethod]
         public void DeleteFolder_WithPassword_WithWrongId_ThrowsException()
         {
@@ -310,13 +317,14 @@ namespace UnitTests
             Helper.ChangeIdInIUserContextService(userContextService, 2);
             Assert.ThrowsException<ForbidException>(() => service.DeleteFolder(1));
         }
+
         [TestMethod]
         public void UpdateFolder_WithCorrectData_SuccessfullyUpdated()
         {
             Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             service.CreateFolder(addFolderDto);
             string newName = "Update";
             string newIcon = "UpdateIcon";
@@ -327,6 +335,7 @@ namespace UnitTests
             Assert.AreEqual(newName, folder.Name);
             Assert.AreEqual(newIcon, folder.IconPath);
         }
+
         [TestMethod]
         public void UpdateFolder_WithPassword_WithCorrectData_SuccessfullyUpdated()
         {
@@ -346,6 +355,7 @@ namespace UnitTests
             Assert.AreEqual(newName, folder.Name);
             Assert.AreEqual(newIcon, folder.IconPath);
         }
+
         [TestMethod]
         public void UpdateFolder_WithPassword_WithWrongPassword_ThrowsException()
         {
@@ -358,16 +368,17 @@ namespace UnitTests
             string wrongPassword = "123";
             string newName = "Update";
             string newIcon = "UpdateIcon";
-            UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon, PasswordToFolder = wrongPassword};
+            UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon, PasswordToFolder = wrongPassword };
             Assert.ThrowsException<BadRequestException>(() => service.UpdateFolder(1, updateFolderDto));
         }
+
         [TestMethod]
         public void UpdateFolder_WithWrongId_ThrowsException()
         {
             Helper.RegisterAccount(accountService);
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath};
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             service.CreateFolder(addFolderDto);
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
             Helper.ChangeIdInIUserContextService(userContextService, 2);
@@ -376,6 +387,7 @@ namespace UnitTests
             UpdateFolderDto updateFolderDto = new() { Name = newName, IconPath = newIcon };
             Assert.ThrowsException<ForbidException>(() => service.UpdateFolder(1, updateFolderDto));
         }
+
         [TestMethod]
         public void UpdateFolder_WithTakenName_ThrowsException()
         {
@@ -392,12 +404,13 @@ namespace UnitTests
             var validationResult = updateFolderValidator.Validate(updateFolderDto);
             Assert.IsFalse(validationResult.IsValid);
         }
+
         [TestMethod]
         public void LockFolder_WithCorrectData_SuccessfullyLocked()
         {
             Helper.RegisterAccount(accountService);
             string password = "test123";
-            AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png"};
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             service.CreateFolder(addFolderDto);
 
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = password, ConfirmedPassword = password };
@@ -413,7 +426,7 @@ namespace UnitTests
         {
             Helper.RegisterAccount(accountService);
             string password = "test123";
-            AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png"};
+            AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             service.CreateFolder(addFolderDto);
 
             ConfirmedPasswordDto confirmedPasswordDto = new ConfirmedPasswordDto() { Password = "incorrectpassword", ConfirmedPassword = password };

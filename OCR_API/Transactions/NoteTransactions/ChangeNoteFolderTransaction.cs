@@ -17,9 +17,10 @@ namespace OCR_API.Transactions.NoteTransactions
             this.noteToMove = noteToMove;
             this.folderId = folderId;
         }
+
         public void Execute()
         {
-            if(folderId == null)
+            if (folderId == null)
             {
                 noteToMove.FolderId = 0;
             }
@@ -34,7 +35,7 @@ namespace OCR_API.Transactions.NoteTransactions
                 {
                     throw new BadRequestException("Wrong folder id.");
                 }
-            }  
+            }
         }
     }
 }

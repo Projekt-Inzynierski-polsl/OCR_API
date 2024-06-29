@@ -1,24 +1,15 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Newtonsoft.Json.Bson;
 using OCR_API;
-using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
-using OCR_API.MappingProfiles;
-using OCR_API.ModelsDto.Validators;
+using OCR_API.Logger;
 using OCR_API.ModelsDto;
-using OCR_API.Repositories;
-using OCR_API.Seeders;
+using OCR_API.ModelsDto.Validators;
 using OCR_API.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
-using OCR_API.Logger;
 
 namespace UnitTests
 {

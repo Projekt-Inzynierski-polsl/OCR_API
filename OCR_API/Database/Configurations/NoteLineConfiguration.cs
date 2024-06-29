@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
-using OCR_API.ModelsDto;
 
 namespace OCR_API.Database.Configurations
 {
-    public class NoteLineConfiguration : IEntityTypeConfiguration<NoteLine> 
-    { 
+    public class NoteLineConfiguration : IEntityTypeConfiguration<NoteLine>
+    {
         public void Configure(EntityTypeBuilder<NoteLine> builder)
         {
             builder.HasKey(e => e.Id);

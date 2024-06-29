@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using OCR_API.Entities;
-using OCR_API.ModelsDto.Validators;
-using OCR_API.ModelsDto;
-using OCR_API.Services;
 using OCR_API;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
+using OCR_API.ModelsDto;
+using OCR_API.ModelsDto.Validators;
+using OCR_API.Services;
 
 namespace UnitTests
 {
@@ -43,7 +37,6 @@ namespace UnitTests
             userContextService = Helper.CreateMockIUserContextService();
             service = new UserService(unitOfWork, passwordHasher, mapper, logger, paginationService, userContextService);
             accountService = new AccountService(unitOfWork, passwordHasher, mapper, jwtTokenHelper, logger, userContextService);
-
         }
 
         [TestMethod]

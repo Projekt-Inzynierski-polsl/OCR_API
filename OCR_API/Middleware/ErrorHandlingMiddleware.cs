@@ -1,7 +1,4 @@
-﻿using OCR_API.Entities;
-using OCR_API.Exceptions;
-using OCR_API.Repositories;
-using OCR_API.Services;
+﻿using OCR_API.Exceptions;
 
 namespace OCR_API.Middleware
 {
@@ -15,12 +12,13 @@ namespace OCR_API.Middleware
             this.logger = logger;
             this.unitOfWork = unitOfWork;
         }
+
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
-            {       
+            {
                 var jwtToken = context.Request.Headers["Authorization"].ToString()?.Split(" ").LastOrDefault();
-                if (!string.IsNullOrEmpty(jwtToken) && 
+                if (!string.IsNullOrEmpty(jwtToken) &&
                     unitOfWork.BlackListedTokens.Entity.Any(token => token.Token.Equals(jwtToken)))
                 {
                     throw new ForbidException("Unauthorized: Token is blacklisted.");

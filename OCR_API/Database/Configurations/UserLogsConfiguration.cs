@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
@@ -29,7 +29,6 @@ namespace OCR_API.Database.Configurations
                 .WithMany(u => u.Logs)
                 .HasForeignKey(user => user.ActionId)
                 .HasConstraintName("user_logs_ibfk_2");
-
         }
     }
 }

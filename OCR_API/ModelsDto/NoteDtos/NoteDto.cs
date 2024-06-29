@@ -1,6 +1,4 @@
-﻿using OCR_API.Entities;
-using OCR_API.ModelsDto.NoteCategoriesDtos;
-using OCR_API.ModelsDto.NoteFileDtos;
+﻿using OCR_API.ModelsDto.NoteCategoriesDtos;
 
 namespace OCR_API.ModelsDto
 {

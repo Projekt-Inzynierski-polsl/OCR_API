@@ -1,7 +1,4 @@
-﻿using OCR_API.Entities;
-using OCR_API.Registrars.Extensions;
-using OCR_API.Repositories;
-using OCR_API.Services;
+﻿using OCR_API.Registrars.Extensions;
 using System.Reflection;
 
 namespace OCR_API.Registrars

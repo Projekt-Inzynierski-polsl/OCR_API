@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using OCR_API.ModelsDto;
 using OCR_API.Services;
 
 namespace OCR_API.ModelsDto.Validators

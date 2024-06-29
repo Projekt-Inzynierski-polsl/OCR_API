@@ -5,27 +5,34 @@ using OCR_API.Enums;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto.SharedDtos;
-using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.FolderTransactions;
 using OCR_API.Transactions.SharedTransactions;
-using System.Reflection.Metadata.Ecma335;
 
 namespace OCR_API.Services
 {
     public interface ISharedService
     {
         IUnitOfWork UnitOfWork { get; }
+
         IEnumerable<SharedDto> GetAllFoldersByUserId();
+
         IEnumerable<SharedDto> GetAllNotesByUserId();
+
         IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedFolder(int folderId);
+
         IEnumerable<SharedObjectInformationDto> GetInformationAboutSharedNote(int noteId);
+
         void ShareFolder(SharedObjectDto sharedObjectDto);
+
         void ShareNote(SharedObjectDto sharedObjectDto);
+
         void UnshareFolder(SharedObjectDto sharedObjectDto);
+
         void UnshareNote(SharedObjectDto sharedObjectDto);
     }
+
     public class SharedService : ISharedService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -35,7 +42,7 @@ namespace OCR_API.Services
         private readonly UserActionLogger logger;
         private readonly IUserContextService userContextService;
 
-        public SharedService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, UserActionLogger logger, 
+        public SharedService(IUnitOfWork unitOfWork, IPasswordHasher<Folder> passwordHasher, IMapper mapper, UserActionLogger logger,
             IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
@@ -107,7 +114,7 @@ namespace OCR_API.Services
                     throw new BadRequestException("Invalid password.");
                 }
             }
-            bool isAlreadyShared = (shareUserId != null && UnitOfWork.Shared.GetAllByUser(shareUserId.Value).Any(f => f.FolderId == sharedObjectDto.ObjectId)) 
+            bool isAlreadyShared = (shareUserId != null && UnitOfWork.Shared.GetAllByUser(shareUserId.Value).Any(f => f.FolderId == sharedObjectDto.ObjectId))
                 || UnitOfWork.Shared.GetAll().Any(f => f.FolderId == sharedObjectDto.ObjectId && f.UserId is null);
             if (isAlreadyShared)
             {
@@ -167,7 +174,7 @@ namespace OCR_API.Services
             GetUserIdAndShareUserId(sharedObjectDto, out int userId, out int? shareUserId);
             Note folder = GetNoteIfBelongsToUser(userId, sharedObjectDto.ObjectId);
             var entityToDelete = UnitOfWork.Shared.Entity.FirstOrDefault(e => e.UserId == shareUserId && e.NoteId == sharedObjectDto.ObjectId);
-            if(entityToDelete is null)
+            if (entityToDelete is null)
             {
                 throw new BadRequestException("That entity doesn't exist.");
             }

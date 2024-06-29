@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using OCR_API.Entities;
-using OCR_API.ModelsDto.Validators;
-using OCR_API.ModelsDto;
-using OCR_API.Services;
 using OCR_API;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OCR_API.ModelsDto.NoteCategoriesDtos;
-using Newtonsoft.Json.Linq;
+using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
+using OCR_API.ModelsDto;
+using OCR_API.ModelsDto.NoteCategoriesDtos;
+using OCR_API.ModelsDto.Validators;
+using OCR_API.Services;
 
 namespace UnitTests
 {
@@ -53,7 +47,7 @@ namespace UnitTests
             foreach (var name in user1CategoryNames)
             {
                 var addCategoryDto = new ActionNoteCategoryDto() { Name = name };
-                service.AddNewCategory( addCategoryDto);
+                service.AddNewCategory(addCategoryDto);
             }
 
             RegisterUserDto registerDto = new RegisterUserDto() { Email = "testUser2@dto.pl", Nickname = "TestUser2", Password = "TestPassword", ConfirmedPassword = "TestPassword" };
@@ -71,7 +65,6 @@ namespace UnitTests
             Assert.AreEqual(user1CategoryNames[0], user1CategoriesList[0].Name);
             Assert.AreEqual(user1CategoryNames[1], user1CategoriesList[1].Name);
             Assert.AreEqual(user1CategoryNames[2], user1CategoriesList[2].Name);
-
         }
 
         [TestMethod]
@@ -228,6 +221,5 @@ namespace UnitTests
             Helper.ChangeIdInIUserContextService(userContextService, 2);
             Assert.ThrowsException<ForbidException>(() => service.UpdateCategory(categoryId, updatedCategoryDto));
         }
-
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
-using System.Reflection.Emit;
 
 namespace OCR_API.Database.Configurations
 {
@@ -36,12 +35,6 @@ namespace OCR_API.Database.Configurations
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("notes_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(d => d.UploadedModels)
-                .WithOne(r => r.User)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("uploaded_models_ibfk_1");
-
 
             builder.HasMany(d => d.Logs)
                 .WithOne(r => r.User)

@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OCR_API.Entities.Inherits;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-
-
-namespace OCR_API.Entities
+﻿namespace OCR_API.Entities
 {
     public class User : Entity
     {
@@ -16,7 +10,6 @@ namespace OCR_API.Entities
         public virtual Role Role { get; set; }
         public virtual ICollection<Folder> Folders { get; set; } = new List<Folder>();
         public virtual ICollection<Note> Notes { get; set; } = new List<Note>();
-        public virtual ICollection<UploadedModel> UploadedModels { get; set; } = new List<UploadedModel>();
         public virtual ICollection<UserLog> Logs { get; set; } = new List<UserLog>();
         public virtual ICollection<NoteCategory> NoteCategories { get; set; } = new List<NoteCategory>();
         public virtual ICollection<BlackListToken> BlackListedTokens { get; set; } = new List<BlackListToken>();

@@ -23,13 +23,12 @@ namespace OCR_API.ModelsDto.Validators
                     }
                 });
 
-
             RuleFor(x => x.FolderId)
                  .Cascade(CascadeMode.Stop)
                  .NotNull().When(x => x.FolderId != null)
                  .Custom((value, context) =>
                  {
-                     if(value != null)
+                     if (value != null)
                      {
                          var userEntity = UnitOfWork.Folders.GetAllByUser(userContextService.GetUserId);
                          bool folderExist = userEntity.Exists(u => u.Id == value);
@@ -51,7 +50,6 @@ namespace OCR_API.ModelsDto.Validators
                          context.AddFailure("NoteFileId", "That file doesn't exist.");
                      }
                  });
-
         }
     }
 }

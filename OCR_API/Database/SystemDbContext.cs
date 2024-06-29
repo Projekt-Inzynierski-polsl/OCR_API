@@ -1,12 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
-using OCR_API.Exceptions;
-using OCR_API.ModelsDto;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
 
 namespace OCR_API.DbContexts
 {
@@ -19,14 +13,11 @@ namespace OCR_API.DbContexts
         {
         }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(
                 Assembly.GetExecutingAssembly()
             );
         }
-
     }
-
 }

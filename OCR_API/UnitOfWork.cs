@@ -17,17 +17,17 @@ namespace OCR_API
         IRepository<NoteWordError> NoteWordErrors { get; }
         IRepository<User> Users { get; }
         IRepository<Role> Roles { get; }
-        IRepository<UploadedModel> UploadedModels { get; }
         IRepository<UserAction> UserActions { get; }
         IRepository<UserLog> UserLogs { get; }
 
         IRepository<Shared> Shared { get; }
         IRepository<ShareMode> ShareMode { get; }
+
         void Commit();
     }
+
     public class UnitOfWork : IUnitOfWork
     {
-
         private readonly SystemDbContext dbContext;
 
         private readonly Repository<BlackListToken> blackListedTokens;
@@ -39,7 +39,6 @@ namespace OCR_API
         private readonly Repository<NoteFile> noteFiles;
         private readonly Repository<NoteLine> noteLines;
         private readonly Repository<NoteWordError> noteWordErrors;
-        private readonly Repository<UploadedModel> uploadedModels;
         private readonly Repository<User> users;
         private readonly Repository<Role> roles;
         private readonly Repository<UserAction> userActions;
@@ -61,7 +60,6 @@ namespace OCR_API
             noteFiles = new Repository<NoteFile>(dbContext);
             noteLines = new Repository<NoteLine>(dbContext);
             noteWordErrors = new Repository<NoteWordError>(dbContext);
-            uploadedModels = new Repository<UploadedModel>(dbContext);
             userActions = new Repository<UserAction>(dbContext);
             userLogs = new Repository<UserLog>(dbContext);
             shared = new Repository<Shared>(dbContext);
@@ -85,8 +83,6 @@ namespace OCR_API
         public IRepository<NoteLine> NoteLines => noteLines;
 
         public IRepository<NoteWordError> NoteWordErrors => noteWordErrors;
-
-        public IRepository<UploadedModel> UploadedModels => uploadedModels;
 
         public IRepository<UserAction> UserActions => userActions;
 

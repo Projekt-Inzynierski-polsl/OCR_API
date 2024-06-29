@@ -1,6 +1,4 @@
-﻿
-
-using OCR_API.Entities.Inherits;
+﻿using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
 {
@@ -13,6 +11,5 @@ namespace OCR_API.Entities
 
         public virtual User User { get; set; }
         public virtual UserAction Action { get; set; }
-
     }
 }

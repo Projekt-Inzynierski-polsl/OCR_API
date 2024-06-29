@@ -1,24 +1,17 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
-using OCR_API.ModelsDto.NoteFileDtos;
-using OCR_API.ModelsDto.UploadedModelDtos;
 using OCR_API.ModelsDto.UserLogDtos;
 using OCR_API.Specifications;
-using OCR_API.Transactions;
-using System.IO.Compression;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OCR_API.Services
 {
-
     public interface IUserLogService
     {
         public IUnitOfWork UnitOfWork { get; }
+
         PageResults<UserLogDto> Get(GetAllQuery queryParameters, string type, long startTimestamp, long endTimestamp, int userId);
     }
 
@@ -37,7 +30,7 @@ namespace OCR_API.Services
 
         public PageResults<UserLogDto> Get(GetAllQuery queryParameters, string type, long startTimestamp, long endTimestamp, int userId)
         {
-            if(Enum.TryParse(typeof(EUserAction), type, true, out var actionType))
+            if (Enum.TryParse(typeof(EUserAction), type, true, out var actionType))
             {
                 EUserAction action = (EUserAction)actionType;
                 DateTime startDateTime = ConvertTimestampToDateTime(startTimestamp);
@@ -60,5 +53,4 @@ namespace OCR_API.Services
             return dateTime;
         }
     }
-
 }

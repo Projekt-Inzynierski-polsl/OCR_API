@@ -8,6 +8,5 @@ namespace OCR_API.ModelsDto.SharedDtos
         public int ObjectId { get; set; }
         public EShareMode ShareMode { get; set; } = EShareMode.View;
         public string? Password { get; set; }
-
     }
 }

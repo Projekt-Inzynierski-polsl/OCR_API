@@ -1,5 +1,4 @@
 ﻿using OCR_API.Entities;
-using OCR_API.ModelsDto;
 using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.UserTransactions
@@ -16,10 +15,11 @@ namespace OCR_API.Transactions.UserTransactions
             this.userId = userId;
             this.updatedUser = updatedUser;
         }
+
         public void Execute()
         {
             User userToUpdate = repository.GetById(userId);
-            if(updatedUser.Email is not null)
+            if (updatedUser.Email is not null)
             {
                 userToUpdate.Email = updatedUser.Email;
             }
@@ -31,11 +31,10 @@ namespace OCR_API.Transactions.UserTransactions
             {
                 userToUpdate.RoleId = updatedUser.RoleId;
             }
-            if(updatedUser.PasswordHash != null)
+            if (updatedUser.PasswordHash != null)
             {
                 userToUpdate.PasswordHash = updatedUser.PasswordHash;
             }
-
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using OCR_API.Entities;
 using OCR_API.Exceptions;
-using OCR_API.Repositories;
 
 namespace OCR_API.Transactions.NoteTransactions
 {

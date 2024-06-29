@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
@@ -19,7 +19,6 @@ namespace OCR_API.Database.Configurations
                 .WithOne(r => r.File)
                 .HasForeignKey(d => d.FileId)
                 .HasConstraintName("note_word_errors_ibfk_1");
-
         }
     }
 }

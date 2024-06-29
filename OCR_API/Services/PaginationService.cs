@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.EMMA;
 using OCR_API.ModelsDto;
 
 namespace OCR_API.Services
@@ -8,6 +7,7 @@ namespace OCR_API.Services
     {
         PageResults<T> PreparePaginationResults<T, T2>(GetAllQuery queryParameters, IQueryable<T2> query, IMapper mapper);
     }
+
     public class PaginationService : IPaginationService
     {
         public PageResults<T> PreparePaginationResults<T, T2>(GetAllQuery queryParameters, IQueryable<T2> query, IMapper mapper)
@@ -15,7 +15,7 @@ namespace OCR_API.Services
             int resultCount;
             List<T> resultDto;
             PageResults<T> result;
-            if(queryParameters == null || queryParameters.PageNumber == 0 || queryParameters.PageSize == 0)
+            if (queryParameters == null || queryParameters.PageNumber == 0 || queryParameters.PageSize == 0)
             {
                 resultCount = query.Count();
                 resultDto = query.Select(f => mapper.Map<T>(f)).ToList();
@@ -29,7 +29,6 @@ namespace OCR_API.Services
                 resultDto = resultQuery.Select(f => mapper.Map<T>(f)).ToList();
                 result = new PageResults<T>(resultDto, resultCount, queryParameters.PageSize, queryParameters.PageNumber);
             }
-
 
             return result;
         }

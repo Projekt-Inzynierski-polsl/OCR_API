@@ -27,6 +27,7 @@ namespace UnitTests
         private readonly UserActionLogger logger;
         private readonly PaginationService paginationService;
         private readonly IUserContextService userContextService;
+
         public NoteServiceTests()
         {
             unitOfWork = Helper.CreateUnitOfWork();
@@ -54,7 +55,7 @@ namespace UnitTests
             folderService.CreateFolder(addFolderDto);
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
             service.CreateNote(addNoteDto);
             NoteDto noteDto = service.GetById(1);
@@ -63,6 +64,7 @@ namespace UnitTests
             Assert.AreEqual(content, noteDto.Content);
             Assert.AreEqual(1, noteDto.FolderId);
         }
+
         [TestMethod]
         public void CreateNote_WithoutFolder_SuccessfullyCreated()
         {
@@ -73,7 +75,7 @@ namespace UnitTests
             folderService.CreateFolder(addFolderDto);
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = null };
             service.CreateNote(addNoteDto);
             NoteDto noteDto = service.GetById(1);
@@ -83,13 +85,14 @@ namespace UnitTests
             Assert.AreEqual(content, noteDto.Content);
             Assert.AreEqual(0, noteDto.FolderId);
         }
+
         [TestMethod]
         public void CreateNote_WithNonExistentFolder_ValidationFails()
         {
             Helper.RegisterAccount(accountService);
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             int nonExistentFolderId = 999;
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = nonExistentFolderId };
 
@@ -118,7 +121,7 @@ namespace UnitTests
             string content = "Test";
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(addFolderDto);
             int existingFolderId = 1;
@@ -138,12 +141,12 @@ namespace UnitTests
             string content = "Test";
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 2});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 2 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(addFolderDto);
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
             Helper.ChangeIdInIUserContextService(userContextService, 2);
-            AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1};
+            AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
 
             Assert.ThrowsException<BadRequestException>(() => service.CreateNote(addNoteDto));
         }
@@ -157,7 +160,7 @@ namespace UnitTests
             string content = "Test";
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test2", UserId = 1 });
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test3", UserId = 1 });
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test4", UserId = 2 });
@@ -173,7 +176,6 @@ namespace UnitTests
             string content3 = "my3";
             addNoteDto = new AddNoteDto() { Name = noteName3, Content = content3, NoteFileId = 3, FolderId = 1 };
             service.CreateNote(addNoteDto);
-
 
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
             Helper.ChangeIdInIUserContextService(userContextService, 2);
@@ -210,7 +212,7 @@ namespace UnitTests
             string content = "Test";
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = null };
@@ -238,7 +240,7 @@ namespace UnitTests
             string content = "Test";
             string name = "TestFolder";
             string iconPath = "icons/my.png";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = name, IconPath = iconPath };
             folderService.CreateFolder(addFolderDto);
 
@@ -252,8 +254,9 @@ namespace UnitTests
             service.CreateNote(addNoteDto);
 
             Helper.ChangeIdInIUserContextService(userContextService, 1);
-            Assert.ThrowsException<ForbidException>(() => service.DeleteNote(2)); 
+            Assert.ThrowsException<ForbidException>(() => service.DeleteNote(2));
         }
+
         [TestMethod]
         public void UpdateNote_WithValidData_SuccessfullyUpdated()
         {
@@ -262,7 +265,7 @@ namespace UnitTests
             string content = "Test";
             string updatedNoteName = "UpdatedNote";
             bool updatedIsPrivateValue = false;
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
@@ -284,7 +287,7 @@ namespace UnitTests
             string noteName = "TestNote";
             string content = "Test";
             string existingNoteName = "ExistingNote";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test2", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
@@ -306,14 +309,14 @@ namespace UnitTests
             string content = "Test";
             string updatedNoteName = "UpdatedNote";
             bool updatedIsPrivateValue = false;
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
             service.CreateNote(addNoteDto);
             int nonExistentNoteId = 999;
 
-            UpdateNoteDto updateNoteDto = new UpdateNoteDto() { Name = updatedNoteName};
+            UpdateNoteDto updateNoteDto = new UpdateNoteDto() { Name = updatedNoteName };
             Assert.ThrowsException<NotFoundException>(() => service.UpdateNote(nonExistentNoteId, updateNoteDto));
         }
 
@@ -326,7 +329,7 @@ namespace UnitTests
             string updatedNoteName = "UpdatedNote";
             bool updatedIsPrivateValue = false;
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
@@ -351,7 +354,7 @@ namespace UnitTests
 
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddFolderDto addFolderDto2 = new AddFolderDto() { Name = "TestFolder2", IconPath = "icons/my2.png" };
@@ -376,7 +379,7 @@ namespace UnitTests
 
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
@@ -398,7 +401,7 @@ namespace UnitTests
 
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
@@ -419,7 +422,7 @@ namespace UnitTests
             string content = "Test";
             Helper.RegisterAccount(accountService, "testUser2@dto.pl", "TestUser2", "TestPassword");
 
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             Helper.ChangeIdInIUserContextService(userContextService, 2);
@@ -428,7 +431,7 @@ namespace UnitTests
             Helper.ChangeIdInIUserContextService(userContextService, 1);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
             service.CreateNote(addNoteDto);
-            int noteId = 1; 
+            int noteId = 1;
 
             ChangeNoteFolderDto changeNoteFolderDto = new ChangeNoteFolderDto() { FolderId = 2 };
             Assert.ThrowsException<BadRequestException>(() => service.ChangeNoteFolder(noteId, changeNoteFolderDto));
@@ -442,7 +445,7 @@ namespace UnitTests
             string categoryName2 = "Category2";
             NoteCategory noteCategory1 = new NoteCategory() { Name = categoryName1, UserId = 1 };
             NoteCategory noteCategory2 = new NoteCategory() { Name = categoryName2, UserId = 1 };
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             unitOfWork.NoteCategories.Add(noteCategory1);
@@ -470,7 +473,7 @@ namespace UnitTests
             string categoryName = "Category1";
             NoteCategory noteCategory = new NoteCategory() { Name = categoryName, UserId = 1 };
             unitOfWork.NoteCategories.Add(noteCategory);
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             unitOfWork.Commit();
@@ -494,7 +497,7 @@ namespace UnitTests
             Helper.RegisterAccount(accountService);
             string noteName = "TestNote";
             string content = "Test";
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
@@ -513,14 +516,14 @@ namespace UnitTests
             string categoryName = "Category1";
             NoteCategory noteCategory = new NoteCategory() { Name = categoryName, UserId = 1 };
             unitOfWork.NoteCategories.Add(noteCategory);
-            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1});
+            unitOfWork.NoteFiles.Add(new NoteFile() { Path = "test", UserId = 1 });
             AddFolderDto addFolderDto = new AddFolderDto() { Name = "TestFolder", IconPath = "icons/my.png" };
             folderService.CreateFolder(addFolderDto);
             string noteName = "TestNote";
             string content = "Test";
             AddNoteDto addNoteDto = new AddNoteDto() { Name = noteName, Content = content, NoteFileId = 1, FolderId = 1 };
             service.CreateNote(addNoteDto);
-            int noteId = 1; 
+            int noteId = 1;
             int nonExistentCategoryId = 999;
 
             UpdateNoteCategoriesDto updateNoteCategoriesDto = new UpdateNoteCategoriesDto() { CategoriesIds = new int[] { 1, nonExistentCategoryId } };

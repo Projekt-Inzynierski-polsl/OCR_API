@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using OCR_API.Entities.Inherits;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using OCR_API.Entities.Inherits;
 
 namespace OCR_API.Entities
 {

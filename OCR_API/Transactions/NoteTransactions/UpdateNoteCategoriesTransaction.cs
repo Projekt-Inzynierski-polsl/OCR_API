@@ -18,6 +18,7 @@ namespace OCR_API.Transactions.NoteTransactions
             this.userId = userId;
             this.categoriesIds = categoriesIds;
         }
+
         public void Execute()
         {
             List<NoteCategory> categories = new List<NoteCategory>();

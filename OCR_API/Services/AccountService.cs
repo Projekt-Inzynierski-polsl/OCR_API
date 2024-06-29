@@ -1,31 +1,30 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
-using OCR_API.Repositories;
+using OCR_API.Logger;
+using OCR_API.ModelsDto;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.UserTransactions;
-using OCR_API.ModelsDto;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using OCR_API.Logger;
 
 namespace OCR_API.Services
 {
     public interface IAccountService
     {
         IUnitOfWork UnitOfWork { get; }
+
         string RegisterAccount(RegisterUserDto registerUserDto);
+
         string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto);
+
         bool VerifyUserLogPasses(string email, string password, out User? user);
+
         string GetJwtTokenIfValid(string jwtToken);
+
         void Logout(string jwtToken);
     }
+
     public class AccountService : IAccountService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -35,7 +34,7 @@ namespace OCR_API.Services
         private readonly UserActionLogger logger;
         private readonly IUserContextService userContextService;
 
-        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper, 
+        public AccountService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, JwtTokenHelper jwtTokenHelper,
             UserActionLogger logger, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
@@ -50,7 +49,7 @@ namespace OCR_API.Services
         {
             var newUser = mapper.Map<User>(registerUserDto);
             var role = UnitOfWork.Roles.GetById(newUser.RoleId);
-            newUser.Role = role; 
+            newUser.Role = role;
             var hashedPassword = passwordHasher.HashPassword(newUser, registerUserDto.Password);
             newUser.PasswordHash = hashedPassword;
             AddUserTransaction addUserTransaction = new(UnitOfWork.Users, newUser);
@@ -59,12 +58,11 @@ namespace OCR_API.Services
             logger.Log(EUserAction.Registration, addUserTransaction.userToAdd.Id, DateTime.UtcNow);
             var token = jwtTokenHelper.CreateJwtToken(newUser);
             return token;
-
         }
 
         public string TryLoginUserAndGenerateJwt(LoginUserDto loginUserDto)
         {
-            if(VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User? user))
+            if (VerifyUserLogPasses(loginUserDto.Email, loginUserDto.Password, out User? user))
             {
                 var token = jwtTokenHelper.CreateJwtToken(user!);
                 logger.Log(EUserAction.Login, user!.Id, DateTime.UtcNow);
@@ -88,7 +86,6 @@ namespace OCR_API.Services
             var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
             return result == PasswordVerificationResult.Success;
         }
-
 
         public string GetJwtTokenIfValid(string jwtToken)
         {
@@ -115,4 +112,3 @@ namespace OCR_API.Services
         }
     }
 }
-

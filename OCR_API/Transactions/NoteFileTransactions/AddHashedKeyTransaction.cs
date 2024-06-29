@@ -20,11 +20,10 @@ namespace OCR_API.Transactions.NoteFileTransactions
         public void Execute()
         {
             var noteFile = repository.GetById(fileId);
-            if(noteFile is IHasHashedKey file)
+            if (noteFile is IHasHashedKey file)
             {
                 file.HashedKey = hashedKey;
             }
-
         }
     }
 }

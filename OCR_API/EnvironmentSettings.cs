@@ -4,7 +4,7 @@ namespace OCR_API
 {
     public static class EnvironmentSettings
     {
-        public static EEnvironment Environment {  get; set; }
+        public static EEnvironment Environment { get; set; }
         public static EEnvironment ModelEnvironment { get; set; }
     }
 }

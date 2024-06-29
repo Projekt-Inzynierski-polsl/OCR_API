@@ -1,28 +1,29 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using Newtonsoft.Json.Linq;
 using OCR_API.Entities;
-using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.NoteCategoriesDtos;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.NoteCategoriesTransactions;
-using OCR_API.Transactions.NoteTransactions;
 
 namespace OCR_API.Services
 {
     public interface INoteCategoryService
     {
         IUnitOfWork UnitOfWork { get; }
-        PageResults<NoteCategoryDto> GetAllByUser(GetAllQuery queryParameters);
-        NoteCategoryDto GetById(int categoryId);
-        int AddNewCategory(ActionNoteCategoryDto actionNoteCategoryDto);
-        void DeleteCategory(int categoryId);
-        void UpdateCategory(int categoryId, ActionNoteCategoryDto actionNoteCategoryDto);
 
+        PageResults<NoteCategoryDto> GetAllByUser(GetAllQuery queryParameters);
+
+        NoteCategoryDto GetById(int categoryId);
+
+        int AddNewCategory(ActionNoteCategoryDto actionNoteCategoryDto);
+
+        void DeleteCategory(int categoryId);
+
+        void UpdateCategory(int categoryId, ActionNoteCategoryDto actionNoteCategoryDto);
     }
+
     public class NoteCategoryService : INoteCategoryService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -31,7 +32,7 @@ namespace OCR_API.Services
         private readonly IPaginationService queryParametersService;
         private readonly IUserContextService userContextService;
 
-        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, 
+        public NoteCategoryService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
             IPaginationService queryParametersService, IUserContextService userContextService)
         {
             this.UnitOfWork = unitOfWork;

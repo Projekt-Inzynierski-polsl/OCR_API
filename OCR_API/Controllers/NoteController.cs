@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OCR_API.ModelsDto;
 using OCR_API.Services;
@@ -44,7 +43,6 @@ namespace OCR_API.Controllers
         {
             var noteId = noteService.CreateNote(noteToAdd);
             return Created($"api/user/note/{noteId}", noteId);
-
         }
 
         [HttpDelete("{noteId}")]

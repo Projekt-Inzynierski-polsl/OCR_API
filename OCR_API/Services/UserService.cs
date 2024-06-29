@@ -1,14 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OCR_API.DbContexts;
 using OCR_API.Entities;
 using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
-using OCR_API.Repositories;
 using OCR_API.Specifications;
 using OCR_API.Transactions;
 using OCR_API.Transactions.UserTransactions;
@@ -18,12 +13,18 @@ namespace OCR_API.Services
     public interface IUserService
     {
         IUnitOfWork UnitOfWork { get; }
+
         PageResults<UserDto> GetAll(GetAllQuery queryParameters);
+
         UserDto GetById(int id);
+
         UserDto GetLoggedUser();
+
         void UpdateUser(int userId, UpdateUserDto updateUserDto);
+
         void DeleteUser(int userId);
     }
+
     public class UserService : IUserService
     {
         public IUnitOfWork UnitOfWork { get; }
@@ -33,7 +34,7 @@ namespace OCR_API.Services
         private readonly IPaginationService paginationService;
         private readonly IUserContextService userContextService;
 
-        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper, 
+        public UserService(IUnitOfWork unitOfWork, IPasswordHasher<User> passwordHasher, IMapper mapper,
             UserActionLogger logger, IPaginationService paginationService, IUserContextService userContextService)
         {
             UnitOfWork = unitOfWork;
@@ -51,8 +52,8 @@ namespace OCR_API.Services
             var result = paginationService.PreparePaginationResults<UserDto, User>(queryParameters, usersQuery, mapper);
 
             return result;
-
         }
+
         public UserDto GetById(int id)
         {
             var user = UnitOfWork.Users.GetById(id);
@@ -73,7 +74,7 @@ namespace OCR_API.Services
         {
             var adminId = userContextService.GetUserId;
             var updatedUser = mapper.Map<User>(updateUserDto);
-            if(updateUserDto.Password != null)
+            if (updateUserDto.Password != null)
             {
                 var hashedPassword = passwordHasher.HashPassword(updatedUser, updateUserDto.Password);
                 updatedUser.PasswordHash = hashedPassword;
@@ -81,13 +82,14 @@ namespace OCR_API.Services
             UpdateUserTransaction updateUserTransaction = new(UnitOfWork.Users, userId, updatedUser);
             updateUserTransaction.Execute();
             UnitOfWork.Commit();
-            logger.Log(EUserAction.UpdateUser, adminId , DateTime.UtcNow, userId);
+            logger.Log(EUserAction.UpdateUser, adminId, DateTime.UtcNow, userId);
         }
+
         public void DeleteUser(int userId)
         {
             var adminId = userContextService.GetUserId;
             var user = UnitOfWork.Users.GetById(userId);
-            if(user == null)
+            if (user == null)
             {
                 throw new NotFoundException("That user doesn't exist.");
             }
@@ -96,6 +98,5 @@ namespace OCR_API.Services
             UnitOfWork.Commit();
             logger.Log(EUserAction.DeleteUser, adminId, DateTime.UtcNow, userId);
         }
-
     }
 }

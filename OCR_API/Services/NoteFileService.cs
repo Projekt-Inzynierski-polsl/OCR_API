@@ -6,12 +6,9 @@ using OCR_API.Exceptions;
 using OCR_API.Logger;
 using OCR_API.ModelsDto;
 using OCR_API.ModelsDto.BoundingBoxDtos;
-using OCR_API.ModelsDto.NoteCategoriesDtos;
 using OCR_API.ModelsDto.NoteFileDtos;
 using OCR_API.Specifications;
-using OCR_API.Transactions;
 using OCR_API.Transactions.NoteFileTransactions;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace OCR_API.Services
@@ -19,16 +16,22 @@ namespace OCR_API.Services
     public interface INoteFileService
     {
         public IUnitOfWork UnitOfWork { get; }
+
         PageResults<NoteFileDto> GetAllByUser(GetAllQuery queryParameters);
+
         NoteFileDto GetById(int categoryId);
+
         Task<NoteFileDto> UploadFileAsync(UploadFileDto uploadFileDto);
     }
+
     public class NoteFileService : INoteFileService
     {
         private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
         private string[] ALLOWED_FILE_EXTENSIONS = [".png", ".jpg"];
+
         private string OCR_MODEL_URL = EnvironmentSettings.ModelEnvironment == EEnvironment.Development ?
             "http://localhost:8053" : "http://model-ocr-api:5000";
+
         private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
         public IUnitOfWork UnitOfWork { get; }
         private readonly IMapper mapper;
@@ -37,7 +40,7 @@ namespace OCR_API.Services
         private readonly IUserContextService userContextService;
         private readonly ImageCryptographer imageCryptographer;
 
-        public NoteFileService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger, 
+        public NoteFileService(IUnitOfWork unitOfWork, IMapper mapper, UserActionLogger logger,
             IPaginationService paginationService, IUserContextService userContextService, ImageCryptographer imageCryptographer)
         {
             UnitOfWork = unitOfWork;
@@ -70,7 +73,7 @@ namespace OCR_API.Services
         public async Task<NoteFileDto> UploadFileAsync(UploadFileDto uploadFileDto)
         {
             List<BoundingBoxDto> boundingBoxes = await TrySendImageToModelAsync(uploadFileDto);
-            if(boundingBoxes == null)
+            if (boundingBoxes == null)
             {
                 throw new BadRequestException("Empty response from OCR model.");
             }
@@ -153,7 +156,7 @@ namespace OCR_API.Services
             var image = imageCryptographer.ConvertIFormFileToImage(fileImage);
             var encryptedImageWitKey = await imageCryptographer.EncryptImageAsync(image);
             string filePath = Path.Combine(UPLOADED_NOTE_FILE_DICTIONARY_PATH, fileId.ToString() + fileExtension);
-            if(!Directory.Exists(UPLOADED_NOTE_FILE_DICTIONARY_PATH))
+            if (!Directory.Exists(UPLOADED_NOTE_FILE_DICTIONARY_PATH))
             {
                 Directory.CreateDirectory(UPLOADED_NOTE_FILE_DICTIONARY_PATH);
             }

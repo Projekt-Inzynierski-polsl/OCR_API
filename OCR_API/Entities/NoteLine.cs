@@ -1,8 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office.CoverPageProps;
-using OCR_API.ModelsDto;
-
-
-namespace OCR_API.Entities
+﻿namespace OCR_API.Entities
 {
     public class NoteLine : Entity
     {

@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OCR_API.Entities;
 
 namespace OCR_API.Database.Configurations
@@ -21,7 +21,6 @@ namespace OCR_API.Database.Configurations
               .WithMany(r => r.BlackListedTokens)
               .HasForeignKey(d => d.UserId)
               .HasConstraintName("black_listed_tokens_ibfk_1");
-
         }
     }
 }

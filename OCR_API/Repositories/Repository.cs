@@ -18,7 +18,6 @@ namespace OCR_API.Repositories
 
         public DbSet<TEntity> Entity => dbContext.Set<TEntity>();
 
-
         public void Add(TEntity entity)
         {
             Entity.Add(entity);
@@ -35,7 +34,6 @@ namespace OCR_API.Repositories
             {
                 throw new NotFoundException("That entity doesn't exist.");
             }
-
         }
 
         public TEntity GetById(int id)

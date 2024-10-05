@@ -29,8 +29,13 @@ namespace OCR_API.Services
         private const string UPLOADED_NOTE_FILE_DICTIONARY_PATH = "uploaded_files/notes";
         private string[] ALLOWED_FILE_EXTENSIONS = [".png", ".jpg"];
 
-        private string OCR_MODEL_URL = EnvironmentSettings.ModelEnvironment == EEnvironment.Development ?
-            "http://localhost:8053" : "http://model-ocr-api:5000";
+        private string OCR_MODEL_URL = EnvironmentSettings.ModelEnvironment switch
+        {
+            EEnvironment.Debug => "http://localhost:8053",
+            EEnvironment.Production => "https://system-ocr-model-api.azurewebsites.net",
+            _ => "http://model-ocr-api:5000"
+        };
+
 
         private const string OCR_MODEL_UPLOAD_FILE_ENDPOINT = "/upload_image";
         public IUnitOfWork UnitOfWork { get; }

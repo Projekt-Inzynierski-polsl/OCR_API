@@ -76,19 +76,15 @@ namespace OCR_API.Controllers
         [HttpGet("{noteId}/pdf")]
         public ActionResult ExportPdfById(int noteId)
         {
-            string link = noteService.ExportPdfById(noteId);
-            var baseUri = $"{Request.Scheme}://{Request.Host}";
-            var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
-            return Ok(fileUrl);
+            MemoryStream memoryStream = noteService.ExportPdfById(noteId);
+            return File(memoryStream, "application/pdf", $"note-{noteId}.pdf");
         }
 
         [HttpGet("{noteId}/docx")]
         public ActionResult ExportDocxById(int noteId)
         {
-            string link = noteService.ExportDocxById(noteId);
-            var baseUri = $"{Request.Scheme}://{Request.Host}";
-            var fileUrl = new Uri(new Uri(baseUri), link).AbsoluteUri;
-            return Ok(fileUrl);
+            MemoryStream memoryStream = noteService.ExportDocxById(noteId);
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"note-{noteId}.docx");
         }
     }
 }

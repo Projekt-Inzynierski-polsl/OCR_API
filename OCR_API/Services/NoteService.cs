@@ -35,9 +35,9 @@ namespace OCR_API.Services
 
         void UpdateNoteCategories(int noteId, UpdateNoteCategoriesDto updateNoteCategoriesFolderDto);
 
-        string ExportPdfById(int noteId);
+        MemoryStream ExportPdfById(int noteId);
 
-        string ExportDocxById(int noteId);
+        MemoryStream ExportDocxById(int noteId);
     }
 
     public class NoteService : INoteService
@@ -198,24 +198,14 @@ namespace OCR_API.Services
             return note;
         }
 
-        public string ExportDocxById(int noteId)
+        public MemoryStream ExportDocxById(int noteId)
         {
             var userId = userContextService.GetUserId;
             Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteContent = note.Content;
-            var directoryPath = "./wwwroot";
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
+            var memoryStream = new MemoryStream();
 
-            var docxFilePath = $"{directoryPath}/{noteId}.docx";
-            var fullFilePath = Path.GetFullPath(docxFilePath);
-            if (File.Exists(fullFilePath))
-            {
-                return $"/{noteId}.docx";
-            }
-            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(fullFilePath, WordprocessingDocumentType.Document))
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
             {
                 MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
                 mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
@@ -233,37 +223,29 @@ namespace OCR_API.Services
 
                 mainPart.Document.Save();
             }
-            return $"/{noteId}.docx";
+
+            memoryStream.Position = 0;
+            return memoryStream;
         }
 
-        public string ExportPdfById(int noteId)
+        public MemoryStream ExportPdfById(int noteId)
         {
             var userId = userContextService.GetUserId;
             Note note = GetNoteIfBelongsToUser(userId, noteId);
             var noteContent = note.Content;
-            var directoryPath = "./wwwroot";
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
+            var memoryStream = new MemoryStream();
 
-            var pdfFilePath = $"{directoryPath}/{noteId}.pdf";
-            var fullFilePath = Path.GetFullPath(pdfFilePath);
-            if (File.Exists(fullFilePath))
+            using (var document = new iTextSharp.text.Document())
             {
-                return $"/{noteId}.pdf";
-            }
-            using (var stream = new MemoryStream())
-            {
-                var document = new iTextSharp.text.Document();
-                PdfWriter.GetInstance(document, new FileStream(fullFilePath, FileMode.Create));
-
+                PdfWriter.GetInstance(document, memoryStream).CloseStream = false;
                 document.Open();
                 document.Add(new iTextSharp.text.Paragraph(note.Name));
                 document.Add(new iTextSharp.text.Paragraph(noteContent));
                 document.Close();
             }
-            return $"/{noteId}.pdf";
+
+            memoryStream.Position = 0;
+            return memoryStream;
         }
     }
 }

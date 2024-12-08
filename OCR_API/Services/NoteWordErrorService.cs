@@ -161,10 +161,16 @@ namespace OCR_API.Services
         public void DeleteById(int errorId)
         {
             var userId = userContextService.GetUserId;
+            var errorToDelete = UnitOfWork.NoteWordErrors.GetById(errorId);
+            var fileId = errorToDelete.FileId;
             DeleteEntityTransaction<NoteWordError> deleteUserTransaction = new(UnitOfWork.NoteWordErrors, errorId);
             deleteUserTransaction.Execute();
+            DeleteEntityTransaction<ErrorCutFile> deleteFileTransaction = new(UnitOfWork.ErrorCutFiles, fileId);
+            deleteFileTransaction.Execute();
             UnitOfWork.Commit();
             logger.Log(EUserAction.DeleteError, userId, DateTime.Now, errorId);
+            string filePath = Path.Combine(OCR_ERRORS_DIRECTORY_PATH, fileId.ToString() + FILE_EXTENSION);
+            File.Delete(filePath);
         }
 
         public void DeleteAll()
